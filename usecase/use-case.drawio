@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" version="26.0.8">
   <diagram name="페이지-1" id="kUhNcxyiBijBxZDD_5Rj">
-    <mxGraphModel dx="1323" dy="1325" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1764" dy="1767" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -326,6 +326,67 @@
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="90" y="990" as="sourcePoint" />
             <mxPoint x="349" y="1410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-185" value="사용자" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="38" y="1720" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-186" value="여행록" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="1530" width="440" height="460" as="geometry">
+            <mxRectangle x="150" y="80" width="140" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-189" value="여행록 둘러보기" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="fEDJrpbhCHbC24auMyp_-186">
+          <mxGeometry x="70" y="110" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-192" value="여행록 조회" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="fEDJrpbhCHbC24auMyp_-186">
+          <mxGeometry x="70" y="210" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-194" value="&lt;b&gt;include&lt;/b&gt;" style="endArrow=classic;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;dashed=1;" edge="1" parent="fEDJrpbhCHbC24auMyp_-186" source="fEDJrpbhCHbC24auMyp_-190">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="194" y="230" as="sourcePoint" />
+            <mxPoint x="114" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-234" value="여행록 일정&lt;div&gt;가져오기&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="fEDJrpbhCHbC24auMyp_-186">
+          <mxGeometry x="310" y="210" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-235" value="여행록 좋아요" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="fEDJrpbhCHbC24auMyp_-186">
+          <mxGeometry x="310" y="310" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-237" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="fEDJrpbhCHbC24auMyp_-186" source="fEDJrpbhCHbC24auMyp_-192" target="fEDJrpbhCHbC24auMyp_-189">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="150" y="110" as="sourcePoint" />
+            <mxPoint x="200" y="60" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-240" value="&lt;b&gt;include&lt;/b&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fEDJrpbhCHbC24auMyp_-237">
+          <mxGeometry x="-0.1593" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-238" value="&lt;b&gt;incude&lt;/b&gt;" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="fEDJrpbhCHbC24auMyp_-186" source="fEDJrpbhCHbC24auMyp_-234" target="fEDJrpbhCHbC24auMyp_-192">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="120" y="220" as="sourcePoint" />
+            <mxPoint x="120" y="160" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-239" value="" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="fEDJrpbhCHbC24auMyp_-186" source="fEDJrpbhCHbC24auMyp_-235" target="fEDJrpbhCHbC24auMyp_-192">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="320" y="240" as="sourcePoint" />
+            <mxPoint x="160" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-241" value="&lt;b&gt;include&lt;/b&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="fEDJrpbhCHbC24auMyp_-239">
+          <mxGeometry x="-0.0363" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fEDJrpbhCHbC24auMyp_-216" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="fEDJrpbhCHbC24auMyp_-185" target="fEDJrpbhCHbC24auMyp_-189">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="310" y="1810" as="sourcePoint" />
+            <mxPoint x="360" y="1760" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>
