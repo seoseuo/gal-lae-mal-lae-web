@@ -1,3 +1,4 @@
-# use cases
+# use case
 
-![gal-lae-mal-lae-usecase drawio](https://github.com/user-attachments/assets/f33ec83c-9b18-4c0e-9c56-af3edd36576f)
+
+![use-case drawio](https://github.com/user-attachments/assets/c66aa640-baac-45d2-b73e-64f08c034fbb)
