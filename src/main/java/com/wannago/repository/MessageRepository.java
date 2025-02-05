@@ -1,4 +1,5 @@
 package com.wannago.repository;
+import com.wannago.entity.Message;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

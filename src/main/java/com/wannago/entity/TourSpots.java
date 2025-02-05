@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "tour_spots")
-public class TourSpot {
+public class TourSpots {
     @Id
     private Integer contentId;
 
