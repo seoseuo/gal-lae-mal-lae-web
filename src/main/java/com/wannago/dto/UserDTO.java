@@ -1,8 +1,10 @@
 package com.wannago.dto;
 
 import lombok.Data;
+import lombok.Setter;
 
 @Data
+@Setter
 public class UserDTO {
     private int usIdx;
     private String usEmail;
