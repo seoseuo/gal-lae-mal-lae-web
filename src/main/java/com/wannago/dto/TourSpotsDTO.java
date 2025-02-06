@@ -1,5 +1,8 @@
 package com.wannago.dto;
 
+import com.wannago.entity.Cat1;
+import com.wannago.entity.Cat2;
+import com.wannago.entity.Cat3;
 import lombok.Data;
 
 @Data
@@ -22,8 +25,8 @@ public class TourSpotsDTO {
     private String modifiedtime;
     private int ldIdx;
     private int lsIdx;
-    private String cat1;
-    private String cat2;
-    private String cat3;
+    private Cat1 cat1;
+    private Cat2 cat2;
+    private Cat3 cat3;
 }
 

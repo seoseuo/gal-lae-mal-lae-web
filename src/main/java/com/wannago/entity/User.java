@@ -21,8 +21,9 @@ public class User {
     @Column(name = "us_idx", nullable = false)
     private int usIdx;
 
-    @Column(name = "us_name", nullable = false)
-    private int us_name;
+    @Column(name = "us_name", nullable = false, length = 50)
+    private String us_name;
+
     @Column(name = "us_email",nullable = false, length = 50)
     private String usEmail;
 

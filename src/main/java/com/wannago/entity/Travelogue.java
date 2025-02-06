@@ -23,10 +23,13 @@ public class Travelogue {
     private String tlContent;
     @Column(name = "tl_state", nullable = false)
     private Integer tlState;
-    @Column(name = "tr_idx", nullable = false)
+
+    @Column(name = "tr_idx", insertable = false, updatable = false)
     private Integer trIdx;
 
     @ManyToOne
     @JoinColumn(name = "tr_idx")
     private Travel travel;
+
+
 }
