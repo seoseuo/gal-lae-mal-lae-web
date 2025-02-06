@@ -14,12 +14,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Cat3 {
     @Id
+    @Column(name = "cat3",nullable = false)
     private String cat3;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "cat3_title",nullable = false, length = 20)
     private String cat3Title;
 
-    @ManyToOne
-    @JoinColumn(name = "cat2", nullable = false)
-    private Cat2 cat2;
+    @Column(name = "cat2",nullable = false)
+    private String cat2;
 }

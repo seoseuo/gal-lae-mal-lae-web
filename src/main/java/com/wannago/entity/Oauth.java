@@ -1,8 +1,6 @@
 package com.wannago.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,11 +14,16 @@ import lombok.NoArgsConstructor;
 @Table(name = "oauth")
 public class Oauth {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "oa_idx", nullable = false)
     private Integer oaIdx;
 
-    private String type;
+    @Column(name = "oa_type",nullable = false)
+    private String oaType;
 
+    @Column(name = "us_idx",nullable = false)
     private Integer usIdx;
 
+    @Column(name = "oa_id",nullable = false)
     private Long oaId;
 }

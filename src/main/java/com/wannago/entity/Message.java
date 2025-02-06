@@ -16,11 +16,17 @@ import java.time.LocalDateTime;
 @Table(name = "message")
 public class Message {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "msg_idx", nullable = false)
     private Integer msgIdx;
 
+    @Column(name = "msg_sender", nullable = false)
     private Integer msgSender;
+    @Column(name = "msg_reiver", nullable = false)
     private Integer msgReceiver;
+    @Column(name = "msg_Content", nullable = false)
     private String msgContent;
+    @Column(name = "msg_created_at")
     private LocalDateTime msgCreatedAt;
 
     @Enumerated(EnumType.STRING)
