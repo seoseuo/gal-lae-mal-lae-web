@@ -23,12 +23,13 @@ public class Travel {
     @JoinColumn(name = "gr_idx", nullable = false)
     private TravelGroup travelGroup;
 
-    @Column(nullable = false)
+    @Column(name = "tr_start_time",nullable = false)
     private Date trStartTime;
 
-    @Column(nullable = false)
+    @Column(name = "tr_end_time",nullable = false)
     private Date trEndTime;
-
+    @Column(name = "ls_idx", nullable = false)
+    private int lsIdx;
     @ManyToOne
     @JoinColumn(name = "ls_idx", nullable = false)
     private LocationSi locationSi;

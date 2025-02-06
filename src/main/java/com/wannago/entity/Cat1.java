@@ -17,8 +17,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Cat1 {
     @Id
+    @Column(name = "cat1", nullable = false)
     private String cat1;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "cat_title" ,nullable = false, length = 20)
     private String cat1Title;
 }

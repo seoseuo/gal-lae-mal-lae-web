@@ -15,13 +15,11 @@ import lombok.NoArgsConstructor;
 @IdClass(MemberId.class)
 public class Member {
     @Id
-    @ManyToOne
-    @JoinColumn(name = "gr_idx")
-    private TravelGroup travelGroup;
+    @Column(name = "gr_idx", nullable = false)
+    private int grIdx;
     @Id
-    @ManyToOne
-    @JoinColumn(name = "us_idx")
-    private User user;
+    @Column(name = "us_idx")
+    private int usIdx;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

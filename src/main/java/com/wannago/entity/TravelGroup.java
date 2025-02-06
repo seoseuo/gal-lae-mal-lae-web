@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "travel_group")
 @Getter
@@ -15,17 +17,18 @@ import lombok.NoArgsConstructor;
 public class TravelGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "gr_idx", nullable = false)
     private int grIdx;
 
-    @Column(nullable = false, length = 30)
+    @Column(name = "gr_name",nullable = false, length = 30)
     private String grName;
 
-    @Column(nullable = false)
+    @Column(name = "gr_state",nullable = false)
     private int grState;
 
-    @Column(nullable = false)
+    @Column(name = "gr_created_at",nullable = false)
     private Date grCreatedAt;
 
-    @Column(nullable = false)
+    @Column(name = "gr_deleated_at",nullable = false)
     private Date grDeletedAt;
 }

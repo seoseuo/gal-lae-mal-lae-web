@@ -1,8 +1,6 @@
 package com.wannago.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,11 +16,17 @@ import java.time.LocalDateTime;
 @Table(name = "alerts")
 public class Alerts {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "al_idx", nullable = false)
     private Integer alIdx;
-
+    @Column(name = "al_content", nullable = false,length = 200)
     private String alContent;
+    @Column(name = "al_date", nullable = false)
     private LocalDateTime alDate;
+    @Column(name = "al_read", nullable = false)
     private Byte alRead;
+    @Column(name = "al_state", nullable = false)
     private Integer alState;
+    @Column(name = "us_idx", nullable = false)
     private Integer usIdx;
 }

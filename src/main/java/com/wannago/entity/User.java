@@ -18,22 +18,22 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "us_idx", nullable = false)
     private int usIdx;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "us_name", nullable = false)
+    private int us_name;
+    @Column(name = "us_email",nullable = false, length = 50)
     private String usEmail;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "us_pw",nullable = false, length = 100)
     private String usPw;
 
-    @Column(nullable = false)
+    @Column(name="us_join_date", nullable = false)
     private Date usJoinDate;
-
+    @Column(name = "us_leave_date", nullable = false)
     private Date usLeaveDate;
 
-    @Column(nullable = false)
+    @Column(name = "us_state",nullable = false)
     private int usState;
-
-    @OneToMany(mappedBy = "user")
-    private Set<Member> members;
 }
