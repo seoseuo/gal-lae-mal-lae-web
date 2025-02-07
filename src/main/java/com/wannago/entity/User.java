@@ -22,7 +22,7 @@ public class User {
     private int usIdx;
 
     @Column(name = "us_name", nullable = false, length = 50)
-    private String us_name;
+    private String usName;
 
     @Column(name = "us_email",nullable = false, length = 50)
     private String usEmail;
@@ -32,7 +32,8 @@ public class User {
 
     @Column(name="us_join_date", nullable = false)
     private Date usJoinDate;
-    @Column(name = "us_leave_date", nullable = false)
+
+    @Column(name = "us_leave_date", nullable = true)
     private Date usLeaveDate;
 
     @Column(name = "us_state",nullable = false)

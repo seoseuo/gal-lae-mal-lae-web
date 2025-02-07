@@ -19,9 +19,8 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-//    private UserDTO getMyInfo(UserDTO userDTO) {
-//
-//        Optional<User> userOptional = userRepository.findById(userDTO.getUsIdx());
-//        return userOptional.get();
-//    }
+    public UserDTO findByUsIdx(int usIdx) {
+        Optional<User> userOptional = userRepository.findByUsIdx(usIdx);
+        return userOptional.map(userMapper::toDTO).orElse(null);
+    }
 }
