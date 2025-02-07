@@ -20,12 +20,18 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "us_idx", nullable = false)
     private int usIdx;
-
     @Column(name = "us_name", nullable = false, length = 50)
-    private String us_name;
+    private String usName;
+
+    @Column(name = "us_nickname",nullable = false, length = 50)
+    private String usNickname;
+
+    @Column(name = "us_profile", length = 200)
+    private String usProfile;
 
     @Column(name = "us_email",nullable = false, length = 50)
     private String usEmail;
+
 
     @Column(name = "us_pw",nullable = false, length = 100)
     private String usPw;
