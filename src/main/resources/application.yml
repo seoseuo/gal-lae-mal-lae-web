@@ -1,0 +1,35 @@
+spring:
+    application:
+        name: wannago
+    datasource:
+        url: jdbc:mysql://localhost:3306/wannagoDB
+        username: root
+        password: 1234
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        database-platform: org.hibernate.dialect.MySQL8Dialect
+        hibernate:
+            ddl-auto: update
+    mail:
+        host: smtp.naver.com
+        port: 465
+        username: leeshtest@naver.com
+        password: test1234  # 앱 비밀번호로 변경 필요
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    ssl:
+                        enable: true
+                        trust: smtp.naver.com
+                    starttls:
+                        enable: true
+                        required: true    
+    data:
+        redis:
+            host: localhost
+            port: 6379
+
+
+
+

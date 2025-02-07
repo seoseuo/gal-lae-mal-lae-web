@@ -32,7 +32,7 @@ public class User {
 
     @Column(name="us_join_date", nullable = false)
     private Date usJoinDate;
-    @Column(name = "us_leave_date", nullable = false)
+    @Column(name = "us_leave_date")
     private Date usLeaveDate;
 
     @Column(name = "us_state",nullable = false)
