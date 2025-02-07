@@ -33,4 +33,14 @@ public class SignService {
         redisService.setCode(email, code);
         return emailService.sendVerificationEmail(email, code);
     }
+    //회원가입
+    public String signup(UserDTO userDTO) {
+        User user = userRepository.findByUsEmail(userDTO.getUsEmail());
+        if(user != null){
+            return "이미 가입된 이메일입니다."; 
+        }
+        user = userMapper.toEntity(userDTO);
+        userRepository.save(user);
+        return "회원가입이 완료되었습니다.";
+    }
 }
