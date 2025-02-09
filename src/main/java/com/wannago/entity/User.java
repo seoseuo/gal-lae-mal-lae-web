@@ -20,25 +20,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "us_idx", nullable = false)
     private int usIdx;
+
     @Column(name = "us_name", nullable = false, length = 50)
     private String usName;
 
-    @Column(name = "us_nickname",nullable = false, length = 50)
-    private String usNickname;
-
-    @Column(name = "us_profile", length = 200)
-    private String usProfile;
-
     @Column(name = "us_email",nullable = false, length = 50)
     private String usEmail;
-
 
     @Column(name = "us_pw",nullable = false, length = 100)
     private String usPw;
 
     @Column(name="us_join_date", nullable = false)
     private Date usJoinDate;
-    @Column(name = "us_leave_date")
+
+    @Column(name = "us_leave_date", nullable = true)
     private Date usLeaveDate;
 
     @Column(name = "us_state",nullable = false)
