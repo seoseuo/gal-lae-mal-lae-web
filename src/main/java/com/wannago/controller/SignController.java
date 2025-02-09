@@ -1,8 +1,11 @@
 package com.wannago.controller;
 
+import com.wannago.dto.LoginRequest;
+import com.wannago.dto.LoginResponse;
 import com.wannago.dto.ResponseDTO;
 import com.wannago.dto.UserDTO;
 import com.wannago.service.SignService;
+import com.wannago.util.jwt.TokenDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,12 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import org.springframework.web.bind.annotation.RestController;
-
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/sign")
+
 public class SignController {
     @Autowired
     private SignService signService;
@@ -50,6 +54,32 @@ public class SignController {
             signService.signup(userDTO);
             return ResponseEntity.ok(new ResponseDTO(true, "회원가입 완료"));
         }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response){
+        LoginResponse result = signService.login(loginRequest);
+        TokenDto token = signService.createToken(result.getUser());
+        Cookie accessTokenCookie = new Cookie("accessToken", token.getAccessToken());
+        accessTokenCookie.setMaxAge(60*60*24*100);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        Cookie refreshTokenCookie = new Cookie("refreshToken", token.getRefreshToken());
+        refreshTokenCookie.setMaxAge(60*60*24*100);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+        return ResponseEntity.ok(result.getMessage());
+
+
+
+
+
+
+
+
+
     }
 }
 

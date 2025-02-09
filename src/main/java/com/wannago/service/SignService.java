@@ -1,9 +1,11 @@
 package com.wannago.service;
 
 import com.wannago.dto.LoginRequest;
+import com.wannago.dto.LoginResponse;
 import com.wannago.dto.ResponseDTO;
 import com.wannago.dto.UserDTO;
 import com.wannago.entity.User;
+import com.wannago.enums.LoginStatusEnum;
 import com.wannago.mapper.UserMapper;
 import com.wannago.repository.UserRepository;
 import com.wannago.util.CodeGenerator;
@@ -92,21 +94,24 @@ public class SignService {
         return new ResponseDTO(true, "회원가입이 완료되었습니다.");
     }
     //로그인
-    public ResponseDTO login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByUsEmail(loginRequest.getUsEmail());
         if(user == null){
-            return new ResponseDTO(false, "존재하지 않는 이메일입니다.");
+            return new LoginResponse(null,LoginStatusEnum.WRONG_EMAIL.getMessage());
         }
-        if(!passwordEncoder.matches(loginRequest.getUsPw(), user.getUsPw())){
-            return new ResponseDTO(false, "비밀번호가 일치하지 않습니다.");
+        else if(user.getUsState() != 1){
+            return new LoginResponse(null,LoginStatusEnum.WRONG_STATE.getMessage());
         }
-        return new ResponseDTO(true, "로그인이 완료되었습니다.");
+        else if(!passwordEncoder.matches(loginRequest.getUsPw(), user.getUsPw())){
+            return new LoginResponse(null,LoginStatusEnum.WRONG_PASSWORD.getMessage());
+        }
+        else{
+            return new LoginResponse(userMapper.toDTO(user),LoginStatusEnum.LOGIN_SUCCESS.getMessage());
+        }
     }
 
-
-
     //토큰발급
-    public TokenDto createToken(UserDTO userDTO) {
+    public TokenDto createToken(UserDTO userDTO){
         AccessTokenClaims claims = AccessTokenClaims.builder()
                 .usIdx(userDTO.getUsIdx())
                 .usEmail(userDTO.getUsEmail())
@@ -114,10 +119,7 @@ public class SignService {
                 .usProfile(userDTO.getUsProfile())
                 .usState(userDTO.getUsState())
                 .build();
-        TokenDto tokenDto = jwtProvider.createToken(claims);
-        String refreshToken = tokenDto.getRefreshToken();
-        redisService.set(refreshToken, userDTO.getUsEmail(),60*60*24*100);
-        return tokenDto;
+        return jwtProvider.createToken(claims);
     }
 
 
