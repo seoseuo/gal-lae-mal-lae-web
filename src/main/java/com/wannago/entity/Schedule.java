@@ -21,13 +21,14 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer scIdx;
 
-    @Column(name = "sc_date", nullable = false)
+    @Column(name = "sc_date")
     private LocalDate scDate;
-    @Column(name = "sc_start_time",nullable = false)
+    @Column(name = "sc_start_time")
     private LocalTime scStartTime;
-    @Column(name = "sc_end_time",nullable = false)
+    @Column(name = "sc_end_time")
     private LocalTime scEndTime;
     @Column(name = "tr_idx", nullable = false)
+
     private Integer trIdx;
     @Column(name = "contentid", nullable = false)
     private Integer contentid;

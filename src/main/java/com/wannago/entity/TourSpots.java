@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 @Table(name = "tour_spots")
 public class TourSpots {
     @Id
-    @Column(name = "content_id") // Added @Column annotation
+    @Column(name = "content_id",nullable = false) // Added @Column annotation
     private Integer contentid;
 
-    @Column(name = "title") // Added @Column annotation
+    @Column(name = "title",nullable = false) // Added @Column annotation
     private String title;
 
     @Column(name = "first_image") // Added @Column annotation
@@ -62,10 +62,11 @@ public class TourSpots {
     @Column(name = "modified_time") // Added @Column annotation
     private String modifiedtime;
 
-    @Column(name = "ld_idx") // Added @Column annotation
+    @Column(name = "ld_idx")
     private Integer ldIdx;
 
-    @Column(name = "ls_idx") // Added @Column annotation
+
+    @Column(name = "ls_idx")
     private Integer lsIdx;
 
     @ManyToOne
@@ -79,4 +80,13 @@ public class TourSpots {
     @ManyToOne
     @JoinColumn(name = "cat3")
     private Cat3 cat3;
+
+    @ManyToOne
+    @JoinColumn(name = "ls_idx",insertable = false, updatable = false)
+    private LocationSi locationSi;
+
+
+    @ManyToOne
+    @JoinColumn(name = "ld_idx",insertable = false, updatable = false)
+    private LocationDo locationDo;
 }
