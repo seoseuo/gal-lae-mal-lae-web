@@ -17,107 +17,59 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+
 import java.util.ArrayList;
-import java.util.Base64;
+
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.wannago.util.jwt.JwtProvider;
+import com.wannago.util.jwt.AccessTokenClaims;
 
 @Log4j2
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    // 임의로 만든 시크릿 키 입니다.
-    private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(
-            Decoders.BASE64.decode(Base64.getEncoder().encodeToString("wannago-secret-key-extend-this-key-to-be-long-enough".getBytes(StandardCharsets.UTF_8)))
-    );
+    @Autowired
+    private JwtProvider jwtProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
 
         // 요청 헤더에서 "Authorization" 값 가져오기
         String authorizationHeader = request.getHeader("Authorization");
 
         // 1️⃣ 헤더가 없거나 "Bearer "로 시작하지 않으면 필터를 통과시키고 끝냄
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
             return; // 필터 종료
         }
 
         // 2️⃣ "Bearer " 이후의 JWT 토큰 추출
         String token = authorizationHeader.substring(7).trim();
 
+        log.info("JwtAuthenticationFilter {}", token);
 
-        // log.info("JwtAuthenticationFilter {}", token);
+        AccessTokenClaims accessTokenClaims = jwtProvider.getAccessTokenClaims(token, response);
 
-        try {
-            // 3️⃣ JWT 검증 및 사용자 정보 추출
-            Claims claims = Jwts.parser()
-                    .verifyWith((SecretKey) SECRET_KEY) // 새로운 메서드 사용
-                    .build().parseSignedClaims(token)
-                    .getPayload();
+        log.info("accessTokenClaims {}", accessTokenClaims);
 
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsIdx(accessTokenClaims.getUsIdx());
+        userDTO.setUsEmail(accessTokenClaims.getUsEmail());
+        userDTO.setUsName(accessTokenClaims.getUsName());
+        userDTO.setUsProfile(accessTokenClaims.getUsProfile());
+        userDTO.setUsState(accessTokenClaims.getUsState());
 
-            UserDTO userDTO = new UserDTO();
-            userDTO.setUsIdx(claims.get("usIdx", Integer.class)); // 회원 고유 ID (usIdx)
-            userDTO.setUsName(claims.get("usName", String.class));   // 사용자 이름
-            userDTO.setUsEmail(claims.get("usEmail", String.class)); // 이메일
-            userDTO.setUsState(claims.get("usState", Integer.class)); // 사용자 상태
-            String role = claims.get("role", String.class);
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("USER_ROLE"));
 
-            //userDTO.setUsJoinDate(String.valueOf(claims.get("iat"))); // 가입일 (Epoch 형식 -> String으로 변환)
-            //userDTO.setUsLeaveDate(claims.get("exp", String.class)); //
-
-            // 4️⃣ 인증 객체 생성 및 SecurityContext에 저장
-            List<GrantedAuthority> authorities = new ArrayList<>();
-
-            if (role.equals("USER_ROLE")) {
-                authorities.add(new SimpleGrantedAuthority("USER_ROLE"));  // role을 권한으로 변환
-            }
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDTO, null, authorities);
-            log.info("Authentication : {}", authentication);
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            log.info("USER : {}", userDTO);
-            log.info("ROLE : {}", role);
-
-        } catch (ExpiredJwtException e) {
-            log.info("Token has expired: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Handle expired token
-            response.setContentType("application/json");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"Token has expired.\"}";
-            response.getWriter().write(jsonResponse);
-            return;
-        } catch (MalformedJwtException e) {
-            log.info("Invalid JWT token format: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Handle invalid JWT format
-            response.setContentType("application/json");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"Invalid JWT token format.\"}";
-            response.getWriter().write(jsonResponse);
-            return;
-        } catch (SignatureException e) {
-            log.info("Invalid JWT signature: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Handle invalid signature
-            response.setContentType("application/json");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"Invalid JWT signature.\"}";
-            response.getWriter().write(jsonResponse);
-            return;
-        } catch (JwtException e) {
-            log.info("JWT-related exception occurred: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Handle other JWT-related exceptions
-            response.setContentType("application/json");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"A JWT-related exception occurred.\"}";
-            response.getWriter().write(jsonResponse);
-            return;
-        }
-
-
-        // 6️⃣ 다음 필터로 요청 전달
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDTO, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    
         filterChain.doFilter(request, response);
     }
 }
