@@ -10,6 +10,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     // usIdx를 통해 User 정보를 가져오는 메서드
     Optional<User> findByUsIdx(int usIdx);
+    User findByUsEmail(String usEmail);
+
 
     // usIdx를 통해 User 정보를 수정하는 메서드
     @Modifying
