@@ -23,4 +23,8 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByUsIdx(usIdx);
         return userOptional.map(userMapper::toDTO).orElse(null);
     }
+
+    public void updateUsNameByUsIdx(int usIdx, String usName) {
+        userRepository.updateUsNameByUsIdx(usIdx, usName);
+    }
 }

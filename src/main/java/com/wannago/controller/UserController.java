@@ -2,13 +2,14 @@ package com.wannago.controller;
 
 import com.wannago.service.UserService;
 import com.wannago.dto.UserDTO;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/users/me")
 public class UserController {
 
     private final UserService userService;
@@ -19,26 +20,21 @@ public class UserController {
     }
 
     // 내 정보 조회
-    @GetMapping("/me")
-    public UserDTO getMyInfo(HttpSession session) {
-        // 로그인 후 session에 회원 객체 데이터가 있다고 가정, 통합 시 하단 코드는 삭제 해야 합니다.
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsIdx(1);
-        session.setAttribute("user", userDTO);
-        // 로그인 후 session에 회원 객체 데이터가 있다고 가정, 통합 시 하단 코드는 삭제 해야 합니다.
-
-        // 세션에서 현재 로그인 한 user객체 정보 꺼내기
-        userDTO = (UserDTO) session.getAttribute("user");
-        return userService.findByUsIdx(userDTO.getUsIdx());
+    @GetMapping
+    public ResponseEntity<UserDTO> getMyInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDTO userDTO = (UserDTO) authentication.getPrincipal();
+        return ResponseEntity.ok(userService.findByUsIdx(userDTO.getUsIdx()));
     }
 
-//
-//    // 닉네임 수정
-//    @PatchMapping("/me/name/{num}")
-//    public ResponseEntity<String> updateNickname(@PathVariable int num, @RequestParam String nickname) {
-//        userService.updateNickname(num, nickname);
-//        return ResponseEntity.ok("Nickname updated successfully");
-//    }
+
+   // 이름 수정
+   @PatchMapping("/name")
+    public ResponseEntity<String> updateName(@RequestBody UserDTO userDTO) {
+    userService.updateUsNameByUsIdx(userDTO.getUsIdx(), userDTO.getUsName());
+    return ResponseEntity.ok("Name updated successfully");
+}
+
 //
 //    // 비밀번호 변경
 //    @PatchMapping("/me/password")
