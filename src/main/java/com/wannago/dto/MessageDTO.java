@@ -1,14 +1,20 @@
 package com.wannago.dto;
 
 import lombok.Data;
+import java.time.LocalDateTime;
+import com.wannago.types.MsgRead;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MessageDTO {
-    private int msgIdx;
-    private int msgSender;
-    private int msgReceiver;
+    private Integer msgIdx;
+    private Integer msgSender;
+    private Integer msgReceiver;
     private String msgContent;
-    private String msgCreatedAt;
-    private String msgRead;
-    private int msgState;
+    private LocalDateTime msgCreatedAt;
+    private MsgRead msgRead;
+    private Byte msgState;
 }

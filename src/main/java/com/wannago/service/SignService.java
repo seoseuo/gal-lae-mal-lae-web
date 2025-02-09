@@ -13,6 +13,7 @@ import com.wannago.util.jwt.JwtProvider;
 import com.wannago.util.jwt.TokenDto;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -73,10 +74,9 @@ public class SignService {
     //이메일 인증여부 확인
     public boolean isEmailVerified(String email) {
         String verified = redisService.get(email);
-        if(verified.equals("true")){
-            return true;
-        }
-        return false;
+        String trueValue = "true";
+        return trueValue.equals(verified);
+
     }
 
 
@@ -84,10 +84,11 @@ public class SignService {
     public ResponseDTO signup(UserDTO userDTO) {
         String encodedPassword = passwordEncoder.encode(userDTO.getUsPw());
         userDTO.setUsPw(encodedPassword);
-        userDTO.setUsJoinDate(LocalDateTime.now().toString());
+        userDTO.setUsJoinDate(new Date());
         userDTO.setUsState(1);
         User user = userMapper.toEntity(userDTO);
         userRepository.save(user);
+
         return new ResponseDTO(true, "회원가입이 완료되었습니다.");
     }
     //로그인
