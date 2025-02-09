@@ -24,9 +24,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 비활성화
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users").hasAuthority("ROLE_USER") // 특정 경로 권한 설정
-                        .anyRequest().authenticated()) // 그 외 요청은 인증 필요
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
-
+                        .anyRequest().permitAll()) // 그 외 요청 권한 모두 허가
+                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
         return http.build();
     }
 }
