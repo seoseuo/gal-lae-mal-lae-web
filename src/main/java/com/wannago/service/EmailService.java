@@ -7,6 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import com.wannago.dto.ResponseDTO;
 import com.wannago.util.CodeGenerator;
 
 import jakarta.mail.MessagingException;
@@ -40,7 +41,7 @@ public class EmailService {
         }
     }
 
-    public String sendVerificationEmail(String email,String code) {
+    public void sendVerificationEmail(String email,String code) {
         String subject = "본인확인 인증코드 입니다!";
         StringBuffer sb = new StringBuffer();
         sb.append("<div style='width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; background-color: #f9f9f9;'>");
@@ -55,7 +56,8 @@ public class EmailService {
         sb.append("</div>");
         String content = sb.toString();
         sendEmail(email, subject, content);
-        return "인증코드가 발송되었습니다.";
     }
     
+
+
 }

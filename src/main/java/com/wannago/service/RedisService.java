@@ -13,20 +13,27 @@ import org.springframework.stereotype.Service;
 public class RedisService {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-    //email을 key값 code를 value로 하여 3분동안 저장한다.
-    public void setCode(String email,String code){
+    //key값 code를 value로 하여 3분동안 저장한다.
+    public void set(String key,String value,int seconds){
         ValueOperations<String, Object> valOperations = redisTemplate.opsForValue();
         //만료기간 3분
-        valOperations.set(email,code,180, TimeUnit.SECONDS);
+        valOperations.set(key,value,seconds, TimeUnit.SECONDS);
     }
-    
+
     //key값인 email에 있는 value를 가져온다.
-    public String getCode(String email){
+    public String get(String key) {
+        if (key == null || key.trim().isEmpty()) {
+            throw new IllegalArgumentException("키 값이 비어있습니다");
+        }
         ValueOperations<String, Object> valOperations = redisTemplate.opsForValue();
-        Object code = valOperations.get(email);
-        if(code == null){
-            return "인증코드가 존재하지 않습니다.";
+        Object code = valOperations.get(key);
+        if (code == null) {
+            return null;
         }
         return code.toString();
+    }
+    //key값인 email에 있는 value를 삭제한다.
+    public void delete(String key){
+        redisTemplate.delete(key);
     }
 }
