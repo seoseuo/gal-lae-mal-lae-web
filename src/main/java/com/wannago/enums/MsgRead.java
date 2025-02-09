@@ -1,4 +1,4 @@
-package com.wannago.types;
+package com.wannago.enums;
 
 public enum MsgRead {
     READ, UNREAD

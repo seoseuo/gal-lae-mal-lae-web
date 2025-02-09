@@ -2,7 +2,9 @@ package com.wannago.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;
-import com.wannago.types.MsgRead;
+
+import com.wannago.enums.MsgRead;
+
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 

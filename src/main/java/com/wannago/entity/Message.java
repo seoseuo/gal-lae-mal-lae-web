@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
-import com.wannago.types.MsgRead;
+import com.wannago.enums.MsgRead;
 
 @Getter
 @NoArgsConstructor
