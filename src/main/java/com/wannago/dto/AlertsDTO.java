@@ -1,13 +1,14 @@
 package com.wannago.dto;
 
 import lombok.Data;
+import java.time.LocalDateTime;
 
 @Data
 public class AlertsDTO {
-    private int alIdx;
+    private Integer alIdx;
     private String alContent;
-    private String alDate;
-    private int alRead;
-    private int alState;
-    private int usIdx;
+    private LocalDateTime alDate;
+    private Byte alRead;
+    private Integer alState;
+    private Integer usIdx;
 }

@@ -24,8 +24,12 @@ public class User {
     @Column(name = "us_name", nullable = false, length = 50)
     private String usName;
 
+    @Column(name = "us_profile", length = 200)
+    private String usProfile;
+
     @Column(name = "us_email",nullable = false, length = 50)
     private String usEmail;
+
 
     @Column(name = "us_pw",nullable = false, length = 100)
     private String usPw;

@@ -1,17 +1,21 @@
 package com.wannago.dto;
 
 import lombok.Data;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDTO {
     private int usIdx;
-    private String usEmail;
     private String usName;
-    private String usPw;
     private String usProfile;
-    private String usJoinDate;
-    private String usLeaveDate;
+    private String usEmail;
+    private String usPw;
+    private Date usJoinDate;
+    private Date usLeaveDate;
     private int usState;
 }
