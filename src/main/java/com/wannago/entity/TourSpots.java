@@ -62,10 +62,11 @@ public class TourSpots {
     @Column(name = "modified_time") // Added @Column annotation
     private String modifiedtime;
 
-    @Column(name = "ld_idx",nullable = false) // Added @Column annotation
+    @Column(name = "ld_idx")
     private Integer ldIdx;
 
-    @Column(name = "ls_idx",nullable = false) // Added @Column annotation
+
+    @Column(name = "ls_idx")
     private Integer lsIdx;
 
     @ManyToOne
@@ -81,10 +82,11 @@ public class TourSpots {
     private Cat3 cat3;
 
     @ManyToOne
-    @JoinColumn(name = "ls_idx")
+    @JoinColumn(name = "ls_idx",insertable = false, updatable = false)
     private LocationSi locationSi;
 
+
     @ManyToOne
-    @JoinColumn(name = "ld_idx")
+    @JoinColumn(name = "ld_idx",insertable = false, updatable = false)
     private LocationDo locationDo;
 }
