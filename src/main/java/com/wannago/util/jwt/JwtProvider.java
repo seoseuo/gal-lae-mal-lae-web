@@ -85,19 +85,22 @@ public class JwtProvider {
         Claims payload = Jwts.parserBuilder()
                 .setSigningKey(getSecretKey())
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(token)    
                 .getBody();
 
-        Integer idx = payload.get("IDX", Integer.class);
-        String email = payload.get("EMAIL", String.class);
-        String name = payload.get("NAME", String.class);
-        String img = payload.get("IMG", String.class);
+        Integer idx = payload.get("USIDX", Integer.class);
+        String email = payload.get("US_EMAIL", String.class);
+        String name = payload.get("US_NAME", String.class);
+        String img = payload.get("US_PROFILE", String.class);
+        int state = payload.get("US_STATE", Integer.class);
+
 
         return AccessTokenClaims.builder()
                 .usIdx(idx)
                 .usEmail(email)
                 .usName(name)
                 .usProfile(img)
+                .usState(state)
                 .build();
 
     }

@@ -15,7 +15,8 @@ import lombok.Setter;
 public class LoginRequest extends UserDTO  {
     @NotBlank
     @Email
-    private String usId;
+    private String usEmail;
     @NotBlank
-    private String usPw;
+    private String usPassword;
+
 }

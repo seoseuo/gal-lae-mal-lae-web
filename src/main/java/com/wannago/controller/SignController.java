@@ -39,7 +39,7 @@ public class SignController {
     
     @PostMapping("/")
     public ResponseEntity<ResponseDTO> signup(@RequestBody UserDTO userDTO){
-        if(signService.isEmailVerified(userDTO.getUsEmail())){
+        if(!signService.isEmailVerified(userDTO.getUsEmail())){
             //이메일 인증이 필요합니다.
             return ResponseEntity.ok(new ResponseDTO(false,  "이메일 인증이 필요합니다."));
         }else if(signService.isEmailExist(userDTO.getUsEmail())){
