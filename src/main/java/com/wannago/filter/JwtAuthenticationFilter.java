@@ -20,7 +20,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -88,34 +87,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("ROLE : {}", role);
 
         } catch (ExpiredJwtException e) {
-            log.info("토큰이 만료되었습니다: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 만료된 토큰 처리
+            log.info("Token has expired: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Handle expired token
             response.setContentType("application/json");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"토큰이 만료되었습니다.\"}";
+            String jsonResponse = "{\"status\":\"error\", \"message\":\"Token has expired.\"}";
             response.getWriter().write(jsonResponse);
             return;
         } catch (MalformedJwtException e) {
-            log.info("잘못된 JWT 토큰 형식입니다: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 잘못된 JWT 형식
+            log.info("Invalid JWT token format: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Handle invalid JWT format
             response.setContentType("application/json");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"잘못된 JWT 토큰 형식입니다.\"}";
+            String jsonResponse = "{\"status\":\"error\", \"message\":\"Invalid JWT token format.\"}";
             response.getWriter().write(jsonResponse);
             return;
         } catch (SignatureException e) {
-            log.info("유효하지 않은 JWT 서명입니다: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 서명 오류 처리
+            log.info("Invalid JWT signature: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Handle invalid signature
             response.setContentType("application/json");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"유효하지 않은 JWT 서명입니다.\"}";
+            String jsonResponse = "{\"status\":\"error\", \"message\":\"Invalid JWT signature.\"}";
             response.getWriter().write(jsonResponse);
             return;
         } catch (JwtException e) {
-            log.info("JWT 관련 예외가 발생했습니다: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // JWT 관련 다른 예외 처리
+            log.info("JWT-related exception occurred: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Handle other JWT-related exceptions
             response.setContentType("application/json");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"JWT 관련 예외가 발생했습니다.\"}";
+            String jsonResponse = "{\"status\":\"error\", \"message\":\"A JWT-related exception occurred.\"}";
             response.getWriter().write(jsonResponse);
             return;
         }
+
 
         // 6️⃣ 다음 필터로 요청 전달
         filterChain.doFilter(request, response);
