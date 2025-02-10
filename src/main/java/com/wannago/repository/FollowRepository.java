@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import com.wannago.entity.User;
 
+
 public interface FollowRepository extends JpaRepository<Follow, Integer> {
     // usIdx를 통해 User가 팔로우 하는 목록을 가져오는 메서드
     // 팔로우 목록 조회 시 사용

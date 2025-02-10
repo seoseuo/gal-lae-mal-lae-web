@@ -10,14 +10,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.extern.log4j.Log4j2;
 import java.util.Map;
 import java.util.List;
-
+import org.springframework.web.multipart.MultipartFile;
 @Log4j2
 @RestController
 @RequestMapping("/users/me")
 public class UserController {
-
+    
     private final UserService userService;
-
+    
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -78,12 +78,19 @@ public class UserController {
         log.info("followList : {}", followList);
         return ResponseEntity.ok(followList);
     }
-}
 
-//
-// // 다녀온 여행지 목록 조회
-// @GetMapping("/me/travel-history")
-// public List<String> getTravelHistory() {
-// return userService.getTravelHistory();
-// }
-//
+    // 프로필 이미지 수정
+    // multipart/form-data 형식으로 파일 업로드
+    @PatchMapping("/profile")
+    public ResponseEntity<String> updateProfile(@RequestParam("usProfile") MultipartFile file) {
+        log.info("/users/me/profile 호출");
+        log.info("파일명: {}", file.getOriginalFilename());
+        log.info("파일 크기: {} bytes", file.getSize());
+        log.info("파일 타입: {}", file.getContentType());
+
+        userService.updateUsProfileByUsIdx(getUserFromAuthentication().getUsIdx(), file);
+        
+        return ResponseEntity.ok("프로필 이미지 수정에 성공하였습니다.");
+    }
+
+}

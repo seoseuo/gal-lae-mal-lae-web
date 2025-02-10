@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     // usIdx를 통해 User 정보를 가져오는 메서드
@@ -17,7 +18,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     // usIdx 목록을 통해 User 목록을 가져오는 메서드
     List<User> findByUsIdxInAndUsState(List<Integer> usIdxs, int usState);
 
-    // usIdx를 통해 User 이름을 수정하는 메서드 
+    // usIdx를 통해 User 이름을 수정하는 메서드
     // 이름 수정 시 사용
     @Transactional
     @Modifying
@@ -38,5 +39,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Modifying
     @Query("UPDATE User u SET u.usPw = :usPw WHERE u.usIdx = :usIdx")
     void updateUsPwByUsIdx(@Param("usIdx") int usIdx, @Param("usPw") String usPw);
-    
+
+    // usIdx를 통해 User 프로필 이미지를 수정하는 메서드
+    // 프로필 이미지 수정 시 사용
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.usProfile = :usProfile WHERE u.usIdx = :usIdx")
+    void updateUsProfileByUsIdx(@Param("usIdx") int usIdx, @Param("usProfile") String usProfile);
 }
