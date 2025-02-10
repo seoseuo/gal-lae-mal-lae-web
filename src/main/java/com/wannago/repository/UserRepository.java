@@ -11,12 +11,29 @@ import org.springframework.transaction.annotation.Transactional;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     // usIdx를 통해 User 정보를 가져오는 메서드
+    // 내 정보 조회 시 사용
     Optional<User> findByUsIdx(int usIdx);
 
-    // usIdx를 통해 User 정보를 수정하는 메서드
+    // usIdx를 통해 User 이름을 수정하는 메서드 
+    // 이름 수정 시 사용
     @Transactional
     @Modifying
     @Query("UPDATE User u SET u.usName = :usName WHERE u.usIdx = :usIdx")
     void updateUsNameByUsIdx(@Param("usIdx") int usIdx, @Param("usName") String usName);
+
+    // usName을 통해 User 정보를 가져오는 메서드
+    // 중복 체크 시 사용
+    Optional<User> findByUsName(String usName);
+
+    // usEmail을 통해 User 정보를 가져오는 메서드
+    // 로그인 시 사용
+    User findByUsEmail(String usEmail);
+
+    // usIdx를 통해 User 비밀번호를 수정하는 메서드
+    // 비밀번호 변경 시 사용
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.usPw = :usPw WHERE u.usIdx = :usIdx")
+    void updateUsPwByUsIdx(@Param("usIdx") int usIdx, @Param("usPw") String usPw);
     
 }
