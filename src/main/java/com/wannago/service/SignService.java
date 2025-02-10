@@ -6,6 +6,7 @@ import com.wannago.dto.ResponseDTO;
 import com.wannago.dto.UserDTO;
 import com.wannago.entity.User;
 import com.wannago.enums.LoginStatusEnum;
+import com.wannago.enums.SignupMsgEnum;
 import com.wannago.enums.VerificationStateEnum;
 import com.wannago.mapper.UserMapper;
 import com.wannago.repository.UserRepository;
@@ -124,5 +125,19 @@ public class SignService {
                 .usState(userDTO.getUsState())
                 .build();
         return jwtProvider.createToken(claims);
+    }
+    //비밀번호 변경
+    public ResponseDTO changePassword(String email, String password){
+        User user = userRepository.findByUsEmail(email);
+        User updatedUser = User.builder()
+                .usPw(passwordEncoder.encode(password))
+                .usEmail(user.getUsEmail())
+                .usName(user.getUsName())
+                .usJoinDate(user.getUsJoinDate())
+                .usState(user.getUsState())
+                .build();
+        userRepository.save(updatedUser);
+        return new ResponseDTO(true, SignupMsgEnum.PASSWORD_CHANGE_SUCCESS.getMessage());
+
     }
 }

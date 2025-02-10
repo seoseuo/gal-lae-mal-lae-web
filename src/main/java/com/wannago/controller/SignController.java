@@ -5,12 +5,16 @@ import com.wannago.dto.LoginResponse;
 import com.wannago.dto.ResponseDTO;
 import com.wannago.dto.UserDTO;
 import com.wannago.enums.LoginStatusEnum;
+import com.wannago.enums.SignupMsgEnum;
+import com.wannago.enums.VerificationStateEnum;
 import com.wannago.service.SignService;
 import com.wannago.util.jwt.TokenDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,18 +46,21 @@ public class SignController {
         return ResponseEntity.ok(result);
     }
     
-    @PostMapping("/signup")
+    @PostMapping("/users")
     public ResponseEntity<ResponseDTO> signup(@RequestBody UserDTO userDTO){
         if(!signService.isEmailVerified(userDTO.getUsEmail())){
             //이메일 인증이 필요합니다.
-            return ResponseEntity.ok(new ResponseDTO(false,  "이메일 인증이 필요합니다."));
+            return ResponseEntity.ok(new ResponseDTO(false, SignupMsgEnum.EMAIL_VERIFICATION_REQUIRED.getMessage()));
         }else if(signService.isEmailExist(userDTO.getUsEmail())){
+
             //이미 가입된 이메일입니다.
-            return ResponseEntity.ok(new ResponseDTO(false, "이미 가입된 이메일입니다."));
+            return ResponseEntity.ok(new ResponseDTO(false, SignupMsgEnum.EMAIL_ALREADY_EXISTS.getMessage()));
         }else{
             //회원가입 완료
             signService.signup(userDTO);
-            return ResponseEntity.ok(new ResponseDTO(true, "회원가입 완료"));
+
+            return ResponseEntity.ok(new ResponseDTO(true, SignupMsgEnum.SIGNUP_SUCCESS.getMessage()));
+
         }
     }
 
@@ -88,7 +95,15 @@ public class SignController {
         response.addCookie(refreshTokenCookie);
         return ResponseEntity.ok(new ResponseDTO(true, LoginStatusEnum.LOGOUT_SUCCESS.getMessage()));
     }
-
+    //비밀번호 변경
+    @PutMapping("/users/password")
+    public ResponseEntity<ResponseDTO> changePassword(@RequestParam("email") String email, @RequestParam("password") String password){
+        if(!signService.isEmailVerified(email)){
+            return ResponseEntity.ok(new ResponseDTO(false, VerificationStateEnum.VERIFICATION_FAILED.getMessage()));
+        }
+        ResponseDTO result = signService.changePassword(email, password);
+        return ResponseEntity.ok(result);
+    }
 
 }
 

@@ -14,4 +14,5 @@ public enum VerificationStateEnum {
 
     public String getMessage() {
         return message;
+    }
 }
