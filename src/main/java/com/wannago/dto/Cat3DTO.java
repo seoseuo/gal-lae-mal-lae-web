@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Cat3DTO {
-    private String cat3;
-    private String cat3Title;
-    private String cat2;
+    private String c3Code;
+    private String c3Name;
+    private String c2Code;
 }
