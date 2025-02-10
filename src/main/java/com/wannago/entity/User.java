@@ -25,6 +25,7 @@ public class User {
     private String usName;
 
     @Column(name = "us_profile", length = 200)
+    @Builder.Default
     private String usProfile = "profile.png";
 
     @Column(name = "us_email",nullable = false, length = 50)
