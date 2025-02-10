@@ -4,6 +4,7 @@ import com.wannago.dto.LoginRequest;
 import com.wannago.dto.LoginResponse;
 import com.wannago.dto.ResponseDTO;
 import com.wannago.dto.UserDTO;
+import com.wannago.enums.LoginStatusEnum;
 import com.wannago.service.SignService;
 import com.wannago.util.jwt.TokenDto;
 
@@ -41,7 +42,7 @@ public class SignController {
         return ResponseEntity.ok(result);
     }
     
-    @PostMapping("/")
+    @PostMapping("/signup")
     public ResponseEntity<ResponseDTO> signup(@RequestBody UserDTO userDTO){
         if(!signService.isEmailVerified(userDTO.getUsEmail())){
             //이메일 인증이 필요합니다.
@@ -71,15 +72,23 @@ public class SignController {
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
         return ResponseEntity.ok(result.getMessage());
-
-
-
-
-
-
-
-
-
     }
+    //로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseDTO> logout(HttpServletResponse response){
+        Cookie accessTokenCookie = new Cookie("accessToken", null);
+        accessTokenCookie.setMaxAge(0);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        refreshTokenCookie.setMaxAge(0);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+        return ResponseEntity.ok(new ResponseDTO(true, LoginStatusEnum.LOGOUT_SUCCESS.getMessage()));
+    }
+
+
 }
 
