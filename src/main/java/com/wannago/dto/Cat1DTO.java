@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class Cat1DTO {
-    private String cat1;
-    private String cat1Title;
+    private String c1Code;
+    private String c1Name;
 }

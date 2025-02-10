@@ -14,53 +14,69 @@ import lombok.NoArgsConstructor;
 @Table(name = "tour_spots")
 public class TourSpots {
     @Id
-    @Column(name = "content_id",nullable = false) // Added @Column annotation
-    private Integer contentid;
+    @Column(name = "ts_idx",nullable = false) // Added @Column annotation
+    private Integer tsIdx;
 
-    @Column(name = "title",nullable = false) // Added @Column annotation
-    private String title;
 
-    @Column(name = "first_image") // Added @Column annotation
-    private String firstimage;
+    @Column(name = "ts_name",nullable = false) // Added @Column annotation
+    private String tsName;
 
-    @Column(name = "first_image2") // Added @Column annotation
-    private String firstimage2;
 
-    @Column(name = "mapx") // Added @Column annotation
-    private Float mapx;
+    @Column(name = "ts_first_image") // Added @Column annotation
+    private String tsFirstImage;
 
-    @Column(name = "mapy") // Added @Column annotation
-    private Float mapy;
 
-    @Column(name = "mlevel") // Added @Column annotation
-    private Byte mlevel;
+    @Column(name = "ts_first_image2") // Added @Column annotation
+    private String tsFirstImage2;
 
-    @Column(name = "addr1") // Added @Column annotation
-    private String addr1;
 
-    @Column(name = "addr2") // Added @Column annotation
-    private String addr2;
+    @Column(name = "ts_mapx") // Added @Column annotation
+    private Float tsMapx;
 
-    @Column(name = "zipcode") // Added @Column annotation
-    private String zipcode;
 
-    @Column(name = "tel") // Added @Column annotation
-    private String tel;
+    @Column(name = "ts_mapy") // Added @Column annotation
+    private Float tsMapy;
 
-    @Column(name = "content_type_id") // Added @Column annotation
-    private String contenttypeid;
 
-    @Column(name = "book_tour") // Added @Column annotation
-    private String booktour;
+    @Column(name = "ts_mlevel") // Added @Column annotation
+    private Byte tsMlevel;
 
-    @Column(name = "cpyrht_div_cd") // Added @Column annotation
-    private String cpyrhtDivCd;
 
-    @Column(name = "created_time") // Added @Column annotation
-    private String createdtime;
+    @Column(name = "ts_addr1") // Added @Column annotation
+    private String tsAddr1;
 
-    @Column(name = "modified_time") // Added @Column annotation
-    private String modifiedtime;
+
+    @Column(name = "ts_addr2") // Added @Column annotation
+    private String tsAddr2;
+
+
+    @Column(name = "ts_zipcode") // Added @Column annotation
+    private String tsZipcode;
+
+
+    @Column(name = "ts_tel") // Added @Column annotation
+    private String tsTel;
+
+
+    @Column(name = "ts_content_type_id") // Added @Column annotation
+    private String tsContentTypeId;
+
+
+    @Column(name = "ts_book_tour") // Added @Column annotation
+    private String tsBookTour;
+
+
+    @Column(name = "ts_cpyrht_div_cd") // Added @Column annotation
+    private String tsCpyrhtDivCd;
+
+
+    @Column(name = "ts_created_time") // Added @Column annotation
+    private String tsCreatedTime;
+
+
+    @Column(name = "ts_modified_time") // Added @Column annotation
+    private String tsModifiedTime;
+
 
     @Column(name = "ld_idx")
     private Integer ldIdx;
@@ -69,17 +85,28 @@ public class TourSpots {
     @Column(name = "ls_idx")
     private Integer lsIdx;
 
+    @Column(name = "c1_code")
+    private String c1Code;
+
+    @Column(name = "c2_code")
+    private String c2Code;
+
+    @Column(name = "c3_code")
+    private String c3Code;
+    
     @ManyToOne
-    @JoinColumn(name = "cat1")
+    @JoinColumn(name = "c1_code",insertable = false, updatable = false)
     private Cat1 cat1;
 
     @ManyToOne
-    @JoinColumn(name = "cat2")
+    @JoinColumn(name = "c2_code",insertable = false, updatable = false)
     private Cat2 cat2;
 
+
     @ManyToOne
-    @JoinColumn(name = "cat3")
+    @JoinColumn(name = "c3_code",insertable = false, updatable = false)
     private Cat3 cat3;
+
 
     @ManyToOne
     @JoinColumn(name = "ls_idx",insertable = false, updatable = false)
