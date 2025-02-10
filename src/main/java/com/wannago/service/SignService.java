@@ -6,6 +6,7 @@ import com.wannago.dto.ResponseDTO;
 import com.wannago.dto.UserDTO;
 import com.wannago.entity.User;
 import com.wannago.enums.LoginStatusEnum;
+import com.wannago.enums.VerificationStateEnum;
 import com.wannago.mapper.UserMapper;
 import com.wannago.repository.UserRepository;
 import com.wannago.util.CodeGenerator;
@@ -47,14 +48,17 @@ public class SignService {
     public ResponseDTO checkVerificationCode(String email, String code) {
         String storedCode = redisService.get(email);
         if(storedCode == null){
-            return new ResponseDTO(false, "인증코드가 만료되었거나 존재하지 않습니다.");
+            return new ResponseDTO(false, VerificationStateEnum.CODE_NOT_FOUND.getMessage());
         }
+
+
         if(storedCode.equals(code)){
             redisService.set(email, "true",60*3);
-            return new ResponseDTO(true, "인증코드가 확인되었습니다.");
+            return new ResponseDTO(true, VerificationStateEnum.VERIFICATION_SUCCESS.getMessage());
         }else{
-            return new ResponseDTO(false, "인증코드가 확인되지 않았습니다.");
+            return new ResponseDTO(false, VerificationStateEnum.VERIFICATION_FAILED.getMessage());
         }
+
     }
 
     //인증코드 전송
@@ -62,10 +66,10 @@ public class SignService {
         String code = CodeGenerator.generateNumericCode(6);
         redisService.set(email, code,60*3);
         emailService.sendVerificationEmail(email, code);
-        return new ResponseDTO(true, "인증코드가 발송되었습니다.");
-
+        return new ResponseDTO(true, VerificationStateEnum.CODE_SENT.getMessage());
     }
     //이미가입된회원이있는지확인
+
     public boolean isEmailExist(String email) {
         User user = userRepository.findByUsEmail(email);
         if(user != null){
@@ -121,6 +125,4 @@ public class SignService {
                 .build();
         return jwtProvider.createToken(claims);
     }
-
-
 }
