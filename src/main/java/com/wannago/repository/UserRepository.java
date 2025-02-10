@@ -7,12 +7,15 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.List;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     // usIdx를 통해 User 정보를 가져오는 메서드
     // 내 정보 조회 시 사용
     Optional<User> findByUsIdx(int usIdx);
+
+    // usIdx 목록을 통해 User 목록을 가져오는 메서드
+    List<User> findByUsIdxInAndUsState(List<Integer> usIdxs, int usState);
 
     // usIdx를 통해 User 이름을 수정하는 메서드 
     // 이름 수정 시 사용

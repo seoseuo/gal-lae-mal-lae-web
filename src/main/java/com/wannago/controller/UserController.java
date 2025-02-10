@@ -71,13 +71,14 @@ public class UserController {
     }
 
     // 팔로우 목록 조회
-    @GetMapping("/me/follow-list")
-    public ResponseEntity<List<UserDTO>> getFollowList() {
+    @GetMapping("/follow-list")
+    public ResponseEntity<Map<String, List<UserDTO>>> getFollowList() {
         log.info("/users/me/follow-list 호출");
-        List<UserDTO> followList = userService.getFollowList();
+        Map<String, List<UserDTO>> followList = userService.getFollowList(getUserFromAuthentication().getUsIdx());
         log.info("followList : {}", followList);
         return ResponseEntity.ok(followList);
     }
+}
 
 //
 // // 다녀온 여행지 목록 조회
