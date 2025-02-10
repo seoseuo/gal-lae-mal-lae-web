@@ -25,10 +25,11 @@ public class AccessTokenClaims {
     Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("USIDX", usIdx);
-        map.put("US_EMAIL", usEmail);
-        map.put("US_NAME", usName);
-        map.put("US_PROFILE", usProfile);
-        map.put("US_STATE", usState);
+        map.put("USEMAIL", usEmail);
+        map.put("USNAME", usName);
+        map.put("USPROFILE", usProfile);
+        map.put("USSTATE", usState);
+        // key 값 수정 2025-02-10 서승권
 
         return map;
 
