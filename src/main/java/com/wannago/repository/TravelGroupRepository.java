@@ -11,8 +11,9 @@ public interface TravelGroupRepository extends JpaRepository<TravelGroup, Intege
     <S extends TravelGroup> S save(S entity);
 
     // 모임 목록 조회
-    List<TravelGroup> findAll();
+    List<TravelGroup> findAll(int usIdx);
 
     // 특정 모임 조회
     Optional<TravelGroup> findByGrIdx(int grIdx);
+    
 }

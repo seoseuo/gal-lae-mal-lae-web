@@ -14,6 +14,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.GetMapping;
 import java.util.List;
 import org.springframework.web.bind.annotation.PathVariable;
+import java.util.Map;
+
 @Log4j2
 @RestController
 @RequestMapping("/travelgroups")
@@ -36,17 +38,17 @@ public class TravelGroupController {
         return ResponseEntity.ok("모임 생성이 완료되었습니다.");
     }
 
-    // 모임 목록 조회
+    // 내 모임 목록 조회
     @GetMapping
     public ResponseEntity<List<TravelGroupDTO>> getTravelGroupList() {
         log.info("GET : /travelgroups");
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
-        return ResponseEntity.ok(travelGroupService.getTravelGroupList(userDTO));
+        return ResponseEntity.ok(travelGroupService.getTravelGroupList(userDTO.getUsIdx()));
     }
 
     // 특정 모임 조회
     @GetMapping("/{grIdx}")
-    public ResponseEntity<TravelGroupDTO> getTravelGroup(@PathVariable("grIdx") int grIdx) {
+    public ResponseEntity<Map<String, Object>> getTravelGroup(@PathVariable("grIdx") int grIdx) {
         log.info("GET : /travelgroups/{}", grIdx);
         return ResponseEntity.ok(travelGroupService.getTravelGroup(grIdx));
     }
