@@ -36,11 +36,12 @@ public class TravelGroupController {
         return ResponseEntity.ok("모임 생성이 완료되었습니다.");
     }
 
-    // 모임 조회
+    // 모임 목록 조회
     @GetMapping
-    public ResponseEntity<List<TravelGroupDTO>> getTravelGroup() {
+    public ResponseEntity<List<TravelGroupDTO>> getTravelGroupList() {
         log.info("GET : /travelgroups");
-        
-        return ResponseEntity.ok("모임 조회가 완료되었습니다.");
+        UserDTO userDTO = securityUtil.getUserFromAuthentication();
+        List<TravelGroupDTO> travelGroupDTOList = travelGroupService.getTravelGroupList(userDTO);
+        return ResponseEntity.ok(travelGroupDTOList);
     }
 }
