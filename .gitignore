@@ -7,6 +7,13 @@ build
 .env
 .yml
 .properties
+
+# application yml 파일들
+application.yml
+application-*.yml  # application-dev.yml, application-prod.yml 등도 제외
+src/main/resources/application.yml
+src/main/resources/application-*.yml
+
 ### STS ###
 .apt_generated
 .classpath
