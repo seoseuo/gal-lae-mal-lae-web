@@ -13,7 +13,7 @@ import com.wannago.util.security.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.GetMapping;
 import java.util.List;
-
+import org.springframework.web.bind.annotation.PathVariable;
 @Log4j2
 @RestController
 @RequestMapping("/travelgroups")
@@ -41,15 +41,13 @@ public class TravelGroupController {
     public ResponseEntity<List<TravelGroupDTO>> getTravelGroupList() {
         log.info("GET : /travelgroups");
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
-        List<TravelGroupDTO> travelGroupDTOList = travelGroupService.getTravelGroupList(userDTO);
-        return ResponseEntity.ok(travelGroupDTOList);
+        return ResponseEntity.ok(travelGroupService.getTravelGroupList(userDTO));
     }
 
     // 특정 모임 조회
-    @GetMapping
-    public ResponseEntity<TravelGroupDTO> getTravelGroup(@RequestBody int grIdx) {
+    @GetMapping("/{grIdx}")
+    public ResponseEntity<TravelGroupDTO> getTravelGroup(@PathVariable("grIdx") int grIdx) {
         log.info("GET : /travelgroups/{}", grIdx);
-        TravelGroupDTO travelGroupDTO = travelGroupService.getTravelGroup(grIdx);
-        return ResponseEntity.ok(travelGroupDTO);
+        return ResponseEntity.ok(travelGroupService.getTravelGroup(grIdx));
     }
 }
