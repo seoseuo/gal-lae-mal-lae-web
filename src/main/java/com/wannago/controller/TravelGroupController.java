@@ -44,4 +44,12 @@ public class TravelGroupController {
         List<TravelGroupDTO> travelGroupDTOList = travelGroupService.getTravelGroupList(userDTO);
         return ResponseEntity.ok(travelGroupDTOList);
     }
+
+    // 특정 모임 조회
+    @GetMapping
+    public ResponseEntity<TravelGroupDTO> getTravelGroup(@RequestBody int grIdx) {
+        log.info("GET : /travelgroups/{}", grIdx);
+        TravelGroupDTO travelGroupDTO = travelGroupService.getTravelGroup(grIdx);
+        return ResponseEntity.ok(travelGroupDTO);
+    }
 }
