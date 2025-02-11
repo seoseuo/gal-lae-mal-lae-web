@@ -17,7 +17,9 @@ import java.util.stream.Collectors;
 import com.wannago.util.security.SecurityUtil;
 import com.wannago.mapper.MemberMapper;
 import java.util.HashMap;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Service
 public class TravelGroupService {
 
@@ -58,7 +60,13 @@ public class TravelGroupService {
     // 내 모임 목록 조회
     // 내 모임 목록 조회 시 사용
     public List<TravelGroupDTO> getTravelGroupList(int usIdx) {
-        return travelGroupMapper.toDTOList(travelGroupRepository.findAll(usIdx));
+        // 1. Member 테이블에서 내가 속한 grIdx 가져오기
+        List<Integer> grIdxList = memberRepository.findGrIdxByUsIdx(usIdx);
+        log.info("grIdxList  {}", grIdxList);
+
+        // 2. TravelGroup 테이블에서 grIdx 리스트들로 조회해서 목록 가져오기
+        return travelGroupMapper.toDTOList(travelGroupRepository.findAllByGrIdxIn(grIdxList));
+        
     }
 
     // 특정 모임 조회
@@ -68,11 +76,14 @@ public class TravelGroupService {
         // 1. 요청 회원 권한 조회
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
         Member member = memberRepository.findByGrIdxAndUsIdx(grIdx, userDTO.getUsIdx());
+        Map<String, Object> travelGroupInfo = new HashMap<>();
+        
         if (member == null) {
-            throw new RuntimeException("모임 참여 권한이 없습니다.");
+            travelGroupInfo.put("error", "모임 참여 권한이 없습니다.");
+            return travelGroupInfo;
         }
 
-        Map<String, Object> travelGroupInfo = new HashMap<>();
+        
         // 2. 모임 정보
         travelGroupInfo.put("travelGroup", travelGroupMapper.toDTO(travelGroupRepository.findById(grIdx)
                 .orElseThrow(() -> new RuntimeException("모임을 찾을 수 없습니다."))));
