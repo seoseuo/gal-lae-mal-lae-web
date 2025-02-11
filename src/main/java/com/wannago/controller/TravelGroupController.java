@@ -4,18 +4,43 @@ import com.wannago.service.TravelGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import com.wannago.dto.TravelGroupDTO;
+import com.wannago.dto.UserDTO;
+import com.wannago.util.security.SecurityUtil;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.web.bind.annotation.GetMapping;
+import java.util.List;
 
+@Log4j2
 @RestController
-@RequestMapping("/api/travelgroup")
+@RequestMapping("/travelgroups")
 public class TravelGroupController {
 
-
-    private final TravelGroupService travelGroupService;
+    @Autowired
+    private TravelGroupService travelGroupService;
 
     @Autowired
-    public TravelGroupController(TravelGroupService travelGroupService) {
-        this.travelGroupService = travelGroupService;
+    private SecurityUtil securityUtil;
+    
+
+    // 모임 생성
+    @PostMapping
+    public ResponseEntity<String> createTravelGroup(@RequestBody TravelGroupDTO travelGroupDTO) {
+        log.info("POST : /travelgroups");
+        log.info(travelGroupDTO);
+        UserDTO userDTO = securityUtil.getUserFromAuthentication();
+        travelGroupService.createTravelGroup(travelGroupDTO, userDTO);
+        return ResponseEntity.ok("모임 생성이 완료되었습니다.");
     }
 
-    // 메서드들 (GET, POST, PUT, DELETE 등)
+    // 모임 조회
+    @GetMapping
+    public ResponseEntity<List<TravelGroupDTO>> getTravelGroup() {
+        log.info("GET : /travelgroups");
+        
+        return ResponseEntity.ok("모임 조회가 완료되었습니다.");
+    }
 }
