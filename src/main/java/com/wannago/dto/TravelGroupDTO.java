@@ -1,12 +1,12 @@
 package com.wannago.dto;
 
 import lombok.Data;
-
+import java.util.Date;
 @Data
 public class TravelGroupDTO {
     private int grIdx;
     private String grName;
     private int grState;
-    private String grCreatedAt;
-    private String grDeletedAt;
+    private Date grCreatedAt;
+    private Date grDeletedAt;
 }
