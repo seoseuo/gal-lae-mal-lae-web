@@ -11,30 +11,25 @@ import lombok.extern.log4j.Log4j2;
 import java.util.Map;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
+import com.wannago.util.security.SecurityUtil;
 @Log4j2
 @RestController
 @RequestMapping("/users/me")
 public class UserController {
     
     private final UserService userService;
-    
+    private final SecurityUtil securityUtil;
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, SecurityUtil securityUtil) {
         this.userService = userService;
-    }
-
-    // authentication 에서 UserDTO 추출
-    private UserDTO getUserFromAuthentication() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("User from authentication: {}", authentication);
-        return (UserDTO) authentication.getPrincipal();
-    }
+        this.securityUtil = securityUtil;
+    }    
 
     // 내 정보 조회
     @GetMapping
     public ResponseEntity<UserDTO> getMyInfo() {
         log.info("/users/me 호출");
-        return ResponseEntity.ok(userService.findByUsIdx(getUserFromAuthentication().getUsIdx()));
+        return ResponseEntity.ok(userService.findByUsIdx(securityUtil.getUserFromAuthentication().getUsIdx()));
     }
 
     // 이름 수정
@@ -42,7 +37,7 @@ public class UserController {
     public ResponseEntity<String> updateName(@RequestBody UserDTO newUserDTO) {
         log.info("/users/me/name 호출");
         log.info("usName : {}", newUserDTO.getUsName());
-        userService.updateUsNameByUsIdx(getUserFromAuthentication().getUsIdx(), newUserDTO.getUsName());
+        userService.updateUsNameByUsIdx(securityUtil.getUserFromAuthentication().getUsIdx(), newUserDTO.getUsName());
         return ResponseEntity.ok("이름 수정에 성공하였습니다.");
     }
 
@@ -66,7 +61,7 @@ public class UserController {
     public ResponseEntity<String> updatePassword(@RequestBody UserDTO newUserDTO) {
         log.info("/users/me/password 호출");
         log.info("newPassword : {}", newUserDTO.getUsPw());
-        userService.updateUsPwByUsIdx(getUserFromAuthentication().getUsIdx(), newUserDTO.getUsPw());
+        userService.updateUsPwByUsIdx(securityUtil.getUserFromAuthentication().getUsIdx(), newUserDTO.getUsPw());
         return ResponseEntity.ok("비밀번호 수정에 성공하였습니다.");
     }
 
@@ -74,7 +69,7 @@ public class UserController {
     @GetMapping("/follow-list")
     public ResponseEntity<Map<String, List<UserDTO>>> getFollowList() {
         log.info("/users/me/follow-list 호출");
-        Map<String, List<UserDTO>> followList = userService.getFollowList(getUserFromAuthentication().getUsIdx());
+        Map<String, List<UserDTO>> followList = userService.getFollowList(securityUtil.getUserFromAuthentication().getUsIdx());
         log.info("followList : {}", followList);
         return ResponseEntity.ok(followList);
     }
@@ -88,7 +83,7 @@ public class UserController {
         log.info("파일 크기: {} bytes", file.getSize());
         log.info("파일 타입: {}", file.getContentType());
 
-        userService.updateUsProfileByUsIdx(getUserFromAuthentication().getUsIdx(), file);
+        userService.updateUsProfileByUsIdx(securityUtil.getUserFromAuthentication().getUsIdx(), file);
         
         return ResponseEntity.ok("프로필 이미지 수정에 성공하였습니다.");
     }
