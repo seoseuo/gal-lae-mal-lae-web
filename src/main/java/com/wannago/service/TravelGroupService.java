@@ -81,12 +81,8 @@ public class TravelGroupService {
     // 특정 모임 조회 시 사용
     public Map<String, Object> getTravelGroup(int grIdx) {
 
-        // 1. 요청 회원 권한 조회
-        Map<String, Object> travelGroupInfo = new HashMap<>();
-        if (!checkMemberAuth(grIdx)) {
-            travelGroupInfo.put("error", "모임 참여 권한이 없습니다.");
-            return travelGroupInfo;
-        }
+        // 1. 리턴 객체 생성
+        Map<String, Object> travelGroupInfo = new HashMap<>();        
 
         // 2. 모임 정보
         travelGroupInfo.put("travelGroup", travelGroupMapper.toDTO(travelGroupRepository.findById(grIdx)
@@ -111,17 +107,7 @@ public class TravelGroupService {
 
     // 모임 회장 권한 변경
     public String updateAdmin(int oldUsIdx, int newUsIdx, int grIdx) {
-        
-        // 0-1. 현재 유저의 접근 권한 조회         
-        if (!checkMemberAuth(grIdx)) {
-            return "모임 참여 권한이 없습니다.";
-        }
-
-        // 0-2. 현재 유저의 권한이 ADMIN인지 조회
-        if (!checkAdminAuth(grIdx)) {
-            return "모임 회장 권한이 없습니다.";
-        }
-
+                
         // 1. 기존 회장 권한을 USER로 변경
         memberRepository.updateMeRoleByGrIdxAndUsIdx(grIdx, oldUsIdx, Member.MemberRole.MEMBER);
         
@@ -131,23 +117,5 @@ public class TravelGroupService {
         return "모임 회장이 변경되었습니다.";
     }
     
-    // 모임 회원 권한 조회
-    private boolean checkMemberAuth(int grIdx) {
-        UserDTO userDTO = securityUtil.getUserFromAuthentication();
-        Member member = memberRepository.findByGrIdxAndUsIdx(grIdx, userDTO.getUsIdx());
-        if (member == null) {
-            return false;
-        }
-        return true;
-    }
-
-    // 모임 회장 권한 조회
-    private boolean checkAdminAuth(int grIdx) {
-        UserDTO userDTO = securityUtil.getUserFromAuthentication();
-        Member member = memberRepository.findByGrIdxAndUsIdx(grIdx, userDTO.getUsIdx());        
-        if (member.getMeRole() != Member.MemberRole.ADMIN) {
-            return false;
-        }
-        return true;
-    }
+    
 }
