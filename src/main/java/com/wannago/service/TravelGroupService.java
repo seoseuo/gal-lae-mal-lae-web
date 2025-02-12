@@ -18,6 +18,7 @@ import com.wannago.util.security.SecurityUtil;
 import com.wannago.mapper.MemberMapper;
 import java.util.HashMap;
 import lombok.extern.log4j.Log4j2;
+import java.util.Comparator;
 
 @Log4j2
 @Service
@@ -66,7 +67,7 @@ public class TravelGroupService {
 
         // 2. TravelGroup 테이블에서 grIdx 리스트들로 조회해서 목록 가져오기
         return travelGroupMapper.toDTOList(travelGroupRepository.findAllByGrIdxIn(grIdxList));
-        
+
     }
 
     // 특정 모임 조회
@@ -77,24 +78,36 @@ public class TravelGroupService {
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
         Member member = memberRepository.findByGrIdxAndUsIdx(grIdx, userDTO.getUsIdx());
         Map<String, Object> travelGroupInfo = new HashMap<>();
-        
+
         if (member == null) {
             travelGroupInfo.put("error", "모임 참여 권한이 없습니다.");
             return travelGroupInfo;
         }
 
-        
         // 2. 모임 정보
         travelGroupInfo.put("travelGroup", travelGroupMapper.toDTO(travelGroupRepository.findById(grIdx)
                 .orElseThrow(() -> new RuntimeException("모임을 찾을 수 없습니다."))));
 
         // 3. 모임 회원 목록
-        travelGroupInfo.put("memberList", memberMapper.toDTOList(memberRepository.findByGrIdx(grIdx)));
+        // 3-1. 회장을 맨 앞으로 옮기기
+        List<MemberDTO> memberList = memberMapper.toDTOList(memberRepository.findByGrIdx(grIdx));
+        memberList.sort(Comparator.comparing(MemberDTO::getMeRole));
+        travelGroupInfo.put("memberList", memberList);
 
         // 4. 모임 여행지 목록
         // travelGroupInfo.put("travelList",
         // travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));
 
         return travelGroupInfo;
+    }
+
+    // 모임 회장 권한 변경
+    public void updateAdmin(int oldUsIdx, int newUsIdx, int grIdx) {
+        
+        // 1. 기존 회장 권한을 USER로 변경
+        memberRepository.updateMeRoleByGrIdxAndUsIdx(grIdx, oldUsIdx, Member.MemberRole.MEMBER);
+        
+        // 2. 새로운 회장 권한을 ADMIN으로 변경
+        memberRepository.updateMeRoleByGrIdxAndUsIdx(grIdx, newUsIdx, Member.MemberRole.ADMIN);
     }
 }
