@@ -13,12 +13,13 @@ import com.wannago.repository.MemberRepository;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import com.wannago.util.security.SecurityUtil;
 import com.wannago.mapper.MemberMapper;
 import java.util.HashMap;
 import lombok.extern.log4j.Log4j2;
 import java.util.Comparator;
+import com.wannago.mapper.UserMapper;
+import com.wannago.repository.UserRepository;
 
 @Log4j2
 @Service
@@ -38,6 +39,12 @@ public class TravelGroupService {
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // 모임 생성
     // 모임 생성 시 사용
@@ -75,11 +82,8 @@ public class TravelGroupService {
     public Map<String, Object> getTravelGroup(int grIdx) {
 
         // 1. 요청 회원 권한 조회
-        UserDTO userDTO = securityUtil.getUserFromAuthentication();
-        Member member = memberRepository.findByGrIdxAndUsIdx(grIdx, userDTO.getUsIdx());
         Map<String, Object> travelGroupInfo = new HashMap<>();
-
-        if (member == null) {
+        if (!checkMemberAuth(grIdx)) {
             travelGroupInfo.put("error", "모임 참여 권한이 없습니다.");
             return travelGroupInfo;
         }
@@ -92,6 +96,10 @@ public class TravelGroupService {
         // 3-1. 회장을 맨 앞으로 옮기기
         List<MemberDTO> memberList = memberMapper.toDTOList(memberRepository.findByGrIdx(grIdx));
         memberList.sort(Comparator.comparing(MemberDTO::getMeRole));
+        memberList.forEach(member -> {
+            member.setMeUser(userMapper.toDTO(userRepository.findById(member.getUsIdx())
+                    .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."))));
+        });
         travelGroupInfo.put("memberList", memberList);
 
         // 4. 모임 여행지 목록
@@ -102,12 +110,44 @@ public class TravelGroupService {
     }
 
     // 모임 회장 권한 변경
-    public void updateAdmin(int oldUsIdx, int newUsIdx, int grIdx) {
+    public String updateAdmin(int oldUsIdx, int newUsIdx, int grIdx) {
         
+        // 0-1. 현재 유저의 접근 권한 조회         
+        if (!checkMemberAuth(grIdx)) {
+            return "모임 참여 권한이 없습니다.";
+        }
+
+        // 0-2. 현재 유저의 권한이 ADMIN인지 조회
+        if (!checkAdminAuth(grIdx)) {
+            return "모임 회장 권한이 없습니다.";
+        }
+
         // 1. 기존 회장 권한을 USER로 변경
         memberRepository.updateMeRoleByGrIdxAndUsIdx(grIdx, oldUsIdx, Member.MemberRole.MEMBER);
         
         // 2. 새로운 회장 권한을 ADMIN으로 변경
         memberRepository.updateMeRoleByGrIdxAndUsIdx(grIdx, newUsIdx, Member.MemberRole.ADMIN);
+
+        return "모임 회장이 변경되었습니다.";
+    }
+    
+    // 모임 회원 권한 조회
+    private boolean checkMemberAuth(int grIdx) {
+        UserDTO userDTO = securityUtil.getUserFromAuthentication();
+        Member member = memberRepository.findByGrIdxAndUsIdx(grIdx, userDTO.getUsIdx());
+        if (member == null) {
+            return false;
+        }
+        return true;
+    }
+
+    // 모임 회장 권한 조회
+    private boolean checkAdminAuth(int grIdx) {
+        UserDTO userDTO = securityUtil.getUserFromAuthentication();
+        Member member = memberRepository.findByGrIdxAndUsIdx(grIdx, userDTO.getUsIdx());        
+        if (member.getMeRole() != Member.MemberRole.ADMIN) {
+            return false;
+        }
+        return true;
     }
 }
