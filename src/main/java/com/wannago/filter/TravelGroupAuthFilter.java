@@ -23,42 +23,51 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, 
             HttpServletResponse response, 
             FilterChain filterChain) throws ServletException, IOException {
+        try {
+            String path = request.getRequestURI();
+            String method = request.getMethod();
 
-        String path = request.getRequestURI();
-        String method = request.getMethod();
+            if (path.matches("/travelgroups/\\d+.*")) {
+                int grIdx = Integer.parseInt(path.split("/")[2]);
 
-        // /travelgroups/{grIdx} 패턴 체크
-        if (path.matches("/travelgroups/\\d+.*")) {
-            int grIdx = Integer.parseInt(path.split("/")[2]);
-
-            if (method.equals("GET")) {
-                if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
-                    return;
-                }
-            }
-
-            if (method.equals("PATCH")) {
-                if (path.contains("/leave")) {
+                if (method.equals("GET")) {
                     if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
-                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
+                        sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
                         return;
                     }
-                    else {
-                        filterChain.doFilter(request, response);
+                }
+
+                if (method.equals("PATCH")) {
+                    if (path.contains("/leave")) {
+                        if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
+                            sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
+                            return;
+                        }
+                    }
+                    if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
+                        sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
+                        return;
+                    }
+                    if (!travelGroupAuthUtil.checkAdminAuth(grIdx)) {
+                        sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회장이 아닙니다.");
+                        return;
                     }
                 }
-                if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
-                    return;
-                }
-                if (!travelGroupAuthUtil.checkAdminAuth(grIdx)) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "모임 회장이 아닙니다.");
-                    return;
-                }
             }
+            filterChain.doFilter(request, response);
 
+        } catch (Exception e) {
+            log.error("Filter error: ", e);
+            if (!response.isCommitted()) {
+                sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+            }
         }
-        filterChain.doFilter(request, response);
-    }    
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.resetBuffer();
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(status);
+        response.getWriter().write(message);
+    }
 } 
