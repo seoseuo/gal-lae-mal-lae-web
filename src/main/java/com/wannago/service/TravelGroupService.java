@@ -82,7 +82,7 @@ public class TravelGroupService {
     public Map<String, Object> getTravelGroup(int grIdx) {
 
         // 1. 리턴 객체 생성
-        Map<String, Object> travelGroupInfo = new HashMap<>();        
+        Map<String, Object> travelGroupInfo = new HashMap<>();
 
         // 2. 모임 정보
         travelGroupInfo.put("travelGroup", travelGroupMapper.toDTO(travelGroupRepository.findById(grIdx)
@@ -107,15 +107,39 @@ public class TravelGroupService {
 
     // 모임 회장 권한 변경
     public String updateAdmin(int oldUsIdx, int newUsIdx, int grIdx) {
-                
+
         // 1. 기존 회장 권한을 USER로 변경
         memberRepository.updateMeRoleByGrIdxAndUsIdx(grIdx, oldUsIdx, Member.MemberRole.MEMBER);
-        
+
         // 2. 새로운 회장 권한을 ADMIN으로 변경
         memberRepository.updateMeRoleByGrIdxAndUsIdx(grIdx, newUsIdx, Member.MemberRole.ADMIN);
 
         return "모임 회장이 변경되었습니다.";
     }
-    
-    
+
+    // 모임 탈퇴
+    public String leaveTravelGroup(int usIdx, int grIdx) {
+        // 1. 해당 회원이 이 모임의 회장인지 확인
+        // 회장이라면 모임 탈퇴 불가
+        if (memberRepository.findByGrIdxAndUsIdx(grIdx, usIdx).getMeRole() == Member.MemberRole.ADMIN) {
+            return "회장은 모임을 탈퇴할 수 없습니다.\n권한을 위임하세요.";
+        }
+
+        // 2. 회장이 아니라면 모임 탈퇴
+        memberRepository.deleteByGrIdxAndUsIdx(grIdx, usIdx);
+        return "모임을 탈퇴했습니다.";
+    }
+
+    // 모임 삭제
+    public String deleteTravelGroup(int grIdx) {
+
+        // 1. MEMBER 테이블에서 해당 모임 회원 삭제
+        memberRepository.deleteByGrIdx(grIdx);
+
+        // 2. TRAVELGROUP 테이블에서 해당 모임 grStatus를 0 으로 변경
+        // 2-1. 모임 삭제 시간 추가
+        Date grDeletedAt = new Date();
+        travelGroupRepository.updateGrStatusByGrIdx(grIdx, grDeletedAt);
+        return "모임을 삭제했습니다.";
+    }
 }

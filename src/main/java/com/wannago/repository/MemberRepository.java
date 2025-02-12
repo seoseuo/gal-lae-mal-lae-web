@@ -33,4 +33,13 @@ public interface MemberRepository extends JpaRepository<Member, MemberId> {
     @Modifying
     @Query("UPDATE Member m SET m.meRole = :newRole WHERE m.grIdx = :grIdx AND m.usIdx = :usIdx")
     void updateMeRoleByGrIdxAndUsIdx(@Param("grIdx") int grIdx, @Param("usIdx") int usIdx, @Param("newRole") Member.MemberRole newRole);
+
+    // 모임 탈퇴
+    @Transactional
+    void deleteByGrIdxAndUsIdx(int grIdx, int usIdx);
+
+    // 모임 삭제
+    @Transactional
+    void deleteByGrIdx(int grIdx);
+
 }
