@@ -94,6 +94,12 @@ public class OpenApiService {
         return new ResponseDTO(true, "지역 코드 저장 성공");
     }
     public ResponseDTO saveTourSpot() {
+        // 먼저 지역 정보가 저장되어 있는지 확인
+        if (locationDoRepository.count() == 0 || locationSiRepository.count() == 0) {
+            // 지역 정보가 없으면 먼저 저장
+            saveAreaCode();
+        }
+        
         List<TourSpotsDTO> tourSpotDTOList = apiCall.getTourSpotList(1);
         List<TourSpots> tourSpotList = tourSpotMapper.toEntityList(tourSpotDTOList);
         tourSpotRepository.saveAll(tourSpotList);
