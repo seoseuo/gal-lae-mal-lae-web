@@ -164,4 +164,15 @@ public class TravelGroupService {
         travelGroupRepository.updateGrStatusByGrIdx(grIdx, grDeletedAt);
         return "모임을 삭제했습니다.";
     }
+
+    // 모임 초대
+    public String inviteTravelGroup(int grIdx, int usIdx) {
+        // 1. 모임 초대
+        memberRepository.save(Member.builder()
+                .grIdx(grIdx)
+                .usIdx(usIdx)
+                .meRole(Member.MemberRole.MEMBER)
+                .build());
+        return "모임 초대가 완료되었습니다.";
+    }
 }
