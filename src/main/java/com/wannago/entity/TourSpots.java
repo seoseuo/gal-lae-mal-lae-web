@@ -93,23 +93,12 @@ public class TourSpots {
 
     @Column(name = "c3_code")
     private String c3Code;
-    
-    @ManyToOne
-    @JoinColumn(name = "c1_code",insertable = false, updatable = false)
-    private Cat1 cat1;
 
     @ManyToOne
-    @JoinColumn(name = "c2_code",insertable = false, updatable = false)
-    private Cat2 cat2;
-
-
-    @ManyToOne
-    @JoinColumn(name = "c3_code",insertable = false, updatable = false)
-    private Cat3 cat3;
-
-
-    @ManyToOne
-    @JoinColumn(name = "ls_idx",insertable = false, updatable = false)
+    @JoinColumns({
+        @JoinColumn(name = "ls_idx", referencedColumnName = "ls_idx", insertable = false, updatable = false),
+        @JoinColumn(name = "ld_idx", referencedColumnName = "ld_idx", insertable = false, updatable = false)
+    })
     private LocationSi locationSi;
 
 

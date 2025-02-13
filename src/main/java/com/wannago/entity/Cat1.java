@@ -18,9 +18,9 @@ import lombok.NoArgsConstructor;
 public class Cat1 {
     @Id
     @Column(name = "c1_code", nullable = false)
-    private String c1_code;
+    private String c1Code;
 
 
     @Column(name = "c1_name" ,nullable = false, length = 20)
-    private String c1_name;
+    private String c1Name;
 }

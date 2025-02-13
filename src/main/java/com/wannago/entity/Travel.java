@@ -34,7 +34,10 @@ public class Travel {
     private int lsIdx;
 
     @ManyToOne
-    @JoinColumn(name = "ls_idx", nullable = false)
+    @JoinColumns({
+        @JoinColumn(name = "ls_idx", referencedColumnName = "ls_idx", insertable = false, updatable = false),
+        @JoinColumn(name = "ld_idx", referencedColumnName = "ld_idx", insertable = false, updatable = false)
+    })
     private LocationSi locationSi;
 
     @Column(nullable = false)
