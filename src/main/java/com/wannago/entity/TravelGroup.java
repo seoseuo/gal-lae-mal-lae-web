@@ -29,6 +29,6 @@ public class TravelGroup {
     @Column(name = "gr_created_at",nullable = false)
     private Date grCreatedAt;
 
-    @Column(name = "gr_deleated_at",nullable = false)
+    @Column(name = "gr_deleated_at",nullable = true)
     private Date grDeletedAt;
 }

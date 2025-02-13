@@ -34,12 +34,12 @@ public class JwtProvider {
 
     private SecretKey secretKey;
 
-public SecretKey getSecretKey() {
-    if (secretKey == null) {
-        secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)); 
+    public SecretKey getSecretKey() {
+        if (secretKey == null) {
+            secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        }
+        return secretKey;
     }
-    return secretKey;
-}
 
 
     private String genToken(Map<String, Object> map, int seconds) {
@@ -84,7 +84,7 @@ public SecretKey getSecretKey() {
         }
     }
 
-    public AccessTokenClaims getAccessTokenClaims(String token, HttpServletResponse response) throws IOException {         
+    public AccessTokenClaims getAccessTokenClaims(String token, HttpServletResponse response) throws IOException {
         try {
             Claims payload = Jwts.parserBuilder()
                     .setSigningKey(getSecretKey())  // 비밀 키 설정
@@ -115,43 +115,36 @@ public SecretKey getSecretKey() {
 
         } catch (ExpiredJwtException e) {
             log.info("Token has expired: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=UTF-8");
-            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"Token has expired.\"}";
-            response.getWriter().write(jsonResponse);
-            response.getWriter().flush();
+            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "토큰이 만료되었습니다.");
             return null;
 
         } catch (MalformedJwtException e) {
             log.info("Invalid JWT token format: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setContentType("application/json;charset=UTF-8");
-            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"Invalid JWT token format.\"}";
-            response.getWriter().write(jsonResponse);
-            response.getWriter().flush();
+            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "잘못된 토큰 형식입니다.");
             return null;
 
         } catch (SignatureException e) {
             log.info("Invalid JWT signature: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=UTF-8");
-            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"Invalid JWT signature.\"}";
-            response.getWriter().write(jsonResponse);
-            response.getWriter().flush();
+            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰 서명입니다.");
             return null;
-            
+
         } catch (JwtException e) {
             log.info("JWT-related exception occurred: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setContentType("application/json;charset=UTF-8");
-            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-            String jsonResponse = "{\"status\":\"error\", \"message\":\"A JWT-related exception occurred.\"}";
-            response.getWriter().write(jsonResponse);
-            response.getWriter().flush();
+            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "JWT 관련 오류가 발생했습니다.");
+            return null;
+
+        } catch(Exception e) {
+            log.info("JWT-related exception occurred: {}", e.getMessage());
+            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "JWT 처리 중 오류가 발생했습니다.");
             return null;
         }
     }
+
+    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"message\":\"" + message + "\"}");
+        response.getWriter().flush();
+    }
+    
 }
