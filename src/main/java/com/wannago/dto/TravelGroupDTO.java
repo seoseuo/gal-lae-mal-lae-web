@@ -9,4 +9,6 @@ public class TravelGroupDTO {
     private int grState;
     private Date grCreatedAt;
     private Date grDeletedAt;
+    // 이미지 추가
+    private String grProfile;
 }
