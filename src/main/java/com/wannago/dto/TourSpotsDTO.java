@@ -16,7 +16,7 @@ import com.wannago.entity.LocationSi;
 
 public class TourSpotsDTO {
     private Integer tsIdx;
-    private String tsTitle;
+    private String tsName;
     private String tsFirstImage;
     private String tsFirstImage2;
     private Float tsMapx;
@@ -31,8 +31,8 @@ public class TourSpotsDTO {
     private String tsCpyrhtDivCd;
     private String tsCreatedTime;
     private String tsModifiedTime;
-    private Integer tsLdIdx;
-    private Integer tsLsIdx;
+    private Integer ldIdx;
+    private Integer lsIdx;
     private String c1Code;
     private String c2Code;
     private String c3Code;

@@ -12,19 +12,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@IdClass(LocationSiId.class)
 public class LocationSi {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ls_idx", nullable = false)
     private int lsIdx;
+
+    @Id
+    @Column(name = "ld_idx", insertable = false)
+    private Integer ldIdx;
 
     @Column(name = "ls_name",nullable = false, length = 20)
     private String lsName;
 
-    @Column(name = "ld_idx", insertable = false, updatable = false) // ✅ Hibernate가 자동으로 관리 X
-    private Integer ldIdx;
+
 
     @ManyToOne
-    @JoinColumn(name = "ld_idx", nullable = false)
+    @JoinColumn(name = "ld_idx", nullable = false,insertable = false, updatable = false)
     private LocationDo locationDo;
 }

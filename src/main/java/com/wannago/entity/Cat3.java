@@ -15,16 +15,16 @@ import lombok.NoArgsConstructor;
 public class Cat3 {
     @Id
     @Column(name = "c3_code",nullable = false)
-    private String c3_code;
+    private String c3Code;
 
 
     @Column(name = "c3_name",nullable = false, length = 20)
-    private String c3_name;
+    private String c3Name;
 
 
 
     @Column(name = "c2_code",nullable = false)
-    private String c2_code;
+    private String c2Code;
 
     @ManyToOne
     @JoinColumn(name = "c2_code",insertable = false, updatable = false)

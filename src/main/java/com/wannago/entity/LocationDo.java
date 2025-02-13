@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class LocationDo {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ld_idx", nullable = false)
     private int ldIdx;
 
