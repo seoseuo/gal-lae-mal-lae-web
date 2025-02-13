@@ -74,7 +74,7 @@ public class TourSpots {
     private String tsCreatedTime;
 
 
-    @Column(name = "ts_modified_time") // Added @Column annotation
+    @Column(name = "ts_modified_time") // Added @Column annoㄴtation
     private String tsModifiedTime;
 
 
@@ -93,16 +93,4 @@ public class TourSpots {
 
     @Column(name = "c3_code")
     private String c3Code;
-
-    @ManyToOne
-    @JoinColumns({
-        @JoinColumn(name = "ls_idx", referencedColumnName = "ls_idx", insertable = false, updatable = false),
-        @JoinColumn(name = "ld_idx", referencedColumnName = "ld_idx", insertable = false, updatable = false)
-    })
-    private LocationSi locationSi;
-
-
-    @ManyToOne
-    @JoinColumn(name = "ld_idx",insertable = false, updatable = false)
-    private LocationDo locationDo;
 }

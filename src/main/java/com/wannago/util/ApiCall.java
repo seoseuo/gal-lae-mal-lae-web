@@ -269,12 +269,14 @@ public class ApiCall {
         JSONObject prevBody = prevResponse.getJSONObject("body");
         int totalCount = prevBody.getInt("totalCount");
         int totalPage = totalCount % 100 > 0 ? totalCount / 100 + 1 : totalCount / 100;
+        int errorCount = 0;
+        String data = "";
         for (int i = 1; i <= totalPage; i++) {
-            System.err.println("pageNo: " + i);
-            String data = getTourSpotData(i , 150);
-            JSONObject jsonObject = new JSONObject(data);
-            JSONObject response = jsonObject.getJSONObject("response");
-            JSONObject body = response.getJSONObject("body");
+            try {
+                data = getTourSpotData(i , 150);
+                JSONObject jsonObject = new JSONObject(data);
+                JSONObject response = jsonObject.getJSONObject("response");
+                JSONObject body = response.getJSONObject("body");
             JSONArray items = body.getJSONObject("items").getJSONArray("item");
             for (int j = 0; j < items.length(); j++) {
                 JSONObject item = items.getJSONObject(j);
@@ -304,6 +306,16 @@ public class ApiCall {
                 tourSpotDTO.setC2Code(item.getString("cat2"));
                 tourSpotDTO.setC3Code(item.getString("cat3"));
                 tourSpotDTOList.add(tourSpotDTO);
+            }
+            } catch (Exception e) {
+                System.err.println("pageNo: " + i);
+                System.err.println("data: " + data);
+                System.err.println("error: " + e.getMessage());
+                errorCount++;
+                if (errorCount > 5) {
+                    break;
+                }
+                i--;
             }
         }
         return tourSpotDTOList;
