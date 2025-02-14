@@ -10,8 +10,7 @@ public class PostDTO {
     private String poTitle;
     private String poContent;
     private int usIdx;
-    private Date poCreatedAt;
-    private Date poUpdatedAt;
+    private Date poCreatedAt;    
     private Date poDeletedAt;
     private int poState;
 }
