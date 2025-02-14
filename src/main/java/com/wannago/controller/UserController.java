@@ -87,10 +87,17 @@ public class UserController {
         return ResponseEntity.ok("프로필 이미지 수정에 성공하였습니다.");
     }
 
-    // 유저 프로필 조회
+    // 유저 프로필 조회 - 유저 번호
     @GetMapping("/{usIdx}")
     public ResponseEntity<UserDTO> getUserProfile(@PathVariable("usIdx") int usIdx) {
         log.info("GET : /users/{} 호출", usIdx);
         return ResponseEntity.ok(userService.findByUsIdx(usIdx));
+    }
+
+    // 유저 프로필 조회 - 유저 이메일 (검색)
+    @GetMapping("/email/{usEmail}")
+    public ResponseEntity<UserDTO> getUserProfileByEmail(@PathVariable("usEmail") String usEmail) {
+        log.info("GET : /users/email/{} 호출", usEmail);
+        return ResponseEntity.ok(userService.findByUsEmail(usEmail));
     }
 }
