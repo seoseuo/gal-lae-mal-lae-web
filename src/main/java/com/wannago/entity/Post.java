@@ -26,4 +26,14 @@ public class Post {
     private String poContent;
     @Column(name = "us_idx",nullable = false)
     private Integer usIdx;
+    @Column(name = "po_created_at",nullable = false)
+    private Date poCreatedAt;
+    @Column(name = "po_updated_at",nullable = false)
+    private Date poUpdatedAt;
+    @Column(name = "po_deleted_at",nullable = false)
+    private Date poDeletedAt;
+    @Column(name = "po_state",nullable = false)
+    private Integer poState;
+    
+    
 }
