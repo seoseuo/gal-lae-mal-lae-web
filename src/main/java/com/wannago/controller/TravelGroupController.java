@@ -18,6 +18,8 @@ import java.util.Map;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Log4j2
 @RestController
@@ -32,11 +34,16 @@ public class TravelGroupController {
 
     // 모임 생성
     @PostMapping
-    public ResponseEntity<String> createTravelGroup(@RequestBody TravelGroupDTO travelGroupDTO) {
+    public ResponseEntity<String> createTravelGroup(@ModelAttribute TravelGroupDTO travelGroupDTO,
+            @RequestParam("setGrProfile") MultipartFile file) {
         log.info("POST : /travelgroups");
         log.info(travelGroupDTO);
+        log.info("파일명: {}", file.getOriginalFilename());
+        log.info("파일 크기: {} bytes", file.getSize());
+        log.info("파일 타입: {}", file.getContentType());
+
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
-        travelGroupService.createTravelGroup(travelGroupDTO, userDTO);
+        travelGroupService.createTravelGroup(travelGroupDTO, userDTO, file);
         return ResponseEntity.ok("모임 생성이 완료되었습니다.");
     }
 
@@ -55,16 +62,16 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.getTravelGroup(grIdx));
     }
 
-    // 모임 권한 위임    
+    // 모임 권한 위임
     @PatchMapping("/{grIdx}/admin/{usIdx}")
     public ResponseEntity<String> updateAdmin(@PathVariable("grIdx") int grIdx, @PathVariable("usIdx") int usIdx) {
         log.info("PATCH : /travelgroups/{}/admin/{}", grIdx, usIdx);
-        
+
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
 
         log.info("grIdx : {}", grIdx);
         log.info("Old Admin : {}", userDTO.getUsIdx());
-        log.info("New Admin : {}", usIdx);        
+        log.info("New Admin : {}", usIdx);
 
         return ResponseEntity.ok(travelGroupService.updateAdmin(userDTO.getUsIdx(), usIdx, grIdx));
     }
@@ -83,5 +90,13 @@ public class TravelGroupController {
     public ResponseEntity<String> deleteTravelGroup(@PathVariable("grIdx") int grIdx) {
         log.info("DELETE : /travelgroups/{}", grIdx);
         return ResponseEntity.ok(travelGroupService.deleteTravelGroup(grIdx));
+    }
+
+    // 모임 초대
+    @PatchMapping("/{grIdx}/invite/{usIdx}")
+    public ResponseEntity<String> inviteTravelGroup(@PathVariable("grIdx") int grIdx,
+            @PathVariable("usIdx") int usIdx) {
+        log.info("PATCH : /travelgroups/{}/invite/{}", grIdx, usIdx);
+        return ResponseEntity.ok(travelGroupService.inviteTravelGroup(grIdx, usIdx));
     }
 }

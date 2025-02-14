@@ -13,13 +13,18 @@ import com.wannago.repository.MemberRepository;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import com.wannago.util.security.SecurityUtil;
 import com.wannago.mapper.MemberMapper;
 import java.util.HashMap;
 import lombok.extern.log4j.Log4j2;
 import java.util.Comparator;
 import com.wannago.mapper.UserMapper;
 import com.wannago.repository.UserRepository;
+import org.springframework.web.multipart.MultipartFile; 
+import org.springframework.beans.factory.annotation.Value;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 @Log4j2
 @Service
@@ -35,10 +40,7 @@ public class TravelGroupService {
     private MemberRepository memberRepository;
 
     @Autowired
-    private MemberMapper memberMapper;
-
-    @Autowired
-    private SecurityUtil securityUtil;
+    private MemberMapper memberMapper;    
 
     @Autowired
     private UserMapper userMapper;
@@ -46,13 +48,33 @@ public class TravelGroupService {
     @Autowired
     private UserRepository userRepository;
 
+    @Value("${file.image.upload-path}")
+    private String fileUploadPath;
+
     // 모임 생성
     // 모임 생성 시 사용
-    public void createTravelGroup(TravelGroupDTO travelGroupDTO, UserDTO userDTO) {
+    public void createTravelGroup(TravelGroupDTO travelGroupDTO, UserDTO userDTO, MultipartFile file) {
         // 생성 날짜 지정
         travelGroupDTO.setGrCreatedAt(new Date());
 
+        // 0. 이미지 파일 이름 설정
+        // 이름은 이 그룹이름_grProfile.확장자 형식으로 저장
+        String grProfile = travelGroupDTO.getGrName() + "_grProfile." + file.getOriginalFilename().split("\\.")[1];
+        travelGroupDTO.setGrProfile(grProfile);
+
+        // 0-1. 이미지 파일 해당 경로에 저장
+        File newFile = new File(fileUploadPath + grProfile);
+        try {
+            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("File upload failed", e);
+        }
+
+        // 0-2. 이미지 파일 세팅
+        travelGroupDTO.setGrProfile(grProfile);
+
         // 1. TravelGroup 생성
+        travelGroupDTO.setGrState(1);
         TravelGroup travelGroup = travelGroupMapper.toEntity(travelGroupDTO);
         travelGroup = travelGroupRepository.save(travelGroup);
 
@@ -141,5 +163,16 @@ public class TravelGroupService {
         Date grDeletedAt = new Date();
         travelGroupRepository.updateGrStatusByGrIdx(grIdx, grDeletedAt);
         return "모임을 삭제했습니다.";
+    }
+
+    // 모임 초대
+    public String inviteTravelGroup(int grIdx, int usIdx) {
+        // 1. 모임 초대
+        memberRepository.save(Member.builder()
+                .grIdx(grIdx)
+                .usIdx(usIdx)
+                .meRole(Member.MemberRole.MEMBER)
+                .build());
+        return "모임 초대가 완료되었습니다.";
     }
 }
