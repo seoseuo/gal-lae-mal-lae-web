@@ -13,4 +13,5 @@ public class PostDTO {
     private Date poCreatedAt;    
     private Date poDeletedAt;
     private int poState;
+    private String ldIdx;
 }

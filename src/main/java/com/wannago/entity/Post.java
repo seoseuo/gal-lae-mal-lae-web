@@ -32,6 +32,14 @@ public class Post {
     private Date poDeletedAt;
     @Column(name = "po_state",nullable = false)
     private Integer poState;
+    // location_do 정보 추가
+    // 필터링을 위해서
+    @Column(name = "ld_idx", nullable = false)
+    private int ldIdx;
+
+    
+    
+    
     
     
 }
