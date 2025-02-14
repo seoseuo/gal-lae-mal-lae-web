@@ -31,7 +31,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     // usEmail을 통해 User 정보를 가져오는 메서드
     // 로그인 시 사용
-    User findByUsEmail(String usEmail);
+    Optional<User> findByUsEmail(String usEmail);
 
     // usIdx를 통해 User 비밀번호를 수정하는 메서드
     // 비밀번호 변경 시 사용
@@ -46,4 +46,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Modifying
     @Query("UPDATE User u SET u.usProfile = :usProfile WHERE u.usIdx = :usIdx")
     void updateUsProfileByUsIdx(@Param("usIdx") int usIdx, @Param("usProfile") String usProfile);
+
+
+
 }

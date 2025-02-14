@@ -34,8 +34,8 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    @Value("${file.profile.upload-path}")
-    private String profileUploadPath;
+    @Value("${file.image.upload-path}")
+    private String imageUploadPath;
 
     // usIdx를 통해 User 정보를 가져오는 메서드
     // 내 정보 조회 시 사용
@@ -100,7 +100,7 @@ public class UserService {
         
         // 2. 기존 프로필이 기본 이미지가 아니면 삭제
         if (!"profile.png".equals(user.getUsProfile())) {
-            File profileDir = new File(profileUploadPath);
+            File profileDir = new File(imageUploadPath);
             File[] matchingFiles = profileDir.listFiles((dir, name) -> name.startsWith(fileName + "."));
             if (matchingFiles != null) {
                 for (File matchingFile : matchingFiles) {
@@ -117,7 +117,7 @@ public class UserService {
 
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         String uploadFileName = fileName + fileExtension;
-        File newFile = new File(profileUploadPath + uploadFileName);
+        File newFile = new File(imageUploadPath + uploadFileName);
 
         try {
             Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -127,5 +127,12 @@ public class UserService {
 
         // 4. DB 업데이트 (파일명 변경)
         userRepository.updateUsProfileByUsIdx(usIdx, uploadFileName);
+    }
+
+    // usEmail을 통해 User 정보를 가져오는 메서드
+    // 검색 시 사용
+    public UserDTO findByUsEmail(String usEmail) {
+        Optional<User> userOptional = userRepository.findByUsEmail(usEmail);
+        return userOptional.map(userMapper::toDTO).orElse(null);
     }
 }

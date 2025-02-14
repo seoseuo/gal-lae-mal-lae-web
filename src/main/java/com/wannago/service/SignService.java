@@ -18,7 +18,7 @@ import com.wannago.util.jwt.TokenDto;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -72,7 +72,7 @@ public class SignService {
     //이미가입된회원이있는지확인
 
     public boolean isEmailExist(String email) {
-        User user = userRepository.findByUsEmail(email);
+        Optional<User> user = userRepository.findByUsEmail(email);
         if(user != null){
             return true;
         }
@@ -100,18 +100,18 @@ public class SignService {
     }
     //로그인
     public LoginResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByUsEmail(loginRequest.getUsEmail());
+        Optional<User> user = userRepository.findByUsEmail(loginRequest.getUsEmail());
         if(user == null){
             return new LoginResponse(null,LoginStatusEnum.WRONG_EMAIL.getMessage());
         }
-        else if(user.getUsState() != 1){
+        else if(user.get().getUsState() != 1){
             return new LoginResponse(null,LoginStatusEnum.WRONG_STATE.getMessage());
         }
-        else if(!passwordEncoder.matches(loginRequest.getUsPw(), user.getUsPw())){
+        else if(!passwordEncoder.matches(loginRequest.getUsPw(), user.get().getUsPw())){
             return new LoginResponse(null,LoginStatusEnum.WRONG_PASSWORD.getMessage());
         }
         else{
-            return new LoginResponse(userMapper.toDTO(user),LoginStatusEnum.LOGIN_SUCCESS.getMessage());
+            return new LoginResponse(userMapper.toDTO(user.get()),LoginStatusEnum.LOGIN_SUCCESS.getMessage());
         }
     }
 
@@ -128,13 +128,13 @@ public class SignService {
     }
     //비밀번호 변경
     public ResponseDTO changePassword(String email, String password){
-        User user = userRepository.findByUsEmail(email);
+        Optional<User> user = userRepository.findByUsEmail(email);
         User updatedUser = User.builder()
                 .usPw(passwordEncoder.encode(password))
-                .usEmail(user.getUsEmail())
-                .usName(user.getUsName())
-                .usJoinDate(user.getUsJoinDate())
-                .usState(user.getUsState())
+                .usEmail(user.get().getUsEmail())
+                .usName(user.get().getUsName())
+                .usJoinDate(user.get().getUsJoinDate())
+                .usState(user.get().getUsState())
                 .build();
         userRepository.save(updatedUser);
         return new ResponseDTO(true, SignupMsgEnum.PASSWORD_CHANGE_SUCCESS.getMessage());
