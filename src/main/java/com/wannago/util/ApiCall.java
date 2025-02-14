@@ -268,12 +268,13 @@ public class ApiCall {
         JSONObject prevResponse = prevJsonObject.getJSONObject("response");
         JSONObject prevBody = prevResponse.getJSONObject("body");
         int totalCount = prevBody.getInt("totalCount");
-        int totalPage = totalCount % 100 > 0 ? totalCount / 100 + 1 : totalCount / 100;
+        int numOfRows = 150;
+        int totalPage = totalCount % numOfRows > 0 ? totalCount / numOfRows + 1 : totalCount / numOfRows;
         int errorCount = 0;
         String data = "";
         for (int i = 1; i <= totalPage; i++) {
             try {
-                data = getTourSpotData(i , 150);
+                data = getTourSpotData(i , numOfRows);
                 JSONObject jsonObject = new JSONObject(data);
                 JSONObject response = jsonObject.getJSONObject("response");
                 JSONObject body = response.getJSONObject("body");
@@ -292,7 +293,11 @@ public class ApiCall {
                 tourSpotDTO.setTsAddr1(item.getString("addr1"));
                 tourSpotDTO.setTsAddr2(item.getString("addr2"));
                 tourSpotDTO.setTsZipcode(item.getString("zipcode"));
-                tourSpotDTO.setTsTel(item.getString("tel"));
+                String tel = item.getString("tel");
+                if (tel.length() > 100) {
+                    tel = tel.substring(0, 100);
+                }
+                tourSpotDTO.setTsTel(tel);
                 tourSpotDTO.setTsContentTypeId(item.getString("contenttypeid"));
                 tourSpotDTO.setTsBookTour(item.getString("booktour"));
                 tourSpotDTO.setTsCpyrhtDivCd(item.getString("cpyrhtDivCd"));
