@@ -17,29 +17,29 @@ import java.util.Date;
 public class Travel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int trIdx;
-
-    @ManyToOne
+    private int trIdx;    
+    
     @JoinColumn(name = "gr_idx", nullable = false)
-    private TravelGroup travelGroup;
+    private int grIdx;
 
-    @Column(name = "tr_start_time", nullable = false)
+    @Column(name = "tr_start_time", nullable = true)
     private Date trStartTime;
 
-    @Column(name = "tr_end_time", nullable = false)
+    @Column(name = "tr_end_time", nullable = true)
     private Date trEndTime;
 
-    @Column(name = "ls_idx", nullable = false, insertable = false, updatable = false)
-    // 이 필드에 insertable=false, updatable=false 추가
-    private int lsIdx;
+    @Column(name = "ld_idx", nullable = false, updatable = false)    
+    private int ldIdx;
 
-    @ManyToOne
-    @JoinColumns({
-        @JoinColumn(name = "ls_idx", referencedColumnName = "ls_idx", insertable = false, updatable = false),
-        @JoinColumn(name = "ld_idx", referencedColumnName = "ld_idx", insertable = false, updatable = false)
-    })
-    private LocationSi locationSi;
+    @Column(name = "ls_idx", nullable = false, updatable = false)    
+    private int lsIdx;
 
     @Column(nullable = false)
     private Date trCreatedAt;
+
+    @Column(nullable = false)
+    private int trState;
+
+    @Column(nullable = true)
+    private Date trDeletedAt;
 }
