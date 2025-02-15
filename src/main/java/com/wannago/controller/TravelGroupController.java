@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.ModelAttribute;
-
+import java.util.HashMap;
+import com.wannago.dto.LocationDoDTO;
+import com.wannago.dto.LocationSiDTO;
 @Log4j2
 @RestController
 @RequestMapping("/travelgroups")
@@ -99,4 +101,27 @@ public class TravelGroupController {
         log.info("PATCH : /travelgroups/{}/invite/{}", grIdx, usIdx);
         return ResponseEntity.ok(travelGroupService.inviteTravelGroup(grIdx, usIdx));
     }
+
+    // 여행지 생성 파트
+    // 여행지 도 목록 가져오기
+    @GetMapping("/travel/location/do")
+    public ResponseEntity<List<LocationDoDTO>> getLocationDoList() {
+        log.info("GET : /travelgroups/travel/location/do");
+        return ResponseEntity.ok(travelGroupService.getLocationDoList());
+    }
+
+    // 여행지 도 예하 시 목록 가져오기
+    @GetMapping("/travel/location/do/{ldIdx}")
+    public ResponseEntity<List<LocationSiDTO>> getLocationSiList(@PathVariable("ldIdx") int ldIdx) {
+        log.info("GET : /travelgroups/travel/location/do/{}", ldIdx);
+        return ResponseEntity.ok(travelGroupService.getLocationSiList(ldIdx));
+    }
+
+    // 랜덤 여행지 추천
+    @GetMapping("/travel/location/random")
+    public ResponseEntity<LocationSiDTO> getRandomLocationSi() {
+        log.info("GET : /travelgroups/travel/location/random");
+        return ResponseEntity.ok(travelGroupService.getRandomLocationSi());
+    }
+
 }

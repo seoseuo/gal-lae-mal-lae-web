@@ -19,13 +19,24 @@ import lombok.extern.log4j.Log4j2;
 import java.util.Comparator;
 import com.wannago.mapper.UserMapper;
 import com.wannago.repository.UserRepository;
-import org.springframework.web.multipart.MultipartFile; 
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-
+import com.wannago.dto.LocationSiDTO;
+import com.wannago.mapper.LocationSiMapper;
+import com.wannago.repository.LocationDoRepository;
+import java.util.ArrayList;
+import com.wannago.dto.LocationDoDTO;
+import com.wannago.entity.LocationDo;
+import java.util.Optional;
+import com.wannago.mapper.LocationDoMapper;
+import com.wannago.repository.LocationSiRepository;
+import com.wannago.entity.LocationSi;
+import java.util.Random;
+import com.wannago.entity.LocationSiId;
 @Log4j2
 @Service
 public class TravelGroupService {
@@ -40,13 +51,25 @@ public class TravelGroupService {
     private MemberRepository memberRepository;
 
     @Autowired
-    private MemberMapper memberMapper;    
+    private MemberMapper memberMapper;
 
     @Autowired
     private UserMapper userMapper;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private LocationSiMapper locationSiMapper;
+
+    @Autowired
+    private LocationDoMapper locationDoMapper;
+
+    @Autowired
+    private LocationDoRepository locationDoRepository;
+
+    @Autowired
+    private LocationSiRepository locationSiRepository;
 
     @Value("${file.image.upload-path}")
     private String fileUploadPath;
@@ -175,4 +198,26 @@ public class TravelGroupService {
                 .build());
         return "모임 초대가 완료되었습니다.";
     }
+
+    // 여행지 생성 파트
+    // 여행지 도 목록 가져오기
+    public List<LocationDoDTO> getLocationDoList() {
+        return locationDoMapper.toDTOList(locationDoRepository.findAll());
+    }
+
+    // 여행지 시 목록 가져오기
+    public List<LocationSiDTO> getLocationSiList(int ldIdx) {
+        return locationSiMapper.toDTOList(locationSiRepository.findByLdIdx(ldIdx));
+    }
+
+    // 랜덤 여행지 추천
+    public LocationSiDTO getRandomLocationSi() {
+
+        // DB에서 랜덤으로 locationSi 데이터 조회
+        List<LocationSi> locationSiList = locationSiRepository.findAll();
+        // 랜덤으로 하나 뽑기
+        LocationSi locationSi = locationSiList.get(new Random().nextInt(locationSiList.size()));
+        return locationSiMapper.toDTO(locationSi);
+    }
+
 }
