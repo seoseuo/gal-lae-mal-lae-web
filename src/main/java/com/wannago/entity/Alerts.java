@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import com.wannago.enums.ReadState;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,7 +26,7 @@ public class Alerts {
     @Column(name = "al_date", nullable = false)
     private LocalDateTime alDate;
     @Column(name = "al_read", nullable = false)
-    private Byte alRead;
+    private ReadState alRead;
     @Column(name = "al_state", nullable = false)
     private Integer alState;
     @Column(name = "us_idx", nullable = false)

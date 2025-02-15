@@ -1,6 +1,6 @@
 package com.wannago.enums;
 
-public enum MsgRead {
+public enum ReadState {
     READ, UNREAD
 }
 
