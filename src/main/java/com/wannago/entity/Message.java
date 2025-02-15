@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
-import com.wannago.enums.MsgRead;
+import com.wannago.enums.ReadState;
 
 @Getter
 @NoArgsConstructor
@@ -24,17 +24,18 @@ public class Message {
 
     @Column(name = "msg_sender", nullable = false)
     private Integer msgSender;
-    @Column(name = "msg_receiver", nullable = false)
-    private Integer msgReceiver;
     @Column(name = "msg_Content", nullable = false)
     private String msgContent;
     @Column(name = "msg_created_at")
     private LocalDateTime msgCreatedAt;
 
+    @Column(name = "cr_idx")
+    private Integer crIdx;
+
     @Enumerated(EnumType.STRING)
-    private MsgRead msgRead;
+    private ReadState msgRead;
 
     @Column(name = "msg_state")
-    private Byte msgState;
+    private Integer msgState;
 
 }

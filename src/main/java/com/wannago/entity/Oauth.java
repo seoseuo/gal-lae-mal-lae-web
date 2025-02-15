@@ -18,7 +18,7 @@ public class Oauth {
     @Column(name = "oa_idx", nullable = false)
     private Integer oaIdx;
 
-    @Column(name = "oa_type",nullable = false)
+    @Column(name = "oa_type",nullable = false) 
     private String oaType;
 
     @Column(name = "us_idx",nullable = false)
