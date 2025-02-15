@@ -19,9 +19,13 @@ public interface TravelGroupRepository extends JpaRepository<TravelGroup, Intege
     <S extends TravelGroup> S save(S entity);
 
     // 특정 모임 조회 - grIdx로 찾기
+    // 모임 삭제 시 grState = 0 으로 변경되어 조회 안되는 경우가 있음
+    
+    @Query("SELECT t FROM TravelGroup t WHERE t.grIdx = :grIdx AND t.grState = 1")
     Optional<TravelGroup> findByGrIdx(int grIdx);
 
     // 여러 그룹 ID로 그룹들 조회 - 추가
+    @Query("SELECT t FROM TravelGroup t WHERE t.grIdx IN :grIdxList AND t.grState = 1")
     List<TravelGroup> findAllByGrIdxIn(List<Integer> grIdxList);
 
     // 모임 삭제
