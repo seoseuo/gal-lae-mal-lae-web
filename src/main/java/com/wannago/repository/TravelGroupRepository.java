@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Date;
 
+
 @Repository
 public interface TravelGroupRepository extends JpaRepository<TravelGroup, Integer> {
 
@@ -29,4 +30,5 @@ public interface TravelGroupRepository extends JpaRepository<TravelGroup, Intege
     @Query("UPDATE TravelGroup t SET t.grState = 0, t.grDeletedAt = :grDeletedAt WHERE t.grIdx = :grIdx")
     void updateGrStatusByGrIdx(@Param("grIdx") int grIdx, @Param("grDeletedAt") Date grDeletedAt);
 
+    
 }

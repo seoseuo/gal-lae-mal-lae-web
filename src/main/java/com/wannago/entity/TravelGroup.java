@@ -31,4 +31,8 @@ public class TravelGroup {
 
     @Column(name = "gr_deleated_at",nullable = true)
     private Date grDeletedAt;
+
+    @Column(name = "gr_profile", length = 200)
+    @Builder.Default
+    private String grProfile = "profile.png";
 }

@@ -37,6 +37,11 @@ import com.wannago.repository.LocationSiRepository;
 import com.wannago.entity.LocationSi;
 import java.util.Random;
 import com.wannago.entity.LocationSiId;
+import com.wannago.entity.Travel;
+import com.wannago.repository.TravelRepository;
+import com.wannago.mapper.TravelMapper;
+import com.wannago.dto.TravelDTO;
+
 @Log4j2
 @Service
 public class TravelGroupService {
@@ -70,6 +75,15 @@ public class TravelGroupService {
 
     @Autowired
     private LocationSiRepository locationSiRepository;
+
+    @Autowired
+    private TravelMapper travelMapper;
+
+    @Autowired
+    private TravelRepository travelRepository;
+
+    @Autowired
+    private RedisService redisService;
 
     @Value("${file.image.upload-path}")
     private String fileUploadPath;
@@ -126,6 +140,9 @@ public class TravelGroupService {
     // 특정 모임 조회 시 사용
     public Map<String, Object> getTravelGroup(int grIdx) {
 
+        // 0. 혹시 모를 redis에 저장된 nowGrIdx 삭제
+        redisService.deleteNowGrIdx("nowGrIdx");
+
         // 1. 리턴 객체 생성
         Map<String, Object> travelGroupInfo = new HashMap<>();
 
@@ -144,8 +161,12 @@ public class TravelGroupService {
         travelGroupInfo.put("memberList", memberList);
 
         // 4. 모임 여행지 목록
-        // travelGroupInfo.put("travelList",
-        // travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));
+         travelGroupInfo.put("travelList",
+         travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));
+
+        
+        // Redis에 현재 모임 grIdx 를 nowGrIdx 키로 저장
+        redisService.setNowGrIdx("nowGrIdx", grIdx);
 
         return travelGroupInfo;
     }
@@ -220,4 +241,37 @@ public class TravelGroupService {
         return locationSiMapper.toDTO(locationSi);
     }
 
+    // 여행지 도 선정
+    public TravelDTO selectLocationDo(int ldIdx) {
+        // 1. redis에서 현재 grIdx 가져오기
+        int grIdx = redisService.getNowGrIdx("nowGrIdx");
+        // 2. travleDTO 객체 생성
+        TravelDTO travelDTO = new TravelDTO();
+        // 3. travleDTO 객체에 grIdx, ldIdx, state = 1, createdAt 현재 시각 setter로 등록
+        travelDTO.setGrIdx(grIdx);
+        travelDTO.setLdIdx(ldIdx);
+        travelDTO.setTrState(1);
+        travelDTO.setTrCreatedAt(new Date());
+
+        log.info("travelDTO  {}", travelDTO);
+        
+        // 4. redis에 nowTravelDTO 키로 저장
+        redisService.setTravelInfo("nowTravelDTO", travelDTO);
+        
+        return travelDTO;            
+    }
+
+    // 여행지 시 선정
+    public TravelDTO selectLocationSi(int lsIdx) {
+        // 1. redis에서 nowTravelDTO 가져오기
+        // 키 : 값 문자열 형태인 Object 타입을 TravelDTO 타입으로 변환
+        TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo("nowTravelDTO");
+        
+        // 2. travelDTO 에 lsIdx 선정
+        travelDTO.setLsIdx(lsIdx);
+        log.info("travelDTO  {}", travelDTO);
+        // 3. redis에 nowTravelDTO 키로 저장
+        redisService.setTravelInfo("nowTravelDTO", travelDTO);            
+        return travelDTO;
+    }
 }

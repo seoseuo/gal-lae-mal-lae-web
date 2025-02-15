@@ -22,16 +22,16 @@ public class Travel {
     @JoinColumn(name = "gr_idx", nullable = false)
     private int grIdx;
 
-    @Column(name = "tr_start_time", nullable = false)
+    @Column(name = "tr_start_time", nullable = true)
     private Date trStartTime;
 
-    @Column(name = "tr_end_time", nullable = false)
+    @Column(name = "tr_end_time", nullable = true)
     private Date trEndTime;
 
-    @Column(name = "ld_idx", nullable = false, insertable = false, updatable = false)    
+    @Column(name = "ld_idx", nullable = false, updatable = false)    
     private int ldIdx;
 
-    @Column(name = "ls_idx", nullable = false, insertable = false, updatable = false)    
+    @Column(name = "ls_idx", nullable = false, updatable = false)    
     private int lsIdx;
 
     @Column(nullable = false)

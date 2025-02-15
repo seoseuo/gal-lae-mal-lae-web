@@ -62,8 +62,8 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
                     sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회장이 아닙니다.");
                     return;
                 }
-            }            
-        
+            }
+        }
         filterChain.doFilter(request, response);
 
     }

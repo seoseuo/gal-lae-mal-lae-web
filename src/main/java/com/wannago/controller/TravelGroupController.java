@@ -20,9 +20,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import java.util.HashMap;
 import com.wannago.dto.LocationDoDTO;
 import com.wannago.dto.LocationSiDTO;
+import com.wannago.dto.TravelDTO;
+
 @Log4j2
 @RestController
 @RequestMapping("/travelgroups")
@@ -122,6 +123,20 @@ public class TravelGroupController {
     public ResponseEntity<LocationSiDTO> getRandomLocationSi() {
         log.info("GET : /travelgroups/travel/location/random");
         return ResponseEntity.ok(travelGroupService.getRandomLocationSi());
+    }
+
+    // 여행지 도 선정
+    @PostMapping("/travel/location/do/{ldIdx}")
+    public ResponseEntity<TravelDTO> selectLocationDo(@PathVariable("ldIdx") int ldIdx) {
+        log.info("GET : /travelgroups/travel/location/do/{}", ldIdx);
+        return ResponseEntity.ok(travelGroupService.selectLocationDo(ldIdx));
+    }
+
+    // 여행지 시 선정
+    @PostMapping("/travel/location/do/si/{lsIdx}")
+    public ResponseEntity<TravelDTO> selectLocationSi(@PathVariable("lsIdx") int lsIdx) {
+        log.info("GET : /travelgroups/travel/location/si/{}", lsIdx);
+        return ResponseEntity.ok(travelGroupService.selectLocationSi(lsIdx));
     }
 
 }
