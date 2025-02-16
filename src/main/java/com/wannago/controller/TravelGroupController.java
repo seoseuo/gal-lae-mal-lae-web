@@ -139,4 +139,13 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.selectLocationSi(lsIdx));
     }
 
+    // 여행 기간 선정
+    @PostMapping("/travel/period")
+    public ResponseEntity<TravelDTO> selectTravelPeriod(@RequestBody TravelDTO newTravelDTO) {
+        log.info("POST : /travelgroups/travel/schedule/period/{}", newTravelDTO.getTrStartTime());
+        log.info("POST : /travelgroups/travel/schedule/period/{}", newTravelDTO.getTrEndTime());        
+        return ResponseEntity.ok(travelGroupService.selectTravelPeriod(newTravelDTO));
+    }
+    
+
 }

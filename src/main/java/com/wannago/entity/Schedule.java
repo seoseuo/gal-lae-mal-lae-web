@@ -6,8 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import java.time.LocalTime;
 
 @Getter
@@ -22,14 +21,21 @@ public class Schedule {
     private Integer scIdx;
 
     @Column(name = "sc_date")
-    private LocalDate scDate;
+    private int scDate;
+
     @Column(name = "sc_start_time")
     private LocalTime scStartTime;
+
     @Column(name = "sc_end_time")
     private LocalTime scEndTime;
-    @Column(name = "tr_idx", nullable = false)
 
+    @Column(name = "tr_idx", nullable = false)
     private Integer trIdx;
-    @Column(name = "contentid", nullable = false)
-    private Integer contentid;
+
+    @Column(name = "ts_idx", nullable = true)
+    private Integer tsIdx;
+
+    @Version
+    @Column(name = "version", nullable = true)
+    private Long version;  // 낙관적 잠금을 위한 버전 필드
 }
