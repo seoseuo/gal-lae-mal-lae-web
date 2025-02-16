@@ -26,7 +26,6 @@ public class LocationSi {
     private String lsName;
 
 
-
     @ManyToOne
     @JoinColumn(name = "ld_idx", nullable = false,insertable = false, updatable = false)
     private LocationDo locationDo;
