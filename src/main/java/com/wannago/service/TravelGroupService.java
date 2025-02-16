@@ -49,6 +49,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalDate;
 import java.text.SimpleDateFormat;
+import com.wannago.entity.Travelogue;
+import com.wannago.repository.TravelogueRepository;
+import com.wannago.mapper.TravelogueMapper;
 
 @Log4j2
 @Service
@@ -98,6 +101,12 @@ public class TravelGroupService {
 
     @Autowired
     private ScheduleMapper scheduleMapper;
+
+    @Autowired
+    private TravelogueRepository travelogueRepository;
+
+    @Autowired
+    private TravelogueMapper travelogueMapper;
 
     @Value("${file.image.upload-path}")
     private String fileUploadPath;
@@ -297,48 +306,49 @@ public class TravelGroupService {
         travelDTO.setTrStartTime(newTravelDTO.getTrStartTime());
         travelDTO.setTrEndTime(newTravelDTO.getTrEndTime());
 
-        // 3. travel 테이블에 저장
-        // 3-1. 저장된 Travel 엔티티에서 trIdx 가져오기
-        // Optional<Travel> 타입으로 반환되므로 get() 메서드로 값을 가져옴
-        int trIdx = travelRepository.save(travelMapper.toEntity(travelDTO)).getTrIdx();
-
-        // 4. redis에 nowTravelDTO 삭제
-        redisService.deleteTravelInfo("nowTravelDTO");
-
-        // 5. schedule 테이블에 종료 - 시작 일자 + 1 일 만큼 sc_date에 정수형으로 저장
-
-        ScheduleDTO scheduleDTO = new ScheduleDTO();
-
-        // 5-1. tr_idx를 꺼내와서 저장해야 함
-        scheduleDTO.setTrIdx(trIdx);
-
+        // 3. trPeriod 선정
         // ISO 8601 형식에서 날짜의 차이를 구해야 함. ex) 2025-12-18T00:00:00.000+0900 를 20251218 형식으로
-
-        log.info("travelDTO.getTrStartTime()  {}", travelDTO.getTrStartTime());
-        log.info("travelDTO.getTrEndTime()  {}", travelDTO.getTrEndTime());
-
-        log.info("travelDTO.getTrStartTime().toString()  {}", travelDTO.getTrStartTime().toString());
-        log.info("travelDTO.getTrEndTime().toString()  {}", travelDTO.getTrEndTime().toString());
-
         // 날짜 포맷 설정
         SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         // travelDTO의 시작과 끝 시간을 "yyyy-MM-dd" 형식으로 변환
         // 날짜 차이를 구하기
         // 0-9 까지 인덱싱 한 다음 '-' 제거 후 정수형으로 변환
-        int duration = Integer.parseInt(outputFormat.format(travelDTO.getTrEndTime()).substring(0, 10).replace("-", ""))
+        int period = Integer.parseInt(outputFormat.format(travelDTO.getTrEndTime()).substring(0, 10).replace("-", ""))
                 - Integer.parseInt(outputFormat.format(travelDTO.getTrStartTime()).substring(0, 10).replace("-", ""))
                 + 1;
 
+        travelDTO.setTrPeriod(period);
 
-        for (int i = 1; i <= duration; i++) {
-            ScheduleDTO newScheduleDTO = new ScheduleDTO();
-            newScheduleDTO.setTrIdx(trIdx);
-            newScheduleDTO.setScDate(i);
-            scheduleRepository.save(scheduleMapper.toEntity(newScheduleDTO));
-        }        
-        
-        travelDTO.setTrIdx(trIdx);
+        // 3. travel 테이블에 저장
+        travelRepository.save(travelMapper.toEntity(travelDTO)).getTrIdx();
+
+        // 4. redis에 nowTravelDTO 삭제
+        redisService.deleteTravelInfo("nowTravelDTO");
+
         return travelDTO;
+    }
+
+    // 여행 조회
+    public Map<String, Object> getTravel(int trIdx) {
+
+        // 1. 리턴 객체 생성
+        Map<String, Object> travelInfo = new HashMap<>();
+
+        // 2. 여행 정보 가져오기 optional타입으로 받아옴.;
+        // 2-1. 여행 정보 리턴 객체에 저장
+        travelInfo.put("travel", travelMapper
+                .toDTO(travelRepository.findByTrIdx(trIdx).orElseThrow(() -> new RuntimeException("여행을 찾을 수 없습니다."))));
+
+        // 2. 여행 일정 목록 가져오기
+        // 2-1. 여행 일정 목록 리턴 객체에 저장
+        travelInfo.put("scheduleList", scheduleMapper.toDTOList(scheduleRepository.findByTrIdx(trIdx)));
+
+        // 3. 여행록 가져오기
+        // 3-1. 여행록 리턴 객체에 저장
+        travelInfo.put("travelogueList", travelogueMapper.toDTOList(travelogueRepository.findByTrIdx(trIdx)));
+
+        // 3-1. 여행록 리턴 객체에 저장
+        return travelInfo;
     }
 }

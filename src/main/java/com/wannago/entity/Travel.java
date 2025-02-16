@@ -34,6 +34,10 @@ public class Travel {
     @Column(name = "ls_idx", nullable = false, updatable = false)    
     private int lsIdx;
 
+    // 추가
+    @Column(name = "tr_period", nullable = false)
+    private int trPeriod;
+
     @Column(nullable = false)
     private Date trCreatedAt;
 
