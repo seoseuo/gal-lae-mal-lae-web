@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.wannago.dto.LocationDoDTO;
 import com.wannago.dto.LocationSiDTO;
 import com.wannago.dto.TravelDTO;
+import com.wannago.dto.TourSpotsDTO;
 
 @Log4j2
 @RestController
@@ -147,5 +148,17 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.selectTravelPeriod(newTravelDTO));
     }
     
+    // 여행지 조회
+    @GetMapping("/travel/{trIdx}")
+    public ResponseEntity<Map<String, Object>> getTravel(@PathVariable("trIdx") int trIdx) {
+        log.info("GET : /travelgroups/travel/{}", trIdx);
+        return ResponseEntity.ok(travelGroupService.getTravel(trIdx));
+    }
 
+    // 시 예하 관광지 목록 조회
+    @GetMapping("/travel/{ldIdx}/{lsIdx}/tour-spots")
+    public ResponseEntity<List<TourSpotsDTO>> getTourSpotList(@PathVariable("ldIdx") int ldIdx, @PathVariable("lsIdx") int lsIdx) {
+        log.info("GET : /travelgroups/travel/{}/{}/tour-spots", ldIdx, lsIdx);
+        return ResponseEntity.ok(travelGroupService.getTourSpotList(ldIdx, lsIdx));
+    }
 }

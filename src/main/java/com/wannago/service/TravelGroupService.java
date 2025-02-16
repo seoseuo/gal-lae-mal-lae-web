@@ -52,6 +52,9 @@ import java.text.SimpleDateFormat;
 import com.wannago.entity.Travelogue;
 import com.wannago.repository.TravelogueRepository;
 import com.wannago.mapper.TravelogueMapper;
+import com.wannago.dto.TourSpotsDTO;
+import com.wannago.repository.TourSpotsRepository;
+import com.wannago.mapper.TourSpotsMapper;
 
 @Log4j2
 @Service
@@ -108,6 +111,12 @@ public class TravelGroupService {
     @Autowired
     private TravelogueMapper travelogueMapper;
 
+    @Autowired
+    private TourSpotsRepository tourSpotsRepository;
+
+    @Autowired
+    private TourSpotsMapper tourSpotsMapper;
+
     @Value("${file.image.upload-path}")
     private String fileUploadPath;
 
@@ -163,8 +172,10 @@ public class TravelGroupService {
     // 특정 모임 조회 시 사용
     public Map<String, Object> getTravelGroup(int grIdx) {
 
-        // 0. 혹시 모를 redis에 저장된 nowGrIdx 삭제
+        // 0. 혹시 모를 redis에 저장된 nowGrIdx 삭제 , 혹시 모를 redis에 저장된 nowTrIdx 삭제
         redisService.deleteNowGrIdx("nowGrIdx");
+        redisService.deleteNowGrIdx("nowTrIdx");
+
 
         // 1. 리턴 객체 생성
         Map<String, Object> travelGroupInfo = new HashMap<>();
@@ -334,6 +345,9 @@ public class TravelGroupService {
 
         // 1. 리턴 객체 생성
         Map<String, Object> travelInfo = new HashMap<>();
+        
+        // 1-2. 현재 여행 trIdx 레디스에 저장
+        redisService.setNowGrIdx("nowTrIdx", trIdx);
 
         // 2. 여행 정보 가져오기 optional타입으로 받아옴.;
         // 2-1. 여행 정보 리턴 객체에 저장
@@ -350,5 +364,10 @@ public class TravelGroupService {
 
         // 3-1. 여행록 리턴 객체에 저장
         return travelInfo;
+    }
+
+    // 시 예하 관광지 목록 조회
+    public List<TourSpotsDTO> getTourSpotList(int ldIdx, int lsIdx) {
+        return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdx(ldIdx, lsIdx));
     }
 }
