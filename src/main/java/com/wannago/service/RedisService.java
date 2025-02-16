@@ -89,14 +89,7 @@ public class RedisService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        return null;
-
-        // map 객체를 -> TravelDTO 객체로 변환
-        // TravelDTO travelDTO = new TravelDTO();
-        // travelDTO.setGrIdx((int) map.get("grIdx"));
-        // travelDTO.setLsIdx((int) map.get("lsIdx"));
-        // travelDTO.setTrCreatedAt((Date) map.get("trCreatedAt"));
-        // travelDTO.setTrState((int) map.get("trState"));        
+        return null;           
     }
 
     // 여행지 정보를 Redis에서 삭제하는 메서드    
