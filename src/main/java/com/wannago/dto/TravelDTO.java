@@ -23,4 +23,6 @@ public class TravelDTO {
     private Date trDeletedAt;
     // 여행 상태 추가
     private int trState;
+    // 여행 기간 추가
+    private int trPeriod;
 }

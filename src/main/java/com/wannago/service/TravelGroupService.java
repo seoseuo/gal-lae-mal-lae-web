@@ -41,6 +41,20 @@ import com.wannago.entity.Travel;
 import com.wannago.repository.TravelRepository;
 import com.wannago.mapper.TravelMapper;
 import com.wannago.dto.TravelDTO;
+import com.wannago.entity.Schedule;
+import com.wannago.dto.ScheduleDTO;
+import com.wannago.repository.ScheduleRepository;
+import com.wannago.mapper.ScheduleMapper;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
+import java.text.SimpleDateFormat;
+import com.wannago.entity.Travelogue;
+import com.wannago.repository.TravelogueRepository;
+import com.wannago.mapper.TravelogueMapper;
+import com.wannago.dto.TourSpotsDTO;
+import com.wannago.repository.TourSpotsRepository;
+import com.wannago.mapper.TourSpotsMapper;
 
 @Log4j2
 @Service
@@ -84,6 +98,24 @@ public class TravelGroupService {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private ScheduleMapper scheduleMapper;
+
+    @Autowired
+    private TravelogueRepository travelogueRepository;
+
+    @Autowired
+    private TravelogueMapper travelogueMapper;
+
+    @Autowired
+    private TourSpotsRepository tourSpotsRepository;
+
+    @Autowired
+    private TourSpotsMapper tourSpotsMapper;
 
     @Value("${file.image.upload-path}")
     private String fileUploadPath;
@@ -140,8 +172,10 @@ public class TravelGroupService {
     // 특정 모임 조회 시 사용
     public Map<String, Object> getTravelGroup(int grIdx) {
 
-        // 0. 혹시 모를 redis에 저장된 nowGrIdx 삭제
+        // 0. 혹시 모를 redis에 저장된 nowGrIdx 삭제 , 혹시 모를 redis에 저장된 nowTrIdx 삭제
         redisService.deleteNowGrIdx("nowGrIdx");
+        redisService.deleteNowGrIdx("nowTrIdx");
+
 
         // 1. 리턴 객체 생성
         Map<String, Object> travelGroupInfo = new HashMap<>();
@@ -161,10 +195,9 @@ public class TravelGroupService {
         travelGroupInfo.put("memberList", memberList);
 
         // 4. 모임 여행지 목록
-         travelGroupInfo.put("travelList",
-         travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));
+        travelGroupInfo.put("travelList",
+                travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));
 
-        
         // Redis에 현재 모임 grIdx 를 nowGrIdx 키로 저장
         redisService.setNowGrIdx("nowGrIdx", grIdx);
 
@@ -254,11 +287,11 @@ public class TravelGroupService {
         travelDTO.setTrCreatedAt(new Date());
 
         log.info("travelDTO  {}", travelDTO);
-        
+
         // 4. redis에 nowTravelDTO 키로 저장
         redisService.setTravelInfo("nowTravelDTO", travelDTO);
-        
-        return travelDTO;            
+
+        return travelDTO;
     }
 
     // 여행지 시 선정
@@ -266,12 +299,75 @@ public class TravelGroupService {
         // 1. redis에서 nowTravelDTO 가져오기
         // 키 : 값 문자열 형태인 Object 타입을 TravelDTO 타입으로 변환
         TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo("nowTravelDTO");
-        
+
         // 2. travelDTO 에 lsIdx 선정
         travelDTO.setLsIdx(lsIdx);
         log.info("travelDTO  {}", travelDTO);
         // 3. redis에 nowTravelDTO 키로 저장
-        redisService.setTravelInfo("nowTravelDTO", travelDTO);            
+        redisService.setTravelInfo("nowTravelDTO", travelDTO);
         return travelDTO;
+    }
+
+    // 여행 기간 선정
+    public TravelDTO selectTravelPeriod(TravelDTO newTravelDTO) {
+        // 1. redis에 nowTravelDTO 가져오기
+        TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo("nowTravelDTO");
+
+        // 2. travelDTO 에 trStartTime, trEndTime 선정
+        travelDTO.setTrStartTime(newTravelDTO.getTrStartTime());
+        travelDTO.setTrEndTime(newTravelDTO.getTrEndTime());
+
+        // 3. trPeriod 선정
+        // ISO 8601 형식에서 날짜의 차이를 구해야 함. ex) 2025-12-18T00:00:00.000+0900 를 20251218 형식으로
+        // 날짜 포맷 설정
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        // travelDTO의 시작과 끝 시간을 "yyyy-MM-dd" 형식으로 변환
+        // 날짜 차이를 구하기
+        // 0-9 까지 인덱싱 한 다음 '-' 제거 후 정수형으로 변환
+        int period = Integer.parseInt(outputFormat.format(travelDTO.getTrEndTime()).substring(0, 10).replace("-", ""))
+                - Integer.parseInt(outputFormat.format(travelDTO.getTrStartTime()).substring(0, 10).replace("-", ""))
+                + 1;
+
+        travelDTO.setTrPeriod(period);
+
+        // 3. travel 테이블에 저장
+        travelRepository.save(travelMapper.toEntity(travelDTO)).getTrIdx();
+
+        // 4. redis에 nowTravelDTO 삭제
+        redisService.deleteTravelInfo("nowTravelDTO");
+
+        return travelDTO;
+    }
+
+    // 여행 조회
+    public Map<String, Object> getTravel(int trIdx) {
+
+        // 1. 리턴 객체 생성
+        Map<String, Object> travelInfo = new HashMap<>();
+        
+        // 1-2. 현재 여행 trIdx 레디스에 저장
+        redisService.setNowGrIdx("nowTrIdx", trIdx);
+
+        // 2. 여행 정보 가져오기 optional타입으로 받아옴.;
+        // 2-1. 여행 정보 리턴 객체에 저장
+        travelInfo.put("travel", travelMapper
+                .toDTO(travelRepository.findByTrIdx(trIdx).orElseThrow(() -> new RuntimeException("여행을 찾을 수 없습니다."))));
+
+        // 2. 여행 일정 목록 가져오기
+        // 2-1. 여행 일정 목록 리턴 객체에 저장
+        travelInfo.put("scheduleList", scheduleMapper.toDTOList(scheduleRepository.findByTrIdx(trIdx)));
+
+        // 3. 여행록 가져오기
+        // 3-1. 여행록 리턴 객체에 저장
+        travelInfo.put("travelogueList", travelogueMapper.toDTOList(travelogueRepository.findByTrIdx(trIdx)));
+
+        // 3-1. 여행록 리턴 객체에 저장
+        return travelInfo;
+    }
+
+    // 시 예하 관광지 목록 조회
+    public List<TourSpotsDTO> getTourSpotList(int ldIdx, int lsIdx) {
+        return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdx(ldIdx, lsIdx));
     }
 }
