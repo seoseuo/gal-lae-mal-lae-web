@@ -105,11 +105,15 @@ public class RedisService {
         redisTemplate.delete(key);
     }
 
-    // TravelGroup 추가 부분
 
-    // 현재 모임 번호를 redis에 저장하고, 꺼내고 삭제하는 메소드
+
+
+
+
+    // TravelGroup 추가 부분
+    // 현재 모임 번호 , 여행 번호를 redis에 저장하고, 꺼내고 삭제하는 메소드
     public void setNowGrIdx(String key, int grIdx) {
-        // 시간은 30분으로 제한
+        // 시간 제한 x
         redisTemplate.opsForValue().set(key, String.valueOf(grIdx));
     }
 
@@ -131,7 +135,7 @@ public class RedisService {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String json = objectMapper.writeValueAsString(value);
-            redisTemplate.opsForValue().set(key, json, 600, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(key, json);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
