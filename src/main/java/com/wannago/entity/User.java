@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -42,5 +42,5 @@ public class User {
     private Date usLeaveDate;
 
     @Column(name = "us_state",nullable = false)
-    private int usState;
+    private Integer usState;
 }

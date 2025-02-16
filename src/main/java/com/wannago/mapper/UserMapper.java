@@ -3,6 +3,7 @@ package com.wannago.mapper;
 import com.wannago.dto.UserDTO;
 import com.wannago.entity.User;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
