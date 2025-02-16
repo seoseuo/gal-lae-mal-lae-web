@@ -1,4 +1,5 @@
 package com.wannago.dto;
+import java.time.LocalTime;
 
 import lombok.Data;
 
@@ -6,8 +7,8 @@ import lombok.Data;
 public class ScheduleDTO {
     private Integer scIdx;
     private int scDate;
-    private String scStartTime;
-    private String scEndTime;
+    private LocalTime scStartTime;
+    private LocalTime scEndTime;
     private int trIdx;
     private int tsIdx;
 }

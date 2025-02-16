@@ -24,6 +24,7 @@ import com.wannago.dto.LocationDoDTO;
 import com.wannago.dto.LocationSiDTO;
 import com.wannago.dto.TravelDTO;
 import com.wannago.dto.TourSpotsDTO;
+import com.wannago.dto.ScheduleDTO;
 
 @Log4j2
 @RestController
@@ -34,7 +35,7 @@ public class TravelGroupController {
     private TravelGroupService travelGroupService;
 
     @Autowired
-    private SecurityUtil securityUtil;
+    private SecurityUtil securityUtil;    
 
     // 모임 생성
     @PostMapping
@@ -144,10 +145,10 @@ public class TravelGroupController {
     @PostMapping("/travel/period")
     public ResponseEntity<TravelDTO> selectTravelPeriod(@RequestBody TravelDTO newTravelDTO) {
         log.info("POST : /travelgroups/travel/schedule/period/{}", newTravelDTO.getTrStartTime());
-        log.info("POST : /travelgroups/travel/schedule/period/{}", newTravelDTO.getTrEndTime());        
+        log.info("POST : /travelgroups/travel/schedule/period/{}", newTravelDTO.getTrEndTime());
         return ResponseEntity.ok(travelGroupService.selectTravelPeriod(newTravelDTO));
     }
-    
+
     // 여행지 조회
     @GetMapping("/travel/{trIdx}")
     public ResponseEntity<Map<String, Object>> getTravel(@PathVariable("trIdx") int trIdx) {
@@ -157,8 +158,19 @@ public class TravelGroupController {
 
     // 시 예하 관광지 목록 조회
     @GetMapping("/travel/{ldIdx}/{lsIdx}/tour-spots")
-    public ResponseEntity<List<TourSpotsDTO>> getTourSpotList(@PathVariable("ldIdx") int ldIdx, @PathVariable("lsIdx") int lsIdx) {
+    public ResponseEntity<List<TourSpotsDTO>> getTourSpotList(@PathVariable("ldIdx") int ldIdx,
+            @PathVariable("lsIdx") int lsIdx) {
         log.info("GET : /travelgroups/travel/{}/{}/tour-spots", ldIdx, lsIdx);
         return ResponseEntity.ok(travelGroupService.getTourSpotList(ldIdx, lsIdx));
     }
+
+    // n일차 일정 장소 결정
+    @PostMapping("/travel/schedule")
+    public ResponseEntity<String> selectSchedule(@RequestBody List<ScheduleDTO> scheduleDTOList) {
+        log.info("POST : /travelgroups/travel/schedule");
+        scheduleDTOList.forEach(schedule -> log.info(schedule.toString()));
+        return ResponseEntity.ok(travelGroupService.selectSchedule(scheduleDTOList));
+        
+    }
+
 }
