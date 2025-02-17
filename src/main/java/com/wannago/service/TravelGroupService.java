@@ -172,10 +172,6 @@ public class TravelGroupService {
     // 특정 모임 조회 시 사용
     public Map<String, Object> getTravelGroup(int grIdx) {
 
-        // 0. 혹시 모를 redis에 저장된 nowGrIdx 삭제 , 혹시 모를 redis에 저장된 nowTrIdx 삭제
-        redisService.deleteNowGrIdx("nowGrIdx");
-        redisService.deleteNowGrIdx("nowTrIdx");
-
 
         // 1. 리턴 객체 생성
         Map<String, Object> travelGroupInfo = new HashMap<>();
@@ -196,10 +192,7 @@ public class TravelGroupService {
 
         // 4. 모임 여행지 목록
         travelGroupInfo.put("travelList",
-                travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));
-
-        // Redis에 현재 모임 grIdx 를 nowGrIdx 키로 저장
-        redisService.setNowGrIdx("nowGrIdx", grIdx);
+                travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));        
 
         return travelGroupInfo;
     }
@@ -276,12 +269,11 @@ public class TravelGroupService {
 
     // 여행지 도 선정
     public TravelDTO selectLocationDo(int ldIdx) {
-        // 1. redis에서 현재 grIdx 가져오기
-        int grIdx = redisService.getNowGrIdx("nowGrIdx");
+
         // 2. travleDTO 객체 생성
         TravelDTO travelDTO = new TravelDTO();
         // 3. travleDTO 객체에 grIdx, ldIdx, state = 1, createdAt 현재 시각 setter로 등록
-        travelDTO.setGrIdx(grIdx);
+        
         travelDTO.setLdIdx(ldIdx);
         travelDTO.setTrState(1);
         travelDTO.setTrCreatedAt(new Date());
@@ -313,7 +305,8 @@ public class TravelGroupService {
         // 1. redis에 nowTravelDTO 가져오기
         TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo("nowTravelDTO");
 
-        // 2. travelDTO 에 trStartTime, trEndTime 선정
+        // 2. travelDTO 에 trStartTime, trEndTime 선정       
+        travelDTO.setGrIdx(newTravelDTO.getGrIdx());        
         travelDTO.setTrStartTime(newTravelDTO.getTrStartTime());
         travelDTO.setTrEndTime(newTravelDTO.getTrEndTime());
 
@@ -332,7 +325,8 @@ public class TravelGroupService {
         travelDTO.setTrPeriod(period);
 
         // 3. travel 테이블에 저장
-        travelRepository.save(travelMapper.toEntity(travelDTO)).getTrIdx();
+        int trIdx = travelRepository.save(travelMapper.toEntity(travelDTO)).getTrIdx();
+        travelDTO.setTrIdx(trIdx);
 
         // 4. redis에 nowTravelDTO 삭제
         redisService.deleteTravelInfo("nowTravelDTO");
@@ -344,10 +338,7 @@ public class TravelGroupService {
     public Map<String, Object> getTravel(int trIdx) {
 
         // 1. 리턴 객체 생성
-        Map<String, Object> travelInfo = new HashMap<>();
-        
-        // 1-2. 현재 여행 trIdx 레디스에 저장
-        redisService.setNowGrIdx("nowTrIdx", trIdx);
+        Map<String, Object> travelInfo = new HashMap<>();            
 
         // 2. 여행 정보 가져오기 optional타입으로 받아옴.;
         // 2-1. 여행 정보 리턴 객체에 저장
@@ -369,5 +360,12 @@ public class TravelGroupService {
     // 시 예하 관광지 목록 조회
     public List<TourSpotsDTO> getTourSpotList(int ldIdx, int lsIdx) {
         return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdx(ldIdx, lsIdx));
+    }
+
+    // n일차 일정 장소 결정
+    public String selectSchedule(List<ScheduleDTO> scheduleDTOList) {                
+        // 3. schedule 테이블에 저장
+        scheduleRepository.saveAll(scheduleMapper.toEntityList(scheduleDTOList));
+        return "일정이 선정되었습니다.";
     }
 }
