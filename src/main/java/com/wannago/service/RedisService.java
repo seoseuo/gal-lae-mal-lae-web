@@ -42,6 +42,10 @@ public class RedisService {
     @Autowired
     private ObjectMapper objectMapper;
     //key값 code를 value로 하여 3분동안 저장한다.
+
+
+
+    
     public void set(String key,String value,int seconds){
         ValueOperations<String, Object> valOperations = redisTemplate.opsForValue();
         valOperations.set(key,value,seconds, TimeUnit.SECONDS);
