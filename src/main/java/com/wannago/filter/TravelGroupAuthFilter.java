@@ -29,6 +29,17 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
         if (path.matches("/travelgroups/\\d+.*")) {
             int grIdx = Integer.parseInt(path.split("/")[2]);
 
+            if (path.contains("/travel")) {
+                if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
+                    sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
+                    return;
+                }
+                if (!travelGroupAuthUtil.checkAdminAuth(grIdx)) {
+                    sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회장이 아닙니다.");
+                    return;
+                }
+            }
+
             if (method.equals("GET")) {
                 if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
                     sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
@@ -51,7 +62,7 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
                     sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회장이 아닙니다.");
                     return;
                 }
-            }            
+            }
         }
         filterChain.doFilter(request, response);
 
