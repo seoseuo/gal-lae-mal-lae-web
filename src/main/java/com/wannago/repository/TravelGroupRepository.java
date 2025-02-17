@@ -17,6 +17,7 @@ public interface TravelGroupRepository extends JpaRepository<TravelGroup, Intege
 
     @Override
     <S extends TravelGroup> S save(S entity);
+    
 
     // 특정 모임 조회 - grIdx로 찾기 AND grState = 1
     @Query("SELECT t FROM TravelGroup t WHERE t.grIdx = :grIdx AND t.grState = 1")
@@ -24,7 +25,7 @@ public interface TravelGroupRepository extends JpaRepository<TravelGroup, Intege
 
     // 여러 그룹 ID로 그룹들 조회 - 추가
     @Query("SELECT t FROM TravelGroup t WHERE t.grIdx IN :grIdxList AND t.grState = 1")
-    List<TravelGroup> findAllByGrIdxIn(List<Integer> grIdxList);
+    List<TravelGroup> findAllByGrIdxIn(@Param("grIdxList") List<Integer> grIdxList);
 
     // 모임 삭제
     @Transactional

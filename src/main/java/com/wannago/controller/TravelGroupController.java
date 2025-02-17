@@ -122,6 +122,7 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.getLocationSiList(ldIdx));
     }
 
+
     // 랜덤 여행지 추천
     @GetMapping("{grIdx}/travel/location/random")
     public ResponseEntity<LocationSiDTO> getRandomLocationSi() {
@@ -158,13 +159,16 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.getTravel(trIdx));
     }
 
-    // 시 예하 관광지 목록 조회
-    @GetMapping("{grIdx}/travel/{trIdx}/{ldIdx}/{lsIdx}/tour-spots")
-    public ResponseEntity<List<TourSpotsDTO>> getTourSpotList(@PathVariable("ldIdx") int ldIdx,
-            @PathVariable("lsIdx") int lsIdx) {
-        log.info("GET : /travelgroups/travel/{}/{}/tour-spots", ldIdx, lsIdx);
-        return ResponseEntity.ok(travelGroupService.getTourSpotList(ldIdx, lsIdx));
+    // 시 예하 관광지 목록 조회 필터링 포함
+    @GetMapping("{grIdx}/travel/tour-spots")
+    public ResponseEntity<List<TourSpotsDTO>> getTourSpotList(@PathVariable("grIdx") int grIdx,@RequestBody TourSpotsDTO tourSpotsDTO) {
+        log.info("GET : /travelgroups/{}/travel/tour-spots", grIdx);
+        log.info("tourSpotsDTO : {}", tourSpotsDTO);
+        return ResponseEntity.ok(travelGroupService.getTourSpotList(tourSpotsDTO));
     }
+
+   
+    
 
     // n일차 일정 장소 결정
     @PostMapping("{grIdx}/travel/{trIdx}/schedule")

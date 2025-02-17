@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface TourSpotsRepository extends JpaRepository<TourSpots, Integer> {
     
-    // ldIdx와 lsIdx를 포함하는 데이터들을 조회
-    @Query("SELECT t FROM TourSpots t WHERE t.ldIdx = :ldIdx AND t.lsIdx = :lsIdx")
-    List<TourSpots> findByLsIdx(@Param("ldIdx") int ldIdx, @Param("lsIdx") int lsIdx);
+    // ldIdx와 lsIdx를 포함하는 데이터들을 조회 c1Code like , tsName like
+    @Query("SELECT t FROM TourSpots t WHERE t.ldIdx = :ldIdx AND t.lsIdx = :lsIdx AND t.c1Code LIKE %:c1Code% AND t.tsName LIKE %:tsName%")
+    List<TourSpots> findByLsIdxAndC1CodeAndTsName(@Param("ldIdx") int ldIdx, @Param("lsIdx") int lsIdx, @Param("c1Code") String c1Code, @Param("tsName") String tsName);    
+    
+    
 }

@@ -172,7 +172,6 @@ public class TravelGroupService {
     // 특정 모임 조회 시 사용
     public Map<String, Object> getTravelGroup(int grIdx) {
 
-
         // 1. 리턴 객체 생성
         Map<String, Object> travelGroupInfo = new HashMap<>();
 
@@ -192,7 +191,7 @@ public class TravelGroupService {
 
         // 4. 모임 여행지 목록
         travelGroupInfo.put("travelList",
-                travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));        
+                travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));
 
         return travelGroupInfo;
     }
@@ -273,7 +272,7 @@ public class TravelGroupService {
         // 2. travleDTO 객체 생성
         TravelDTO travelDTO = new TravelDTO();
         // 3. travleDTO 객체에 grIdx, ldIdx, state = 1, createdAt 현재 시각 setter로 등록
-        
+
         travelDTO.setLdIdx(ldIdx);
         travelDTO.setTrState(1);
         travelDTO.setTrCreatedAt(new Date());
@@ -305,8 +304,8 @@ public class TravelGroupService {
         // 1. redis에 nowTravelDTO 가져오기
         TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo("nowTravelDTO");
 
-        // 2. travelDTO 에 trStartTime, trEndTime 선정       
-        travelDTO.setGrIdx(newTravelDTO.getGrIdx());        
+        // 2. travelDTO 에 trStartTime, trEndTime 선정
+        travelDTO.setGrIdx(newTravelDTO.getGrIdx());
         travelDTO.setTrStartTime(newTravelDTO.getTrStartTime());
         travelDTO.setTrEndTime(newTravelDTO.getTrEndTime());
 
@@ -338,7 +337,7 @@ public class TravelGroupService {
     public Map<String, Object> getTravel(int trIdx) {
 
         // 1. 리턴 객체 생성
-        Map<String, Object> travelInfo = new HashMap<>();            
+        Map<String, Object> travelInfo = new HashMap<>();
 
         // 2. 여행 정보 가져오기 optional타입으로 받아옴.;
         // 2-1. 여행 정보 리턴 객체에 저장
@@ -358,12 +357,13 @@ public class TravelGroupService {
     }
 
     // 시 예하 관광지 목록 조회
-    public List<TourSpotsDTO> getTourSpotList(int ldIdx, int lsIdx) {
-        return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdx(ldIdx, lsIdx));
+    public List<TourSpotsDTO> getTourSpotList(TourSpotsDTO tourSpotsDTO) {        
+        // 필터링 포함
+        return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdxAndC1CodeAndTsName(tourSpotsDTO.getLdIdx(), tourSpotsDTO.getLsIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName()));
     }
 
     // n일차 일정 장소 결정
-    public String selectSchedule(List<ScheduleDTO> scheduleDTOList) {                
+    public String selectSchedule(List<ScheduleDTO> scheduleDTOList) {
         // 3. schedule 테이블에 저장
         scheduleRepository.saveAll(scheduleMapper.toEntityList(scheduleDTOList));
         return "일정이 선정되었습니다.";
