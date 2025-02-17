@@ -105,44 +105,47 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.inviteTravelGroup(grIdx, usIdx));
     }
 
+
+    
     // 여행지 생성 파트
     // 여행지 도 목록 가져오기
-    @GetMapping("/travel/location/do")
+    @GetMapping("{grIdx}/travel/location/do")
     public ResponseEntity<List<LocationDoDTO>> getLocationDoList() {
         log.info("GET : /travelgroups/travel/location/do");
         return ResponseEntity.ok(travelGroupService.getLocationDoList());
     }
 
     // 여행지 도 예하 시 목록 가져오기
-    @GetMapping("/travel/location/do/{ldIdx}")
+    @GetMapping("{grIdx}/travel/location/do/{ldIdx}")
     public ResponseEntity<List<LocationSiDTO>> getLocationSiList(@PathVariable("ldIdx") int ldIdx) {
         log.info("GET : /travelgroups/travel/location/do/{}", ldIdx);
         return ResponseEntity.ok(travelGroupService.getLocationSiList(ldIdx));
     }
 
+
     // 랜덤 여행지 추천
-    @GetMapping("/travel/location/random")
+    @GetMapping("{grIdx}/travel/location/random")
     public ResponseEntity<LocationSiDTO> getRandomLocationSi() {
         log.info("GET : /travelgroups/travel/location/random");
         return ResponseEntity.ok(travelGroupService.getRandomLocationSi());
     }
 
     // 여행지 도 선정
-    @PostMapping("/travel/location/do/{ldIdx}")
+    @PostMapping("{grIdx}/travel/location/do/{ldIdx}")
     public ResponseEntity<TravelDTO> selectLocationDo(@PathVariable("ldIdx") int ldIdx) {
         log.info("GET : /travelgroups/travel/location/do/{}", ldIdx);
         return ResponseEntity.ok(travelGroupService.selectLocationDo(ldIdx));
     }
 
     // 여행지 시 선정
-    @PostMapping("/travel/location/do/si/{lsIdx}")
+    @PostMapping("{grIdx}/travel/location/do/si/{lsIdx}")
     public ResponseEntity<TravelDTO> selectLocationSi(@PathVariable("lsIdx") int lsIdx) {
         log.info("GET : /travelgroups/travel/location/si/{}", lsIdx);
         return ResponseEntity.ok(travelGroupService.selectLocationSi(lsIdx));
     }
 
     // 여행 기간 선정
-    @PostMapping("/travel/period")
+    @PostMapping("{grIdx}/travel/period")
     public ResponseEntity<TravelDTO> selectTravelPeriod(@RequestBody TravelDTO newTravelDTO) {
         log.info("POST : /travelgroups/travel/schedule/period/{}", newTravelDTO.getTrStartTime());
         log.info("POST : /travelgroups/travel/schedule/period/{}", newTravelDTO.getTrEndTime());
@@ -150,22 +153,25 @@ public class TravelGroupController {
     }
 
     // 여행지 조회
-    @GetMapping("/travel/{trIdx}")
+    @GetMapping("{grIdx}/travel/{trIdx}")
     public ResponseEntity<Map<String, Object>> getTravel(@PathVariable("trIdx") int trIdx) {
         log.info("GET : /travelgroups/travel/{}", trIdx);
         return ResponseEntity.ok(travelGroupService.getTravel(trIdx));
     }
 
-    // 시 예하 관광지 목록 조회
-    @GetMapping("/travel/{ldIdx}/{lsIdx}/tour-spots")
-    public ResponseEntity<List<TourSpotsDTO>> getTourSpotList(@PathVariable("ldIdx") int ldIdx,
-            @PathVariable("lsIdx") int lsIdx) {
-        log.info("GET : /travelgroups/travel/{}/{}/tour-spots", ldIdx, lsIdx);
-        return ResponseEntity.ok(travelGroupService.getTourSpotList(ldIdx, lsIdx));
+    // 시 예하 관광지 목록 조회 필터링 포함
+    @GetMapping("{grIdx}/travel/tour-spots")
+    public ResponseEntity<List<TourSpotsDTO>> getTourSpotList(@PathVariable("grIdx") int grIdx,@RequestBody TourSpotsDTO tourSpotsDTO) {
+        log.info("GET : /travelgroups/{}/travel/tour-spots", grIdx);
+        log.info("tourSpotsDTO : {}", tourSpotsDTO);
+        return ResponseEntity.ok(travelGroupService.getTourSpotList(tourSpotsDTO));
     }
 
+   
+    
+
     // n일차 일정 장소 결정
-    @PostMapping("/travel/schedule")
+    @PostMapping("{grIdx}/travel/{trIdx}/schedule")
     public ResponseEntity<String> selectSchedule(@RequestBody List<ScheduleDTO> scheduleDTOList) {
         log.info("POST : /travelgroups/travel/schedule");
         scheduleDTOList.forEach(schedule -> log.info(schedule.toString()));
