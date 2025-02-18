@@ -186,4 +186,18 @@ public class TravelGroupController {
 
     }
 
+    // 일정 삭제
+    @DeleteMapping("{grIdx}/travel/{trIdx}/schedule/{scIdx}")
+    public ResponseEntity<String> deleteSchedule(@PathVariable("scIdx") int scIdx) {
+        log.info("DELETE : /travelgroups/travel/schedule/{}", scIdx);
+        return ResponseEntity.ok(travelGroupService.deleteSchedule(scIdx));
+    }
+
+    // 일정 시간 수정
+    @PatchMapping("{grIdx}/travel/{trIdx}/schedule")
+    public ResponseEntity<String> updateSchedule(@RequestBody ScheduleDTO scheduleDTO) {
+        log.info("PATCH : /travelgroups/travel/schedule");
+        return ResponseEntity.ok(travelGroupService.updateSchedule(scheduleDTO));
+    }
+
 }
