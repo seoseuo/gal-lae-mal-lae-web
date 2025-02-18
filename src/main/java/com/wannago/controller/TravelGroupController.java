@@ -160,10 +160,13 @@ public class TravelGroupController {
     }
 
     // 시 예하 관광지 목록 조회 필터링 포함
-    @GetMapping("{grIdx}/travel/tour-spots")
+    @GetMapping("{grIdx}/travel/location/tour-spots")
     public ResponseEntity<List<TourSpotsDTO>> getTourSpotList(@PathVariable("grIdx") int grIdx,@RequestBody TourSpotsDTO tourSpotsDTO) {
         log.info("GET : /travelgroups/{}/travel/tour-spots", grIdx);
-        log.info("tourSpotsDTO : {}", tourSpotsDTO);
+        log.info("ldIdx : {}", tourSpotsDTO.getLdIdx());
+        log.info("lsIdx : {}", tourSpotsDTO.getLsIdx());
+        log.info("c1Code : {}", tourSpotsDTO.getC1Code());
+        log.info("tsName : {}", tourSpotsDTO.getTsName());
         return ResponseEntity.ok(travelGroupService.getTourSpotList(tourSpotsDTO));
     }
 

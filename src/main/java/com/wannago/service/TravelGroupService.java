@@ -359,7 +359,11 @@ public class TravelGroupService {
     // 시 예하 관광지 목록 조회
     public List<TourSpotsDTO> getTourSpotList(TourSpotsDTO tourSpotsDTO) {        
         // 필터링 포함
-        return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdxAndC1CodeAndTsName(tourSpotsDTO.getLdIdx(), tourSpotsDTO.getLsIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName()));
+        if(tourSpotsDTO.getLsIdx()==null) {
+            return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLdIdxAndC1CodeAndTsName(tourSpotsDTO.getLdIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName()));
+        } else {
+            return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdxAndC1CodeAndTsName(tourSpotsDTO.getLdIdx(), tourSpotsDTO.getLsIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName()));
+        }
     }
 
     // n일차 일정 장소 결정
