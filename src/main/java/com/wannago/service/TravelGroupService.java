@@ -55,6 +55,10 @@ import com.wannago.mapper.TravelogueMapper;
 import com.wannago.dto.TourSpotsDTO;
 import com.wannago.repository.TourSpotsRepository;
 import com.wannago.mapper.TourSpotsMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import com.wannago.entity.TourSpots;
+
 
 @Log4j2
 @Service
@@ -357,13 +361,20 @@ public class TravelGroupService {
     }
 
     // 시 예하 관광지 목록 조회
-    public List<TourSpotsDTO> getTourSpotList(TourSpotsDTO tourSpotsDTO) {        
+    public Page<TourSpotsDTO> getTourSpotList(TourSpotsDTO tourSpotsDTO, Pageable pageable) {
+        Page<TourSpots> tourSpotsPage;
+
         // 필터링 포함
-        if(tourSpotsDTO.getLsIdx()==null) {
-            return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLdIdxAndC1CodeAndTsName(tourSpotsDTO.getLdIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName()));
+        if (tourSpotsDTO.getLsIdx() == null) {
+            tourSpotsPage = tourSpotsRepository.findByLdIdxAndC1CodeAndTsName(
+                    tourSpotsDTO.getLdIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName(), pageable);
         } else {
-            return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdxAndC1CodeAndTsName(tourSpotsDTO.getLdIdx(), tourSpotsDTO.getLsIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName()));
+            tourSpotsPage = tourSpotsRepository.findByLsIdxAndC1CodeAndTsName(
+                    tourSpotsDTO.getLdIdx(), tourSpotsDTO.getLsIdx(), tourSpotsDTO.getC1Code(),
+                    tourSpotsDTO.getTsName(), pageable);
         }
+
+        return tourSpotsPage.map(tourSpotsMapper::toDTO);
     }
 
     // n일차 일정 장소 결정

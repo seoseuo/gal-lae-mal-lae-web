@@ -25,6 +25,9 @@ import com.wannago.dto.LocationSiDTO;
 import com.wannago.dto.TravelDTO;
 import com.wannago.dto.TourSpotsDTO;
 import com.wannago.dto.ScheduleDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Log4j2
 @RestController
@@ -35,7 +38,7 @@ public class TravelGroupController {
     private TravelGroupService travelGroupService;
 
     @Autowired
-    private SecurityUtil securityUtil;    
+    private SecurityUtil securityUtil;
 
     // 모임 생성
     @PostMapping
@@ -105,8 +108,6 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.inviteTravelGroup(grIdx, usIdx));
     }
 
-
-    
     // 여행지 생성 파트
     // 여행지 도 목록 가져오기
     @GetMapping("{grIdx}/travel/location/do")
@@ -121,7 +122,6 @@ public class TravelGroupController {
         log.info("GET : /travelgroups/travel/location/do/{}", ldIdx);
         return ResponseEntity.ok(travelGroupService.getLocationSiList(ldIdx));
     }
-
 
     // 랜덤 여행지 추천
     @GetMapping("{grIdx}/travel/location/random")
@@ -159,19 +159,23 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.getTravel(trIdx));
     }
 
-    // 시 예하 관광지 목록 조회 필터링 포함
+    // 시 예하 여행 장소 목록 20개씩 조회
     @GetMapping("{grIdx}/travel/location/tour-spots")
-    public ResponseEntity<List<TourSpotsDTO>> getTourSpotList(@PathVariable("grIdx") int grIdx,@RequestBody TourSpotsDTO tourSpotsDTO) {
+    public ResponseEntity<Page<TourSpotsDTO>> getTourSpotList(
+            @PathVariable("grIdx") int grIdx,
+            @RequestBody TourSpotsDTO tourSpotsDTO,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size) {
+
         log.info("GET : /travelgroups/{}/travel/tour-spots", grIdx);
         log.info("ldIdx : {}", tourSpotsDTO.getLdIdx());
         log.info("lsIdx : {}", tourSpotsDTO.getLsIdx());
         log.info("c1Code : {}", tourSpotsDTO.getC1Code());
         log.info("tsName : {}", tourSpotsDTO.getTsName());
-        return ResponseEntity.ok(travelGroupService.getTourSpotList(tourSpotsDTO));
-    }
 
-   
-    
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(travelGroupService.getTourSpotList(tourSpotsDTO, pageable));
+    }
 
     // n일차 일정 장소 결정
     @PostMapping("{grIdx}/travel/{trIdx}/schedule")
@@ -179,7 +183,7 @@ public class TravelGroupController {
         log.info("POST : /travelgroups/travel/schedule");
         scheduleDTOList.forEach(schedule -> log.info(schedule.toString()));
         return ResponseEntity.ok(travelGroupService.selectSchedule(scheduleDTOList));
-        
+
     }
 
 }
