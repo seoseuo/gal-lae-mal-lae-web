@@ -28,6 +28,7 @@ import com.wannago.dto.ScheduleDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import com.wannago.dto.TravelogueDTO;
 
 @Log4j2
 @RestController
@@ -51,8 +52,7 @@ public class TravelGroupController {
         log.info("파일 타입: {}", file.getContentType());
 
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
-        travelGroupService.createTravelGroup(travelGroupDTO, userDTO, file);
-        return ResponseEntity.ok("모임 생성이 완료되었습니다.");
+        return ResponseEntity.ok(travelGroupService.createTravelGroup(travelGroupDTO, userDTO, file));
     }
 
     // 내 모임 목록 조회
@@ -200,4 +200,16 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.updateSchedule(scheduleDTO));
     }
 
+    // 여행록 작성
+    @PostMapping("{grIdx}/travel/{trIdx}/travelogue")
+    public ResponseEntity<String> writeTravelogue(@ModelAttribute TravelogueDTO travelogueDTO,
+            @RequestParam("setTlImage") MultipartFile file) {
+        log.info("POST : /travelgroups/travel/travelogue");
+        log.info("tlImage : {}", file.getOriginalFilename());
+        log.info("tlImage 크기 : {}", file.getSize());
+        log.info("tlImage 타입 : {}", file.getContentType());
+        log.info("travelogueDTO : {}", travelogueDTO);
+        return ResponseEntity.ok(travelGroupService.writeTravelogue(travelogueDTO, file));
+        //return ResponseEntity.ok("여행록 작성 완료");
+    }
 }

@@ -58,7 +58,8 @@ import com.wannago.mapper.TourSpotsMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.wannago.entity.TourSpots;
-
+import com.wannago.dto.TravelogueDTO;
+import com.wannago.util.security.SecurityUtil;
 
 @Log4j2
 @Service
@@ -124,9 +125,12 @@ public class TravelGroupService {
     @Value("${file.image.upload-path}")
     private String fileUploadPath;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     // 모임 생성
     // 모임 생성 시 사용
-    public void createTravelGroup(TravelGroupDTO travelGroupDTO, UserDTO userDTO, MultipartFile file) {
+    public String createTravelGroup(TravelGroupDTO travelGroupDTO, UserDTO userDTO, MultipartFile file) {
         // 생성 날짜 지정
         travelGroupDTO.setGrCreatedAt(new Date());
 
@@ -158,6 +162,8 @@ public class TravelGroupService {
                 .meRole(Member.MemberRole.ADMIN)
                 .build();
         memberRepository.save(member);
+
+        return "모임 생성이 완료되었습니다.";
     }
 
     // 내 모임 목록 조회
@@ -352,9 +358,9 @@ public class TravelGroupService {
         // 2-1. 여행 일정 목록 리턴 객체에 저장
         travelInfo.put("scheduleList", scheduleMapper.toDTOList(scheduleRepository.findByTrIdx(trIdx)));
 
-        // 3. 여행록 가져오기
+        // 3. 여행록 가져오기 tlState = 1 인 데이터만 가져오기
         // 3-1. 여행록 리턴 객체에 저장
-        travelInfo.put("travelogueList", travelogueMapper.toDTOList(travelogueRepository.findByTrIdx(trIdx)));
+        travelInfo.put("travelogueList", travelogueMapper.toDTOList(travelogueRepository.findByTrIdxAndTlState(trIdx, 1)));
 
         // 3-1. 여행록 리턴 객체에 저장
         return travelInfo;
@@ -382,5 +388,48 @@ public class TravelGroupService {
         // 3. schedule 테이블에 저장
         scheduleRepository.saveAll(scheduleMapper.toEntityList(scheduleDTOList));
         return "일정이 선정되었습니다.";
+    }
+
+    // 일정 삭제
+    public String deleteSchedule(int scIdx) {
+        scheduleRepository.deleteById(scIdx);
+        return "일정이 삭제되었습니다.";
+    }
+
+    // 일정 시간 수정
+    public String updateSchedule(ScheduleDTO scheduleDTO) {
+        scheduleRepository.updateSchedule(scheduleDTO.getScIdx(), scheduleDTO.getScStartTime(),
+                scheduleDTO.getScEndTime());
+        return "일정 시간이 수정되었습니다.";
+    }
+
+    // 여행록 작성
+    public String writeTravelogue(TravelogueDTO travelogueDTO, MultipartFile file) {
+        // 여행록 이미지 저장
+        // 파일의 이름은 해당 trIdx + _ + 해당 작성자 이메일 + _ + travelogue + _ + 현재 시간 + . + 확장자
+
+        // 유저 이메일 가져오기
+        SecurityUtil securityUtil = new SecurityUtil();
+        UserDTO userDTO = securityUtil.getUserFromAuthentication();
+        String tlImage = travelogueDTO.getTrIdx() + "_" + userDTO.getUsEmail() + "_travelogue_"
+                + new Date().getTime() + "." + file.getOriginalFilename().split("\\.")[1];
+
+        // 여행록 이미지 저장
+        File newFile = new File(fileUploadPath + tlImage);
+        try {
+            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("File upload failed", e);
+        }
+
+        // tlImage 세팅
+        travelogueDTO.setTlImage(tlImage);
+
+        // tlState 세팅
+        travelogueDTO.setTlState(1);
+        
+        // 여행록 DB에 저장
+        travelogueRepository.save(travelogueMapper.toEntity(travelogueDTO));
+        return "여행록이 작성되었습니다.";
     }
 }
