@@ -27,9 +27,14 @@ public class Travelogue {
     @Column(name = "tr_idx", insertable = false, updatable = false)
     private Integer trIdx;
 
-    @ManyToOne
-    @JoinColumn(name = "tr_idx")
-    private Travel travel;
+    // 공개 여부 칼럼
+    @Column(name = "tl_public", nullable = false)
+    private Integer tlPublic;
+
+    // 이미지 칼럼
+    @Column(name = "tl_image", nullable = false)
+    private String tlImage;
+
 
 
 }
