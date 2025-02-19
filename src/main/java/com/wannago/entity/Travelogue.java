@@ -24,7 +24,7 @@ public class Travelogue {
     @Column(name = "tl_state", nullable = false)
     private Integer tlState;
 
-    @Column(name = "tr_idx", insertable = false, updatable = false)
+    @Column(name = "tr_idx", updatable = false)
     private Integer trIdx;
 
     // 공개 여부 칼럼
@@ -34,6 +34,10 @@ public class Travelogue {
     // 이미지 칼럼
     @Column(name = "tl_image", nullable = false)
     private String tlImage;
+
+    // 작성자 idx
+    @Column(name = "us_idx", nullable = false)
+    private Integer usIdx;
 
 
 

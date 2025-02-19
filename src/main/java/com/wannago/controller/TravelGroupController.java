@@ -212,4 +212,17 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.writeTravelogue(travelogueDTO, file));
         //return ResponseEntity.ok("여행록 작성 완료");
     }
+
+    // 여행록 수정
+    @PatchMapping("{grIdx}/travel/{trIdx}/travelogue/{tlIdx}")
+    public ResponseEntity<String> updateTravelogue(@PathVariable("tlIdx") int tlIdx,
+            @ModelAttribute TravelogueDTO travelogueDTO,
+            @RequestParam("setTlImage") MultipartFile file) {
+        log.info("PATCH : /travelgroups/travel/travelogue/{}", tlIdx);
+        log.info("tlImage : {}", file.getOriginalFilename());
+        log.info("tlImage 크기 : {}", file.getSize());
+        log.info("tlImage 타입 : {}", file.getContentType());
+        log.info("travelogueDTO : {}", travelogueDTO);
+        return ResponseEntity.ok(travelGroupService.updateTravelogue(tlIdx, travelogueDTO, file));        
+    }
 }

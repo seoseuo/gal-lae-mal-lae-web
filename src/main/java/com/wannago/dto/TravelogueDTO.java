@@ -16,4 +16,5 @@ public class TravelogueDTO {
     private Integer trIdx;
     private Integer tlPublic;
     private String tlImage;    
+    private Integer usIdx;
 }
