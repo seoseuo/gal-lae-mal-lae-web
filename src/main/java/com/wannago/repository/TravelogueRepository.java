@@ -27,4 +27,11 @@ public interface TravelogueRepository extends JpaRepository<Travelogue, Integer>
             @Param("tlImage") String tlImage,
             @Param("tlPublic") int tlPublic);
 
+    // 여행록 삭제
+    // tlState를 0으로 변경
+    @Modifying
+    @Transactional
+    @Query("UPDATE Travelogue t SET t.tlState = 0 WHERE t.tlIdx = :tlIdx")
+    void deleteTravelogue(@Param("tlIdx") int tlIdx);
+
 }

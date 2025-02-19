@@ -478,4 +478,20 @@ public class TravelGroupService {
         travelogueRepository.updateTravelogue(tlIdx, travelogueDTO.getTlTitle(), travelogueDTO.getTlContent(), travelogueDTO.getTlImage(), travelogueDTO.getTlPublic());
         return "여행록이 수정되었습니다.";
     }
+
+    // 여행록 삭제
+    public String deleteTravelogue(int tlIdx) {            
+
+        // tlIdx에 해당하는 이미지 값 가져오기
+        String tlImage = travelogueRepository.findById(tlIdx).get().getTlImage();
+
+        // 이미지 파일 제거
+        File file = new File(fileUploadPath + tlImage);
+        file.delete();
+
+        // tlIdx에 해당하는 여행록 삭제
+        travelogueRepository.deleteTravelogue(tlIdx);
+
+        return "여행록이 삭제되었습니다.";
+    }
 }

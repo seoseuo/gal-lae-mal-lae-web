@@ -225,4 +225,11 @@ public class TravelGroupController {
         log.info("travelogueDTO : {}", travelogueDTO);
         return ResponseEntity.ok(travelGroupService.updateTravelogue(tlIdx, travelogueDTO, file));        
     }
+
+    // 여행록 삭제
+    @DeleteMapping("{grIdx}/travel/{trIdx}/travelogue/{tlIdx}")
+    public ResponseEntity<String> deleteTravelogue(@PathVariable("tlIdx") int tlIdx) {
+        log.info("DELETE : /travelgroups/travel/travelogue/{}", tlIdx);
+        return ResponseEntity.ok(travelGroupService.deleteTravelogue(tlIdx));
+    }
 }
