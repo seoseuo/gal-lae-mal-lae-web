@@ -55,6 +55,12 @@ import com.wannago.mapper.TravelogueMapper;
 import com.wannago.dto.TourSpotsDTO;
 import com.wannago.repository.TourSpotsRepository;
 import com.wannago.mapper.TourSpotsMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import com.wannago.entity.TourSpots;
+import com.wannago.dto.TravelogueDTO;
+import com.wannago.util.security.SecurityUtil;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -120,9 +126,12 @@ public class TravelGroupService {
     @Value("${file.image.upload-path}")
     private String fileUploadPath;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     // 모임 생성
     // 모임 생성 시 사용
-    public void createTravelGroup(TravelGroupDTO travelGroupDTO, UserDTO userDTO, MultipartFile file) {
+    public String createTravelGroup(TravelGroupDTO travelGroupDTO, UserDTO userDTO, MultipartFile file) {
         // 생성 날짜 지정
         travelGroupDTO.setGrCreatedAt(new Date());
 
@@ -154,6 +163,8 @@ public class TravelGroupService {
                 .meRole(Member.MemberRole.ADMIN)
                 .build();
         memberRepository.save(member);
+
+        return "모임 생성이 완료되었습니다.";
     }
 
     // 내 모임 목록 조회
@@ -348,7 +359,7 @@ public class TravelGroupService {
         // 2-1. 여행 일정 목록 리턴 객체에 저장
         travelInfo.put("scheduleList", scheduleMapper.toDTOList(scheduleRepository.findByTrIdx(trIdx)));
 
-        // 3. 여행록 가져오기
+        // 3. 여행록 가져오기 tlState = 1 인 데이터만 가져오기
         // 3-1. 여행록 리턴 객체에 저장
         travelInfo.put("travelogueList", travelogueMapper.toDTOList(travelogueRepository.findByTrIdx(trIdx)));
 
@@ -356,10 +367,42 @@ public class TravelGroupService {
         return travelInfo;
     }
 
+    // 여행지 삭제
+    public String deleteTravel(int trIdx) {
+
+        // 1. 여행지 trIdx를 가지고 있는 데이터들의 tlImage 목록을 가져와서 폴더에서 이미지 파일 지우기
+        List<String> tlImageList = travelogueRepository.findByTrIdx(trIdx).stream()
+                .map(travelogue -> travelogue.getTlImage())
+                .collect(Collectors.toList());
+
+        tlImageList.forEach(tlImage -> {
+            File file = new File(fileUploadPath + tlImage);
+            file.delete();
+        });
+
+        // 1-1. 여행지 trIdx를 가지고 있는 travelogue 의 tlState를 0으로 변경
+        travelogueRepository.updateTlStateByTrIdx(trIdx);
+
+        // 2. 여행지 trIdx를 가지고 있는 travel 의 trState를 0으로 변경
+        travelRepository.updateTrStateByTrIdx(trIdx);
+        return "여행지가 삭제되었습니다.";
+    }
+
     // 시 예하 관광지 목록 조회
-    public List<TourSpotsDTO> getTourSpotList(TourSpotsDTO tourSpotsDTO) {        
+    public Page<TourSpotsDTO> getTourSpotList(TourSpotsDTO tourSpotsDTO, Pageable pageable) {
+        Page<TourSpots> tourSpotsPage;
+
         // 필터링 포함
-        return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdxAndC1CodeAndTsName(tourSpotsDTO.getLdIdx(), tourSpotsDTO.getLsIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName()));
+        if (tourSpotsDTO.getLsIdx() == null) {
+            tourSpotsPage = tourSpotsRepository.findByLdIdxAndC1CodeAndTsName(
+                    tourSpotsDTO.getLdIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName(), pageable);
+        } else {
+            tourSpotsPage = tourSpotsRepository.findByLsIdxAndC1CodeAndTsName(
+                    tourSpotsDTO.getLdIdx(), tourSpotsDTO.getLsIdx(), tourSpotsDTO.getC1Code(),
+                    tourSpotsDTO.getTsName(), pageable);
+        }
+
+        return tourSpotsPage.map(tourSpotsMapper::toDTO);
     }
 
     // n일차 일정 장소 결정
@@ -367,5 +410,110 @@ public class TravelGroupService {
         // 3. schedule 테이블에 저장
         scheduleRepository.saveAll(scheduleMapper.toEntityList(scheduleDTOList));
         return "일정이 선정되었습니다.";
+    }
+
+    // 일정 삭제
+    public String deleteSchedule(int scIdx) {
+        scheduleRepository.deleteById(scIdx);
+        return "일정이 삭제되었습니다.";
+    }
+
+    // 일정 시간 수정
+    public String updateSchedule(ScheduleDTO scheduleDTO) {
+        scheduleRepository.updateSchedule(scheduleDTO.getScIdx(), scheduleDTO.getScStartTime(),
+                scheduleDTO.getScEndTime());
+        return "일정 시간이 수정되었습니다.";
+    }
+
+    // 여행록 작성
+    public String writeTravelogue(TravelogueDTO travelogueDTO, MultipartFile file) {
+        // 여행록 이미지 저장
+        // 파일의 이름은 해당 trIdx + _ + 해당 작성자 이메일 + _ + travelogue + _ + 현재 시간 + . + 확장자
+
+        // 유저 이메일 가져오기
+        SecurityUtil securityUtil = new SecurityUtil();
+        UserDTO userDTO = securityUtil.getUserFromAuthentication();
+        String tlImage = travelogueDTO.getTrIdx() + "_" + userDTO.getUsEmail() + "_travelogue_"
+                + new Date().getTime() + "." + file.getOriginalFilename().split("\\.")[1];
+
+        // 여행록 이미지 저장
+        File newFile = new File(fileUploadPath + tlImage);
+        try {
+            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("File upload failed", e);
+        }
+
+        // usIdx 세팅
+        travelogueDTO.setUsIdx(userDTO.getUsIdx());
+
+        // tlImage 세팅
+        travelogueDTO.setTlImage(tlImage);
+
+        // tlState 세팅
+        travelogueDTO.setTlState(1);
+
+        // 여행록 DB에 저장
+        travelogueRepository.save(travelogueMapper.toEntity(travelogueDTO));
+        return "여행록이 작성되었습니다.";
+    }
+
+    // 여행록 수정
+    public String updateTravelogue(int tlIdx, TravelogueDTO travelogueDTO, MultipartFile file) {
+
+        // 기존 이미지 파일 제거를 위한 기존 값에서 tlImage 가져오기
+        String tlImage = travelogueRepository.findById(tlIdx).get().getTlImage();
+
+        // usIdx 가져오기
+        UserDTO userDTO = securityUtil.getUserFromAuthentication();
+
+        // 기존 이미지 파일 제거
+        File oldFile = new File(fileUploadPath + tlImage);
+        oldFile.delete();
+
+        // 여행록 이미지 저장
+        // 파일의 이름은 해당 trIdx + _ + 해당 작성자 이메일 + _ + travelogue + _ + 현재 시간 + . + 확장자
+
+        // 유저 이메일 가져오기
+
+        tlImage = travelogueDTO.getTrIdx() + "_" + userDTO.getUsEmail() + "_travelogue_"
+                + new Date().getTime() + "." + file.getOriginalFilename().split("\\.")[1];
+
+        // 여행록 이미지 저장
+        File newFile = new File(fileUploadPath + tlImage);
+        try {
+            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("File upload failed", e);
+        }
+
+        // usIdx 세팅
+        travelogueDTO.setUsIdx(userDTO.getUsIdx());
+
+        // tlImage 세팅
+        travelogueDTO.setTlImage(tlImage);
+
+        log.info("travelogueDTO  {}", travelogueDTO);
+
+        // 변경된 부분만 업데이트
+        travelogueRepository.updateTravelogue(tlIdx, travelogueDTO.getTlTitle(), travelogueDTO.getTlContent(),
+                travelogueDTO.getTlImage(), travelogueDTO.getTlPublic());
+        return "여행록이 수정되었습니다.";
+    }
+
+    // 여행록 삭제
+    public String deleteTravelogue(int tlIdx) {
+
+        // tlIdx에 해당하는 이미지 값 가져오기
+        String tlImage = travelogueRepository.findById(tlIdx).get().getTlImage();
+
+        // 이미지 파일 제거
+        File file = new File(fileUploadPath + tlImage);
+        file.delete();
+
+        // tlIdx에 해당하는 여행록 삭제
+        travelogueRepository.deleteTravelogue(tlIdx);
+
+        return "여행록이 삭제되었습니다.";
     }
 }

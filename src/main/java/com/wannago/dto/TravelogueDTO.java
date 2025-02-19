@@ -14,5 +14,7 @@ public class TravelogueDTO {
     private String tlContent;
     private Integer tlState;
     private Integer trIdx;
-    private Travel travel;
+    private Integer tlPublic;
+    private String tlImage;    
+    private Integer usIdx;
 }

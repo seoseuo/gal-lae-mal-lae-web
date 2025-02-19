@@ -112,26 +112,7 @@ public class RedisService {
 
 
 
-
-
-    // TravelGroup 추가 부분
-    // 현재 모임 번호 , 여행 번호를 redis에 저장하고, 꺼내고 삭제하는 메소드
-    public void setNowGrIdx(String key, int grIdx) {
-        // 시간 제한 x
-        redisTemplate.opsForValue().set(key, String.valueOf(grIdx));
-    }
-
-    // 현재 모임 번호를 redis에서 가져오는 메소드
-    public int getNowGrIdx(String key) {
-        // Redis에서 String 값 가져오기
-        return Integer.parseInt((String) redisTemplate.opsForValue().get(key)); // String을 int로 변환
-    }
-
-    // 현재 모임 번호를 redis에서 삭제하는 메소드
-    public void deleteNowGrIdx(String key) {
-        redisTemplate.delete(key);
-    }
-
+    
     // 여행지 정보를 Redis에 저장하는 메서드
     public void setTravelInfo(String key, TravelDTO value) {
         // 객체를 Redis에 JSON 형식으로 저장
