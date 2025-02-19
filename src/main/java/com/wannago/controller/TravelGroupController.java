@@ -159,6 +159,13 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.getTravel(trIdx));
     }
 
+    // 여행지 삭제
+    @DeleteMapping("{grIdx}/travel/{trIdx}")
+    public ResponseEntity<String> deleteTravel(@PathVariable("trIdx") int trIdx) {
+        log.info("DELETE : /travelgroups/travel/{}", trIdx);
+        return ResponseEntity.ok(travelGroupService.deleteTravel(trIdx));
+    }
+
     // 시 예하 여행 장소 목록 20개씩 조회
     @GetMapping("{grIdx}/travel/location/tour-spots")
     public ResponseEntity<Page<TourSpotsDTO>> getTourSpotList(

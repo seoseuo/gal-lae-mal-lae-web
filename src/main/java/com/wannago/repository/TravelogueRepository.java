@@ -34,4 +34,9 @@ public interface TravelogueRepository extends JpaRepository<Travelogue, Integer>
     @Query("UPDATE Travelogue t SET t.tlState = 0 WHERE t.tlIdx = :tlIdx")
     void deleteTravelogue(@Param("tlIdx") int tlIdx);
 
+    // 여행지 삭제 시 trIdx를 포함하는 tlState를 0으로 변경
+    @Modifying
+    @Transactional
+    @Query("UPDATE Travelogue t SET t.tlState = 0 WHERE t.trIdx = :trIdx")
+    void updateTlStateByTrIdx(@Param("trIdx") int trIdx);
 }

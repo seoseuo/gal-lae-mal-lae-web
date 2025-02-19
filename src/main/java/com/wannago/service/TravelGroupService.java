@@ -60,6 +60,7 @@ import org.springframework.data.domain.Pageable;
 import com.wannago.entity.TourSpots;
 import com.wannago.dto.TravelogueDTO;
 import com.wannago.util.security.SecurityUtil;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -366,6 +367,27 @@ public class TravelGroupService {
         return travelInfo;
     }
 
+    // 여행지 삭제
+    public String deleteTravel(int trIdx) {
+
+        // 1. 여행지 trIdx를 가지고 있는 데이터들의 tlImage 목록을 가져와서 폴더에서 이미지 파일 지우기
+        List<String> tlImageList = travelogueRepository.findByTrIdx(trIdx).stream()
+                .map(travelogue -> travelogue.getTlImage())
+                .collect(Collectors.toList());
+
+        tlImageList.forEach(tlImage -> {
+            File file = new File(fileUploadPath + tlImage);
+            file.delete();
+        });
+
+        // 1-1. 여행지 trIdx를 가지고 있는 travelogue 의 tlState를 0으로 변경
+        travelogueRepository.updateTlStateByTrIdx(trIdx);
+
+        // 2. 여행지 trIdx를 가지고 있는 travel 의 trState를 0으로 변경
+        travelRepository.updateTrStateByTrIdx(trIdx);
+        return "여행지가 삭제되었습니다.";
+    }
+
     // 시 예하 관광지 목록 조회
     public Page<TourSpotsDTO> getTourSpotList(TourSpotsDTO tourSpotsDTO, Pageable pageable) {
         Page<TourSpots> tourSpotsPage;
@@ -430,7 +452,7 @@ public class TravelGroupService {
 
         // tlState 세팅
         travelogueDTO.setTlState(1);
-        
+
         // 여행록 DB에 저장
         travelogueRepository.save(travelogueMapper.toEntity(travelogueDTO));
         return "여행록이 작성되었습니다.";
@@ -438,7 +460,7 @@ public class TravelGroupService {
 
     // 여행록 수정
     public String updateTravelogue(int tlIdx, TravelogueDTO travelogueDTO, MultipartFile file) {
-        
+
         // 기존 이미지 파일 제거를 위한 기존 값에서 tlImage 가져오기
         String tlImage = travelogueRepository.findById(tlIdx).get().getTlImage();
 
@@ -453,7 +475,6 @@ public class TravelGroupService {
         // 파일의 이름은 해당 trIdx + _ + 해당 작성자 이메일 + _ + travelogue + _ + 현재 시간 + . + 확장자
 
         // 유저 이메일 가져오기
-        
 
         tlImage = travelogueDTO.getTrIdx() + "_" + userDTO.getUsEmail() + "_travelogue_"
                 + new Date().getTime() + "." + file.getOriginalFilename().split("\\.")[1];
@@ -475,12 +496,13 @@ public class TravelGroupService {
         log.info("travelogueDTO  {}", travelogueDTO);
 
         // 변경된 부분만 업데이트
-        travelogueRepository.updateTravelogue(tlIdx, travelogueDTO.getTlTitle(), travelogueDTO.getTlContent(), travelogueDTO.getTlImage(), travelogueDTO.getTlPublic());
+        travelogueRepository.updateTravelogue(tlIdx, travelogueDTO.getTlTitle(), travelogueDTO.getTlContent(),
+                travelogueDTO.getTlImage(), travelogueDTO.getTlPublic());
         return "여행록이 수정되었습니다.";
     }
 
     // 여행록 삭제
-    public String deleteTravelogue(int tlIdx) {            
+    public String deleteTravelogue(int tlIdx) {
 
         // tlIdx에 해당하는 이미지 값 가져오기
         String tlImage = travelogueRepository.findById(tlIdx).get().getTlImage();
