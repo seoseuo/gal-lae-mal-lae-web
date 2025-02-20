@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import java.util.Map;
 import org.springframework.web.bind.annotation.RequestParam;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 @Log4j2
 @RestController
@@ -27,6 +30,13 @@ public class TravelogueController {
             @RequestParam(name = "size", defaultValue = "20") int size) {
         log.info("GET : /travelogues?page={}&size={}", page, size);
         return ResponseEntity.ok(travelogueService.getTravelogueList(page, size));
+    }
+
+    // 여행록 좋아요
+    @PatchMapping("/like/{tlIdx}")
+    public ResponseEntity<String> likeTravelogue(@PathVariable("tlIdx") int tlIdx) {
+        log.info("PATCH : /travelogues/like/{}", tlIdx);
+        return ResponseEntity.ok(travelogueService.likeTravelogue(tlIdx));
     }
 
 }
