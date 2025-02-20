@@ -28,26 +28,17 @@ import java.nio.file.StandardCopyOption;
 import com.wannago.dto.LocationSiDTO;
 import com.wannago.mapper.LocationSiMapper;
 import com.wannago.repository.LocationDoRepository;
-import java.util.ArrayList;
 import com.wannago.dto.LocationDoDTO;
-import com.wannago.entity.LocationDo;
-import java.util.Optional;
 import com.wannago.mapper.LocationDoMapper;
 import com.wannago.repository.LocationSiRepository;
 import com.wannago.entity.LocationSi;
 import java.util.Random;
-import com.wannago.entity.LocationSiId;
-import com.wannago.entity.Travel;
 import com.wannago.repository.TravelRepository;
 import com.wannago.mapper.TravelMapper;
 import com.wannago.dto.TravelDTO;
-import com.wannago.entity.Schedule;
 import com.wannago.dto.ScheduleDTO;
 import com.wannago.repository.ScheduleRepository;
 import com.wannago.mapper.ScheduleMapper;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.time.LocalDate;
 import java.text.SimpleDateFormat;
 import com.wannago.entity.Travelogue;
 import com.wannago.repository.TravelogueRepository;
@@ -61,7 +52,9 @@ import com.wannago.entity.TourSpots;
 import com.wannago.dto.TravelogueDTO;
 import com.wannago.util.security.SecurityUtil;
 import java.util.stream.Collectors;
-
+import com.wannago.mapper.TravelogueLikeMapper;
+import com.wannago.repository.TravelogueLikeRepository;
+import com.wannago.dto.TravelogueLikeDTO;
 @Log4j2
 @Service
 public class TravelGroupService {
@@ -128,6 +121,13 @@ public class TravelGroupService {
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    @Autowired
+    private TravelogueLikeMapper travelogueLikeMapper;
+
+    @Autowired
+    private TravelogueLikeRepository travelogueLikeRepository;
+
 
     // 모임 생성
     // 모임 생성 시 사용
@@ -361,9 +361,20 @@ public class TravelGroupService {
 
         // 3. 여행록 가져오기 tlState = 1 인 데이터만 가져오기
         // 3-1. 여행록 리턴 객체에 저장
-        travelInfo.put("travelogueList", travelogueMapper.toDTOList(travelogueRepository.findByTrIdx(trIdx)));
+        List<Travelogue> travelogueList = travelogueRepository.findByTrIdx(trIdx);
+        travelInfo.put("travelogueList", travelogueMapper.toDTOList(travelogueList));
 
-        // 3-1. 여행록 리턴 객체에 저장
+        // 4.여행록 좋아요 리스트 가져오기
+        // 4-1 travelogueList 의 tlIdx 를 가지고 있는 배열 생성
+        List<Integer> tlIdxList = travelogueList.stream()
+                .map(travelogue -> travelogue.getTlIdx())
+                .collect(Collectors.toList());
+
+        // 4-2 tlIdxList 를 가지고 있는 travelogueLike 목록 가져오기
+        // 4-3 travelogueLikeList 를 travelogueLikeDTOList 로 변환
+        // 4-4 travelogueLikeDTOList 를 리턴 객체에 저장
+        travelInfo.put("travelogueLikeList", travelogueLikeMapper.toDTOList(travelogueLikeRepository.findByTlIdxIn(tlIdxList)));
+
         return travelInfo;
     }
 

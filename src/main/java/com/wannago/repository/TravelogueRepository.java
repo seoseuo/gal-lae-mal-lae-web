@@ -7,6 +7,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Modifying;
 import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface TravelogueRepository extends JpaRepository<Travelogue, Integer> {
 
@@ -39,4 +41,7 @@ public interface TravelogueRepository extends JpaRepository<Travelogue, Integer>
     @Transactional
     @Query("UPDATE Travelogue t SET t.tlState = 0 WHERE t.trIdx = :trIdx")
     void updateTlStateByTrIdx(@Param("trIdx") int trIdx);
+
+    // tlState = 1 && tlPublic = 1 조건으로 페이징 처리
+    Page<Travelogue> findByTlStateAndTlPublic(@Param("tlState") int tlState, @Param("tlPublic") int tlPublic, Pageable pageable);
 }
