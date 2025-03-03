@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 import com.wannago.mapper.TravelogueLikeMapper;
 import com.wannago.repository.TravelogueLikeRepository;
 import com.wannago.dto.TravelogueLikeDTO;
+
 @Log4j2
 @Service
 public class TravelGroupService {
@@ -128,7 +129,6 @@ public class TravelGroupService {
     @Autowired
     private TravelogueLikeRepository travelogueLikeRepository;
 
-
     // 모임 생성
     // 모임 생성 시 사용
     public String createTravelGroup(TravelGroupDTO travelGroupDTO, UserDTO userDTO, MultipartFile file) {
@@ -175,7 +175,16 @@ public class TravelGroupService {
         log.info("grIdxList  {}", grIdxList);
 
         // 2. TravelGroup 테이블에서 grIdx 리스트들로 조회해서 목록 가져오기
-        return travelGroupMapper.toDTOList(travelGroupRepository.findAllByGrIdxIn(grIdxList));
+        // 3. 각 객체의 DTO 필드를 꺼내서 쿼리랑 연동 후 set해주기
+        List<TravelGroupDTO> travelGroupList = travelGroupMapper
+                .toDTOList(travelGroupRepository.findAllByGrIdxIn(grIdxList));
+
+        for (TravelGroupDTO travelGroup : travelGroupList) {
+            travelGroup.setGrCount(memberRepository.countByGrIdx(travelGroup.getGrIdx()));
+            travelGroup.setGrLdList(locationDoRepository.findLocationNamesByLdIdxList(travelRepository.findLdIdxByGrIdx(travelGroup.getGrIdx())));
+        }
+
+        return travelGroupList;
 
     }
 
@@ -373,7 +382,8 @@ public class TravelGroupService {
         // 4-2 tlIdxList 를 가지고 있는 travelogueLike 목록 가져오기
         // 4-3 travelogueLikeList 를 travelogueLikeDTOList 로 변환
         // 4-4 travelogueLikeDTOList 를 리턴 객체에 저장
-        travelInfo.put("travelogueLikeList", travelogueLikeMapper.toDTOList(travelogueLikeRepository.findByTlIdxIn(tlIdxList)));
+        travelInfo.put("travelogueLikeList",
+                travelogueLikeMapper.toDTOList(travelogueLikeRepository.findByTlIdxIn(tlIdxList)));
 
         return travelInfo;
     }
