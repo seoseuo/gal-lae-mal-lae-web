@@ -63,6 +63,7 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.getTravelGroupList(userDTO.getUsIdx()));
     }
 
+
     // 특정 모임 조회
     @GetMapping("/{grIdx}")
     public ResponseEntity<Map<String, Object>> getTravelGroup(@PathVariable("grIdx") int grIdx) {
