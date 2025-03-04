@@ -53,6 +53,7 @@ public class TravelGroupController {
 
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
         return ResponseEntity.ok(travelGroupService.createTravelGroup(travelGroupDTO, userDTO, file));
+        //return ResponseEntity.ok("여행 모임 생성 완료");
     }
 
     // 내 모임 목록 조회

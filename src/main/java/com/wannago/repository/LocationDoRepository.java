@@ -16,4 +16,8 @@ public interface LocationDoRepository extends JpaRepository<LocationDo, Integer>
     @Query("SELECT DISTINCT l.ldName FROM LocationDo l WHERE l.ldIdx IN :ldIdxList")
     List<String> findLocationNamesByLdIdxList(@Param("ldIdxList") List<Integer> ldIdxList);
 
+    // ldIdx 값을 받아서 해당하는 ldName을 가져오는 함수
+    @Query("SELECT l.ldName FROM LocationDo l WHERE l.ldIdx = :ldIdx")
+    Optional<String> findLocationNameByLdIdx(@Param("ldIdx") int ldIdx);
+
 }

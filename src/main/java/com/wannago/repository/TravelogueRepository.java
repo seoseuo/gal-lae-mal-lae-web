@@ -44,4 +44,8 @@ public interface TravelogueRepository extends JpaRepository<Travelogue, Integer>
 
     // tlState = 1 && tlPublic = 1 조건으로 페이징 처리
     Page<Travelogue> findByTlStateAndTlPublic(@Param("tlState") int tlState, @Param("tlPublic") int tlPublic, Pageable pageable);
+
+    // trIdx를 포함포함하는 모든 데이터들의 tlImage 목록
+    @Query("SELECT t.tlImage FROM Travelogue t WHERE t.trIdx = :trIdx")
+    List<String> findTlImageByTrIdx(@Param("trIdx") int trIdx);
 }
