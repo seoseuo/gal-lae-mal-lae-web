@@ -261,7 +261,12 @@ public class TravelGroupService {
         }
 
         // 2. 회장이 아니라면 모임 탈퇴
+        // 2-1 Member 테이블에서 해당 모임 회원 삭제
         memberRepository.deleteByGrIdxAndUsIdx(grIdx, usIdx);
+
+        // 2-2 Travelogue 테이블에서 해당 모임 회원이 남긴 글의 tlState를 0으로 변경
+        travelogueRepository.updateTlStateByGrIdxAndUsIdx(grIdx, usIdx);
+ 
         return "모임을 탈퇴했습니다.";
     }
 
