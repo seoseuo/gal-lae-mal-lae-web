@@ -241,4 +241,13 @@ public class TravelGroupController {
         log.info("DELETE : /travelgroups/travel/travelogue/{}", tlIdx);
         return ResponseEntity.ok(travelGroupService.deleteTravelogue(tlIdx));
     }
+
+    // 초대를 위한 유저 이메일 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDTO>> searchUser(@RequestParam("usEmail") String usEmail) {
+        log.info("GET : /travelgroups/search");
+        log.info("usEmail : {}", usEmail);
+        return ResponseEntity.ok(travelGroupService.searchUser(usEmail));
+    }
+    
 }

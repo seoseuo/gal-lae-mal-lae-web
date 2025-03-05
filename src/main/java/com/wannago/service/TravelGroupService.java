@@ -561,4 +561,9 @@ public class TravelGroupService {
 
         return "여행록이 삭제되었습니다.";
     }
+
+    // 초대를 위한 유저 이메일 검색
+    public List<UserDTO> searchUser(String usEmail) {
+        return userMapper.toDTOList(userRepository.findByUsEmailContaining(usEmail));
+    }
 }

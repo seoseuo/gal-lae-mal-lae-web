@@ -48,5 +48,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     void updateUsProfileByUsIdx(@Param("usIdx") int usIdx, @Param("usProfile") String usProfile);
 
 
+    // usEmail을 통해 User 정보를 가져오는 메서드
+    // 초대를 위한 유저 이메일 검색 시 사용
+    @Query("SELECT u FROM User u WHERE u.usEmail LIKE %:usEmail%")
+    List<User> findByUsEmailContaining(@Param("usEmail") String usEmail);
 
 }
