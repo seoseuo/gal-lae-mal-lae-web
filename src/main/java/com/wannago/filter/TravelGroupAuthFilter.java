@@ -29,7 +29,8 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
         if (path.matches("/travelgroups/\\d+.*")) {
             int grIdx = Integer.parseInt(path.split("/")[2]);
 
-            if (path.contains("/travel")) {
+            // 여행 관련 경로 체크
+            if (path.matches("^/travelgroups/\\d+/travel.*$")) {
                 if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
                     sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
                     return;
@@ -40,6 +41,7 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
                 }
             }
 
+            // GET 요청 체크 
             if (method.equals("GET")) {
                 if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
                     sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회원이 아닙니다.");
@@ -47,6 +49,7 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
                 }
             }
 
+            // PATCH, DELETE 요청 체크
             if (method.equals("PATCH") || method.equals("DELETE")) {
                 if (path.contains("/leave")) {
                     if (!travelGroupAuthUtil.checkMemberAuth(grIdx)) {
@@ -59,7 +62,7 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
                     return;
                 }
                 if (!travelGroupAuthUtil.checkAdminAuth(grIdx)) {
-                    sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회장이 아닙니다.");
+                    sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "모임 회장2이 아닙니다.");
                     return;
                 }
             }
