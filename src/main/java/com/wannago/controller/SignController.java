@@ -65,7 +65,8 @@ public class SignController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response){
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response){    
+        
         LoginResponse result = signService.login(loginRequest);
         TokenDto token = signService.createToken(result.getUser());
         Cookie accessTokenCookie = new Cookie("accessToken", token.getAccessToken());

@@ -92,7 +92,7 @@ public class TravelGroupController {
         log.info("PATCH : /travelgroups/{}/leave", grIdx);
 
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
-        return ResponseEntity.ok(travelGroupService.leaveTravelGroup(userDTO.getUsIdx(), grIdx));
+        return ResponseEntity.ok(travelGroupService.leaveTravelGroup(userDTO.getUsIdx(), grIdx));        
     }
 
     // 모임 삭제
