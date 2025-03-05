@@ -563,7 +563,7 @@ public class TravelGroupService {
     }
 
     // 초대를 위한 유저 이메일 검색
-    public List<UserDTO> searchUser(String usEmail) {
-        return userMapper.toDTOList(userRepository.findByUsEmailContaining(usEmail));
+    public List<UserDTO> searchUser(String usEmail, int grIdx) {
+        return userMapper.toDTOList(userRepository.findByUsEmailContaining(usEmail, grIdx));
     }
 }

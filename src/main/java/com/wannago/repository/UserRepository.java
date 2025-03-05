@@ -50,7 +50,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     // usEmail을 통해 User 정보를 가져오는 메서드
     // 초대를 위한 유저 이메일 검색 시 사용
-    @Query("SELECT u FROM User u WHERE u.usEmail LIKE %:usEmail%")
-    List<User> findByUsEmailContaining(@Param("usEmail") String usEmail);
+    // Member 테이블에서 grIdx에 포함된 usIdx는 제외
+    @Query("SELECT u FROM User u WHERE u.usEmail LIKE %:usEmail% AND u.usIdx NOT IN (SELECT m.usIdx FROM Member m WHERE m.grIdx = :grIdx)")
+    List<User> findByUsEmailContaining(@Param("usEmail") String usEmail, @Param("grIdx") int grIdx);
 
 }

@@ -244,10 +244,11 @@ public class TravelGroupController {
 
     // 초대를 위한 유저 이메일 검색
     @GetMapping("/search")
-    public ResponseEntity<List<UserDTO>> searchUser(@RequestParam("usEmail") String usEmail) {
+    public ResponseEntity<List<UserDTO>> searchUser(@RequestParam("usEmail") String usEmail, @RequestParam("grIdx") int grIdx) {
         log.info("GET : /travelgroups/search");
         log.info("usEmail : {}", usEmail);
-        return ResponseEntity.ok(travelGroupService.searchUser(usEmail));
+        log.info("grIdx : {}", grIdx);
+        return ResponseEntity.ok(travelGroupService.searchUser(usEmail, grIdx));
     }
     
 }
