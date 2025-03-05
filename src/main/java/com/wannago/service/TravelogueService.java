@@ -20,7 +20,11 @@ import com.wannago.mapper.TravelogueMapper;
 import com.wannago.mapper.TravelogueLikeMapper;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import com.wannago.util.security.SecurityUtil;
+import lombok.extern.log4j.Log4j2;
+import com.wannago.dto.UserDTO;
 
+@Log4j2
 @Service
 public class TravelogueService {
 
@@ -35,6 +39,9 @@ public class TravelogueService {
 
     @Autowired
     private TravelogueLikeMapper travelogueLikeMapper;
+
+    @Autowired
+    private SecurityUtil securityUtil;
 
     // 여행록 목록
     public Map<String, Object> getTravelogueList(int page, int size) {
@@ -64,5 +71,27 @@ public class TravelogueService {
         travelogueList.put("travelogueLikeList", travelogueLikeDTOList);
 
         return travelogueList;
+    }
+
+    // 여행록 좋아요
+    public String likeTravelogue(int tlIdx) {
+        // 유저 정보 가져오기        
+        UserDTO userDTO = securityUtil.getUserFromAuthentication();
+        int usIdx = userDTO.getUsIdx();
+
+        // 좋아요 체크
+        // 좋아요를 안했으면 좋아요를, 했으면 좋아요 취소를.        
+        if (travelogueLikeRepository.findByTlIdxAndUsIdx(tlIdx, usIdx) == null) {
+            travelogueLikeRepository.save(TravelogueLike.builder()
+                    .tlIdx(tlIdx)
+                    .usIdx(usIdx)
+                    .build());
+            return "좋아요 성공";
+        }
+        else {
+            travelogueLikeRepository.deleteByTlIdxAndUsIdx(tlIdx, usIdx);
+            return "좋아요 취소";
+        }
+
     }
 }

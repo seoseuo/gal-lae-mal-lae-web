@@ -53,6 +53,7 @@ public class TravelGroupController {
 
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
         return ResponseEntity.ok(travelGroupService.createTravelGroup(travelGroupDTO, userDTO, file));
+        //return ResponseEntity.ok("여행 모임 생성 완료");
     }
 
     // 내 모임 목록 조회
@@ -91,7 +92,7 @@ public class TravelGroupController {
         log.info("PATCH : /travelgroups/{}/leave", grIdx);
 
         UserDTO userDTO = securityUtil.getUserFromAuthentication();
-        return ResponseEntity.ok(travelGroupService.leaveTravelGroup(userDTO.getUsIdx(), grIdx));
+        return ResponseEntity.ok(travelGroupService.leaveTravelGroup(userDTO.getUsIdx(), grIdx));        
     }
 
     // 모임 삭제
@@ -240,4 +241,14 @@ public class TravelGroupController {
         log.info("DELETE : /travelgroups/travel/travelogue/{}", tlIdx);
         return ResponseEntity.ok(travelGroupService.deleteTravelogue(tlIdx));
     }
+
+    // 초대를 위한 유저 이메일 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDTO>> searchUser(@RequestParam("usEmail") String usEmail, @RequestParam("grIdx") int grIdx) {
+        log.info("GET : /travelgroups/search");
+        log.info("usEmail : {}", usEmail);
+        log.info("grIdx : {}", grIdx);
+        return ResponseEntity.ok(travelGroupService.searchUser(usEmail, grIdx));
+    }
+    
 }

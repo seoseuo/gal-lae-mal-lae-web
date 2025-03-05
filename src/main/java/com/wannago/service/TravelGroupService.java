@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.wannago.repository.TravelGroupRepository;
 import com.wannago.dto.TravelGroupDTO;
+import com.wannago.dto.TravelViewDTO;
 import com.wannago.entity.TravelGroup;
 import com.wannago.mapper.TravelGroupMapper;
 import com.wannago.dto.UserDTO;
@@ -55,6 +56,7 @@ import java.util.stream.Collectors;
 import com.wannago.mapper.TravelogueLikeMapper;
 import com.wannago.repository.TravelogueLikeRepository;
 import com.wannago.dto.TravelogueLikeDTO;
+import java.util.ArrayList;
 
 @Log4j2
 @Service
@@ -181,7 +183,8 @@ public class TravelGroupService {
 
         for (TravelGroupDTO travelGroup : travelGroupList) {
             travelGroup.setGrCount(memberRepository.countByGrIdx(travelGroup.getGrIdx()));
-            travelGroup.setGrLdList(locationDoRepository.findLocationNamesByLdIdxList(travelRepository.findLdIdxByGrIdx(travelGroup.getGrIdx())));
+            travelGroup.setGrLdList(locationDoRepository
+                    .findLocationNamesByLdIdxList(travelRepository.findLdIdxByGrIdx(travelGroup.getGrIdx())));
         }
 
         return travelGroupList;
@@ -210,8 +213,29 @@ public class TravelGroupService {
         travelGroupInfo.put("memberList", memberList);
 
         // 4. 모임 여행지 목록
-        travelGroupInfo.put("travelList",
-                travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx)));
+        List<TravelDTO> travelList = travelMapper.toDTOList(travelRepository.findByGrIdx(grIdx));
+
+        List<TravelViewDTO> travelViewList = new ArrayList<>();
+        TravelViewDTO travelViewDTO;
+        for (int i = 0; i < travelList.size(); i++) {
+            travelViewDTO = new TravelViewDTO();
+            travelViewDTO.setTrIdx(travelList.get(i).getTrIdx());
+
+            // 1부터 8사이라면
+            if (travelList.get(i).getLdIdx() > 0 && travelList.get(i).getLdIdx() < 9) {
+                travelViewDTO.setLdName(locationDoRepository.findLocationNameByLdIdx(travelList.get(i).getLdIdx())
+                        .orElseThrow(() -> new RuntimeException("여행지를 찾을 수 없습니다.")));
+            } else {
+                travelViewDTO.setLdName(locationDoRepository.findLocationNameByLdIdx(travelList.get(i).getLdIdx())
+                        .orElseThrow(() -> new RuntimeException("여행지를 찾을 수 없습니다.")));
+                travelViewDTO.setLsName(locationSiRepository.findLocationNameByLsIdx(travelList.get(i).getLdIdx(),travelList.get(i).getLsIdx())
+                        .orElseThrow(() -> new RuntimeException("여행지를 찾을 수 없습니다.")));
+            }
+            travelViewDTO.setTlImgList(travelogueRepository.findTlImageByTrIdx(travelList.get(i).getTrIdx()));
+            travelViewList.add(travelViewDTO);
+        }
+
+        travelGroupInfo.put("travelList", travelViewList);
 
         return travelGroupInfo;
     }
@@ -237,7 +261,12 @@ public class TravelGroupService {
         }
 
         // 2. 회장이 아니라면 모임 탈퇴
+        // 2-1 Member 테이블에서 해당 모임 회원 삭제
         memberRepository.deleteByGrIdxAndUsIdx(grIdx, usIdx);
+
+        // 2-2 Travelogue 테이블에서 해당 모임 회원이 남긴 글의 tlState를 0으로 변경
+        travelogueRepository.updateTlStateByGrIdxAndUsIdx(grIdx, usIdx);
+ 
         return "모임을 탈퇴했습니다.";
     }
 
@@ -536,5 +565,10 @@ public class TravelGroupService {
         travelogueRepository.deleteTravelogue(tlIdx);
 
         return "여행록이 삭제되었습니다.";
+    }
+
+    // 초대를 위한 유저 이메일 검색
+    public List<UserDTO> searchUser(String usEmail, int grIdx) {
+        return userMapper.toDTOList(userRepository.findByUsEmailContaining(usEmail, grIdx));
     }
 }
