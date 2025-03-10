@@ -20,6 +20,7 @@ import java.util.Date;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wannago.dto.LoginRequest;
 import com.wannago.dto.MessageDTO;
 
 
@@ -29,14 +30,6 @@ import com.wannago.dto.MessageDTO;
 public class RedisService {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
-
-    // key값 code를 value로 하여 3분동안 저장한다.
-    public void set(String key, String value, int seconds) {
-        ValueOperations<String, Object> valOperations = redisTemplate.opsForValue();
-        // 만료기간 3분
-        valOperations.set(key, value, seconds, TimeUnit.SECONDS);
-    }
 
     // key값인 email에 있는 value를 가져온다.
     @Autowired
@@ -145,4 +138,31 @@ public class RedisService {
     public void deleteTravelInfo(String key) {
         redisTemplate.delete(key);
     }
+
+    public void setLoginRequest(String key,LoginRequest value,int seconds){
+        // 객체를 Redis에 JSON 형식으로 저장
+        // 객체 직렬화 후 저장
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String json = objectMapper.writeValueAsString(value);
+            redisTemplate.opsForValue().set(key, json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+    public LoginRequest getLoginRequest(String key){
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = (String) redisTemplate.opsForValue().get(key);
+            return objectMapper.readValue(json, LoginRequest.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void deleteLoginRequest(String key){
+        redisTemplate.delete(key);
+    }
+
 }

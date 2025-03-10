@@ -58,6 +58,22 @@ public class EmailService {
         sendEmail(email, subject, content);
     }
     
+    public void sendPasswordEmail(String email,String password) {
+        String subject = "임시비밀번호입니다";
+        StringBuffer sb = new StringBuffer();
+        sb.append("<div style='width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; background-color: #f9f9f9;'>");
+        sb.append("<div style='text-align: center; margin-bottom: 20px;'>");
+        sb.append("<img src='https://postfiles.pstatic.net/MjAyNDA2MjRfMjQx/MDAxNzE5MTk4OTc0NTM4.qQNgcGjEUQK6skXmJ96_UbzK8Du3O0o5xIeZKrFGiBMg.A51Rese6nRQbHVwdvO4mQ34KLTDTcsU6eZDsw53i9HAg.PNG/logo.png?type=w966' alt='Logo' style='max-width: 100px;' loading='lazy'>");
+        sb.append("</div>");
+        sb.append("<div style='text-align: center; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);'>");
+        sb.append("<h1 style='color: #333333; font-size: 24px;'>임시비밀번호입니다</h1>");
+        sb.append("<p style='color: #666666; font-size: 16px;'>임시비밀번호를 확인하기 위해 아래의 <strong>임시비밀번호</strong>를 화면에 입력해주세요.</p>");
+        sb.append("<div style='font-size: 32px; font-weight: bold; color: #333333; margin: 20px 0;'>").append(password).append("</div>");
+        sb.append("</div>");
+        sb.append("</div>");
+        String content = sb.toString();
+        sendEmail(email, subject, content);
+    }
 
 
 }
