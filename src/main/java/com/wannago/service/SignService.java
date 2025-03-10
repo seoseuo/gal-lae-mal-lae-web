@@ -73,7 +73,7 @@ public class SignService {
 
     public boolean isEmailExist(String email) {
         Optional<User> user = userRepository.findByUsEmail(email);
-        if(user != null){
+        if(user.isPresent()){
             return true;
         }
         return false;
@@ -85,33 +85,36 @@ public class SignService {
         return trueValue.equals(verified);
 
     }
-
+    public ResponseDTO signupStep1(LoginRequest loginRequest) {
+        String encodedPassword = passwordEncoder.encode(loginRequest.getUsPassword());
+        redisService.set("sign"+loginRequest.getUsEmail(), encodedPassword, 60*60);
+        return new ResponseDTO(true, "저장완료");
+    }
 
     //회원가입
     public ResponseDTO signup(UserDTO userDTO) {
-        String encodedPassword = passwordEncoder.encode(userDTO.getUsPw());
-        userDTO.setUsPw(encodedPassword);
+        String pw = redisService.get("sign"+userDTO.getUsEmail());
+        userDTO.setUsPw(pw);
         userDTO.setUsJoinDate(new Date());
         userDTO.setUsState(1);
         User user = userMapper.toEntity(userDTO);
         userRepository.save(user);
-
         return new ResponseDTO(true, "회원가입이 완료되었습니다.");
     }
     //로그인
-    public LoginResponse login(LoginRequest loginRequest) {
+    public UserDTO login(LoginRequest loginRequest) {
         Optional<User> user = userRepository.findByUsEmail(loginRequest.getUsEmail());
-        if(user == null){
-            return new LoginResponse(null,LoginStatusEnum.WRONG_EMAIL.getMessage());
+        if(user.isEmpty()){
+            return null;
         }
         else if(user.get().getUsState() != 1){
-            return new LoginResponse(null,LoginStatusEnum.WRONG_STATE.getMessage());
+            return null;
         }
-        else if(!passwordEncoder.matches(loginRequest.getUsPw(), user.get().getUsPw())){
-            return new LoginResponse(null,LoginStatusEnum.WRONG_PASSWORD.getMessage());
+        else if(!passwordEncoder.matches(loginRequest.getUsPassword(),user.get().getUsPw())){
+            return null;
         }
         else{
-            return new LoginResponse(userMapper.toDTO(user.get()),LoginStatusEnum.LOGIN_SUCCESS.getMessage());
+            return userMapper.toDTO(user.get());
         }
     }
 
@@ -139,5 +142,28 @@ public class SignService {
         userRepository.save(updatedUser);
         return new ResponseDTO(true, SignupMsgEnum.PASSWORD_CHANGE_SUCCESS.getMessage());
 
+    }
+    //임시비밀번호 전송
+    public ResponseDTO sendTemporaryPassword(String email){
+        String password = CodeGenerator.generateRandomString(10);
+        emailService.sendPasswordEmail(email, password);
+        Optional<User> user = userRepository.findByUsEmail(email);
+        if(user.isPresent()){
+            User updatedUser = User.builder()
+                    .usIdx(user.get().getUsIdx())
+                    .usProfile(user.get().getUsProfile())
+                    .usPw(passwordEncoder.encode(password))
+                    .usEmail(user.get().getUsEmail())
+                    .usName(user.get().getUsName())
+                    .usJoinDate(user.get().getUsJoinDate())
+                    .usState(user.get().getUsState())
+                    .build();
+            userRepository.save(updatedUser);
+            return new ResponseDTO(true, "임시비밀번호가 전송되었습니다.");
+        }
+        else{
+            return new ResponseDTO(false, "존재하지 않는 이메일입니다.");
+        }
+        
     }
 }

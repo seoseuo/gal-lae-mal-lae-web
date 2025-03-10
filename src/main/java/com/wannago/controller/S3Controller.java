@@ -26,8 +26,8 @@ public class S3Controller {
     @PostMapping("/upload")
     public ResponseEntity<ResponseDTO> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            String url = s3Service.saveFile(file);
-            ResponseDTO responseDTO = new ResponseDTO(true,url);
+            String filename = s3Service.saveFile(file);
+            ResponseDTO responseDTO = new ResponseDTO(true,filename);
             return ResponseEntity.ok(responseDTO);
         } catch (IOException e) {
             e.printStackTrace();

@@ -147,4 +147,27 @@ public class JwtProvider {
         response.getWriter().flush();
     }
     
+    public Integer getUsIdxFromToken(String token){
+        Claims payload = Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return payload.get("USIDX", Integer.class);
+    }
+
+    public AccessTokenClaims getAccessTokenClaimsFromToken(String token){
+        Claims payload = Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return AccessTokenClaims.builder()
+                .usIdx(payload.get("USIDX", Integer.class))
+                .usEmail(payload.get("USEMAIL", String.class))
+                .usName(payload.get("USNAME", String.class))
+                .usProfile(payload.get("USPROFILE", String.class))
+                .usState(payload.get("USSTATE", Integer.class))
+                .build();
+    }
 }

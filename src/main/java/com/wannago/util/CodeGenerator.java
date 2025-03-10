@@ -15,5 +15,17 @@ public class CodeGenerator {
         }
         return code.toString();
     }
+
+    //문자열 랜덤 생성
+    public static String generateRandomString(int length) {
+        StringBuilder code = new StringBuilder();
+        Random random = new Random();
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(characters.length());
+            code.append(characters.charAt(index));
+        }
+        return code.toString();
+    }
 }
 
