@@ -15,4 +15,6 @@ public class LocationSiDTO {
     private String lsName;
     private Integer ldIdx;
     private LocationDo locationDo;
+
+    private String ldName;
 }
