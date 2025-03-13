@@ -57,6 +57,7 @@ import com.wannago.mapper.TravelogueLikeMapper;
 import com.wannago.repository.TravelogueLikeRepository;
 import com.wannago.dto.TravelogueLikeDTO;
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -185,6 +186,7 @@ public class TravelGroupService {
             travelGroup.setGrCount(memberRepository.countByGrIdx(travelGroup.getGrIdx()));
             travelGroup.setGrLdList(locationDoRepository
                     .findLocationNamesByLdIdxList(travelRepository.findLdIdxByGrIdx(travelGroup.getGrIdx())));
+
         }
 
         return travelGroupList;
@@ -228,7 +230,8 @@ public class TravelGroupService {
             } else {
                 travelViewDTO.setLdName(locationDoRepository.findLocationNameByLdIdx(travelList.get(i).getLdIdx())
                         .orElseThrow(() -> new RuntimeException("여행지를 찾을 수 없습니다.")));
-                travelViewDTO.setLsName(locationSiRepository.findLocationNameByLsIdx(travelList.get(i).getLdIdx(),travelList.get(i).getLsIdx())
+                travelViewDTO.setLsName(locationSiRepository
+                        .findLocationNameByLsIdx(travelList.get(i).getLdIdx(), travelList.get(i).getLsIdx())
                         .orElseThrow(() -> new RuntimeException("여행지를 찾을 수 없습니다.")));
             }
             travelViewDTO.setTlImgList(travelogueRepository.findTlImageByTrIdx(travelList.get(i).getTrIdx()));
@@ -266,7 +269,7 @@ public class TravelGroupService {
 
         // 2-2 Travelogue 테이블에서 해당 모임 회원이 남긴 글의 tlState를 0으로 변경
         travelogueRepository.updateTlStateByGrIdxAndUsIdx(grIdx, usIdx);
- 
+
         return "모임을 탈퇴했습니다.";
     }
 
@@ -316,12 +319,13 @@ public class TravelGroupService {
     }
 
     // 여행지 도 선정
-    public TravelDTO selectLocationDo(int ldIdx) {
+    public TravelDTO selectLocationDo(int ldIdx, int grIdx) {
 
         // 2. travleDTO 객체 생성
         TravelDTO travelDTO = new TravelDTO();
         // 3. travleDTO 객체에 grIdx, ldIdx, state = 1, createdAt 현재 시각 setter로 등록
 
+        travelDTO.setGrIdx(grIdx);
         travelDTO.setLdIdx(ldIdx);
         travelDTO.setTrState(1);
         travelDTO.setTrCreatedAt(new Date());
@@ -329,29 +333,29 @@ public class TravelGroupService {
         log.info("travelDTO  {}", travelDTO);
 
         // 4. redis에 nowTravelDTO 키로 저장
-        redisService.setTravelInfo("nowTravelDTO", travelDTO);
+        redisService.setTravelInfo(grIdx + "nowTravelDTO", travelDTO);
 
         return travelDTO;
     }
 
     // 여행지 시 선정
-    public TravelDTO selectLocationSi(int lsIdx) {
+    public TravelDTO selectLocationSi(int lsIdx, int grIdx) {
         // 1. redis에서 nowTravelDTO 가져오기
         // 키 : 값 문자열 형태인 Object 타입을 TravelDTO 타입으로 변환
-        TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo("nowTravelDTO");
+        TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo(grIdx + "nowTravelDTO");
 
         // 2. travelDTO 에 lsIdx 선정
         travelDTO.setLsIdx(lsIdx);
         log.info("travelDTO  {}", travelDTO);
         // 3. redis에 nowTravelDTO 키로 저장
-        redisService.setTravelInfo("nowTravelDTO", travelDTO);
+        redisService.setTravelInfo(grIdx + "nowTravelDTO", travelDTO);
         return travelDTO;
     }
 
     // 여행 기간 선정
-    public TravelDTO selectTravelPeriod(TravelDTO newTravelDTO) {
+    public TravelDTO selectTravelPeriod(TravelDTO newTravelDTO, int grIdx) {
         // 1. redis에 nowTravelDTO 가져오기
-        TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo("nowTravelDTO");
+        TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo(grIdx + "nowTravelDTO");
 
         // 2. travelDTO 에 trStartTime, trEndTime 선정
         travelDTO.setGrIdx(newTravelDTO.getGrIdx());
@@ -377,7 +381,7 @@ public class TravelGroupService {
         travelDTO.setTrIdx(trIdx);
 
         // 4. redis에 nowTravelDTO 삭제
-        redisService.deleteTravelInfo("nowTravelDTO");
+        redisService.deleteTravelInfo(grIdx + "nowTravelDTO");
 
         return travelDTO;
     }
@@ -395,7 +399,25 @@ public class TravelGroupService {
 
         // 2. 여행 일정 목록 가져오기
         // 2-1. 여행 일정 목록 리턴 객체에 저장
-        travelInfo.put("scheduleList", scheduleMapper.toDTOList(scheduleRepository.findByTrIdx(trIdx)));
+        List<ScheduleDTO> scheduleDTOList = scheduleMapper.toDTOList(scheduleRepository.findByTrIdx(trIdx));
+        TourSpots tourSpots;
+
+        for (ScheduleDTO scheduleDTO : scheduleDTOList) {
+            log.info("scheduleDTO.getTsIdx() {}", scheduleDTO.getTsIdx());
+            Optional<TourSpots> optionalTourSpots = tourSpotsRepository.findByTsIdxSchedule(scheduleDTO.getTsIdx());
+            // tsIdx 를 통해 이름, 첫번째 이미지, 주소, 전화번호 가져오기 -> Optional 타입으로 받아옴.       
+            
+            tourSpots = optionalTourSpots.orElseThrow(() -> new RuntimeException("tour_spots 데이터를 찾을 수 없습니다."));
+
+            scheduleDTO.setTsName(tourSpots.getTsName());
+            scheduleDTO.setTsFirstImage(tourSpots.getTsFirstImage());
+            scheduleDTO.setTsAddr1(tourSpots.getTsAddr1());
+            scheduleDTO.setTsTel(tourSpots.getTsTel());
+
+            log.info("scheduleDTO {}", scheduleDTO);
+        }
+
+        travelInfo.put("scheduleList", scheduleDTOList);
 
         // 3. 여행록 가져오기 tlState = 1 인 데이터만 가져오기
         // 3-1. 여행록 리턴 객체에 저장
