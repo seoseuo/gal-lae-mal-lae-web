@@ -1,5 +1,6 @@
 package com.wannago.util.jwt;
 
+import jakarta.servlet.http.Cookie;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -116,6 +117,19 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             log.info("Token has expired: {}", e.getMessage());
             sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "토큰이 만료되었습니다.");
+            // 쿠키 내용을 지우는 코드 추가
+            Cookie accessTokenCookie = new Cookie("accessToken", null);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setMaxAge(0); // 쿠키 만료 시간 설정
+            response.addCookie(accessTokenCookie);
+
+            Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setMaxAge(0); // 쿠키 만료 시간 설정
+            response.addCookie(refreshTokenCookie);
+
             return null;
 
         } catch (MalformedJwtException e) {
