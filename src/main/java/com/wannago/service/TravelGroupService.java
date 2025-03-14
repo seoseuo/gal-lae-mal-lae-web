@@ -310,12 +310,16 @@ public class TravelGroupService {
 
     // 랜덤 여행지 추천
     public LocationSiDTO getRandomLocationSi() {
-
         // DB에서 랜덤으로 locationSi 데이터 조회
         List<LocationSi> locationSiList = locationSiRepository.findAll();
         // 랜덤으로 하나 뽑기
         LocationSi locationSi = locationSiList.get(new Random().nextInt(locationSiList.size()));
-        return locationSiMapper.toDTO(locationSi);
+
+        LocationSiDTO locationSiDTO = locationSiMapper.toDTO(locationSi);
+        // ldIdx 를 통해 ldName 가져오기
+        locationSiDTO.setLdName(locationDoRepository.findById(locationSi.getLdIdx()).get().getLdName());
+
+        return locationSiDTO;
     }
 
     // 여행지 도 선정
@@ -404,10 +408,10 @@ public class TravelGroupService {
 
         for (ScheduleDTO scheduleDTO : scheduleDTOList) {
             log.info("scheduleDTO.getTsIdx() {}", scheduleDTO.getTsIdx());
-            Optional<TourSpots> optionalTourSpots = tourSpotsRepository.findByTsIdxSchedule(scheduleDTO.getTsIdx());
-            // tsIdx 를 통해 이름, 첫번째 이미지, 주소, 전화번호 가져오기 -> Optional 타입으로 받아옴.       
-            
+            Optional<TourSpots> optionalTourSpots = tourSpotsRepository.findById(scheduleDTO.getTsIdx());
+            // tsIdx 를 통해 이름, 첫번째 이미지, 주소, 전화번호 가져오기 -> Optional 타입으로 받아옴.
             tourSpots = optionalTourSpots.orElseThrow(() -> new RuntimeException("tour_spots 데이터를 찾을 수 없습니다."));
+            log.info("tourSpots {}", tourSpots);
 
             scheduleDTO.setTsName(tourSpots.getTsName());
             scheduleDTO.setTsFirstImage(tourSpots.getTsFirstImage());
@@ -592,5 +596,22 @@ public class TravelGroupService {
     // 초대를 위한 유저 이메일 검색
     public List<UserDTO> searchUser(String usEmail, int grIdx) {
         return userMapper.toDTOList(userRepository.findByUsEmailContaining(usEmail, grIdx));
+    }
+
+    // 랜덤 여행 미리보기 조회
+    public List<TourSpotsDTO> getRandomTravelPreview(int grIdx, Integer ldIdx, Integer lsIdx) {
+
+        // 여행지는 10개를 추천한다. 단, tsFirstImage 가 null 인 경우 제외 <- 쿼리에서 결정시킴
+
+        // 1. 만약 lsIdx가 null이면 랜덤 여행지 추천
+        if (lsIdx == null || lsIdx == 0) {
+            return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLdIdx(ldIdx));
+        }
+
+        // 2. 만약 lsIdx가 null이 아니면 해당 여행지 추천
+        else {
+            return tourSpotsMapper.toDTOList(tourSpotsRepository.findByLsIdx(lsIdx, ldIdx));
+        }
+
     }
 }
