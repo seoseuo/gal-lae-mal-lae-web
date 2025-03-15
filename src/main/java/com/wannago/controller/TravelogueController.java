@@ -27,9 +27,10 @@ public class TravelogueController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> getTravelogueList(
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        log.info("GET : /travelogues?page={}&size={}", page, size);
-        return ResponseEntity.ok(travelogueService.getTravelogueList(page, size));
+            @RequestParam(name = "size", defaultValue = "20") int size,
+            @RequestParam(name = "keyword", defaultValue = "") String keyword) {
+        log.info("GET : /travelogues?page={}&size={}&keyword={}", page, size, keyword);
+        return ResponseEntity.ok(travelogueService.getTravelogueList(page, size, keyword));
     }
 
     // 여행록 좋아요

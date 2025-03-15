@@ -11,4 +11,8 @@ public class ScheduleDTO {
     private LocalTime scEndTime;
     private int trIdx;
     private int tsIdx;
+    private String tsName;
+    private String tsFirstImage;
+    private String tsAddr1;    
+    private String tsTel;
 }

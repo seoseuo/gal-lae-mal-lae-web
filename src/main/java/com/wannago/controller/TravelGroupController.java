@@ -266,7 +266,6 @@ public class TravelGroupController {
         return ResponseEntity.ok(travelGroupService.searchUser(usEmail, grIdx));
     }
 
-    
     // 랜덤 여행 미리보기 조회
     @GetMapping("{grIdx}/travel/location/random/preview")
     public ResponseEntity<List<TourSpotsDTO>> getRandomTravelPreview(@PathVariable("grIdx") int grIdx,
