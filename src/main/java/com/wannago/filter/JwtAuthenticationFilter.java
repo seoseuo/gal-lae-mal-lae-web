@@ -1,7 +1,9 @@
 package com.wannago.filter;
 
 import com.wannago.dto.UserDTO;
+import com.wannago.service.SignService;
 import com.wannago.util.jwt.JwtProvider;
+import com.wannago.util.jwt.TokenDto;
 import com.wannago.util.jwt.AccessTokenClaims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,6 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import com.wannago.service.TokenService;
 
 @Log4j2
 @Component
@@ -29,10 +32,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private TokenService tokenService;
+
+    
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        try{
+            String path = request.getRequestURI();
+            if(path.startsWith("/auth")){
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }catch(Exception e){
+            log.error("JwtAuthenticationFilter error", e);
+        }
 
         // 쿠키에서 accessToken 찾기
         Cookie[] cookies = request.getCookies();
@@ -49,6 +66,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰이 없으면 필터 통과 후 종료
         if (token == null || token.isEmpty()) {
+            System.out.println("토큰이 없습니다.");
+            String refreshToken = null;
+            
+            if (cookies != null) {
+                for(Cookie cookie : cookies){
+                    if("refreshToken".equals(cookie.getName())){
+                        refreshToken = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+            
+            if(refreshToken != null && !refreshToken.isEmpty()){
+                TokenDto tokenDto = tokenService.refreshToken(refreshToken);
+                if(tokenDto != null){
+                    token = tokenDto.getAccessToken();
+                    response.addCookie(new Cookie("accessToken", token));
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+            }
             filterChain.doFilter(request, response);
             return;
         }
@@ -57,7 +95,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // JWT 토큰 검증
         AccessTokenClaims accessTokenClaims = jwtProvider.getAccessTokenClaims(token, response);
-
+        response.addCookie(new Cookie("accessToken", token));
         log.info("accessTokenClaims {}", accessTokenClaims);
 
         // UserDTO 객체 생성

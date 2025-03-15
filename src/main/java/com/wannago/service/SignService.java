@@ -43,6 +43,9 @@ public class SignService {
     
     @Autowired
     private JwtProvider jwtProvider;
+
+    @Autowired
+    private TokenService tokenService;
     //인증코드 확인
 
 
@@ -118,17 +121,7 @@ public class SignService {
         }
     }
 
-    //토큰발급
-    public TokenDto createToken(UserDTO userDTO){
-        AccessTokenClaims claims = AccessTokenClaims.builder()
-                .usIdx(userDTO.getUsIdx())
-                .usEmail(userDTO.getUsEmail())
-                .usName(userDTO.getUsName())
-                .usProfile(userDTO.getUsProfile())
-                .usState(userDTO.getUsState())
-                .build();
-        return jwtProvider.createToken(claims);
-    }
+
     //비밀번호 변경
     public ResponseDTO changePassword(String email, String password){
         Optional<User> user = userRepository.findByUsEmail(email);
