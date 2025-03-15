@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 import com.wannago.util.security.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
 import com.wannago.dto.UserDTO;
+import com.wannago.entity.User;
+import com.wannago.repository.UserRepository;
 
 @Log4j2
 @Service
@@ -43,18 +45,32 @@ public class TravelogueService {
     @Autowired
     private SecurityUtil securityUtil;
 
+    @Autowired
+    private UserRepository userRepository;
+
     // 여행록 목록
-    public Map<String, Object> getTravelogueList(int page, int size) {
+    public Map<String, Object> getTravelogueList(int page, int size, String keyword) {
+        if(keyword == null || keyword.isEmpty()) {
+            keyword = "";
+        }
         Map<String, Object> travelogueList = new HashMap<>();
 
         // 1. 여행록 목록 페이지네이션 20개씩
         Pageable pageable = PageRequest.of(page, size);
 
         // 2. 여행록 목록 가져오기 tlState = 1 && tlPublic = 1
-        Page<Travelogue> traveloguePage = travelogueRepository.findByTlStateAndTlPublic(1, 1, pageable);
+        Page<Travelogue> traveloguePage = travelogueRepository.findByTlStateAndTlPublic(1, 1, pageable, keyword);        
 
         // 2-1. Mapper로 DTO로 변환
         List<TravelogueDTO> travelogueDTOList = travelogueMapper.toDTOList(traveloguePage.getContent());
+
+        // 2-2. travelogueDTOList 의 usIdx 를 가지고 있는 배열 생성
+        for(TravelogueDTO travelogueDTO : travelogueDTOList) {
+            User user = userRepository.findByUsIdx(travelogueDTO.getUsIdx()).orElseThrow(() -> new RuntimeException("여행록 유저 정보를 찾을 수 없습니다."));
+            travelogueDTO.setUsName(user.getUsName());
+            travelogueDTO.setUsProfile(user.getUsProfile());
+        }
+        
 
         // 3.여행록 좋아요 리스트 가져오기
         // 3-1 travelogueList 의 tlIdx 를 가지고 있는 배열 생성
@@ -94,4 +110,5 @@ public class TravelogueService {
         }
 
     }
+
 }
