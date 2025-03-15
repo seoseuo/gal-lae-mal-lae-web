@@ -33,7 +33,7 @@ public class Schedule {
     private Integer trIdx;
 
     @Column(name = "ts_idx", nullable = true)
-    private Integer tsIdx;
+    private Integer tsIdx;    
 
     @Version
     @Column(name = "version", nullable = true)
