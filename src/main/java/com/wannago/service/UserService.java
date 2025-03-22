@@ -1,6 +1,8 @@
 package com.wannago.service;
 
+import com.wannago.dto.ResponseDTO;
 import com.wannago.dto.UserDTO;
+import com.wannago.dto.newPassWordDTO;
 import com.wannago.entity.User;
 import com.wannago.mapper.UserMapper;
 import com.wannago.repository.UserRepository;
@@ -59,11 +61,24 @@ public class UserService {
 
     // usIdx를 통해 User 비밀번호를 수정하는 메서드
     // 비밀번호 변경 시 사용
-    public void updateUsPwByUsIdx(int usIdx, String usPw) {
+    public ResponseDTO updateUsPwByUsIdx(int usIdx, newPassWordDTO newPassWordDTO) {
         // 비밀번호 암호화
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String encodedPw = encoder.encode(usPw);
+        String encodeUsPw = encoder.encode(newPassWordDTO.getUsPw());
+        String encodedPw = encoder.encode(newPassWordDTO.getNewUsPw());
+        ResponseDTO responseDTO = new ResponseDTO();
+        Optional<User> user = userRepository.findByUsIdx(usIdx);
+        
+        if(user.get().getUsPw().equals(encodeUsPw)){
+            responseDTO.setSuccess(false);
+            responseDTO.setMessage("기존 비밀번호가 일치하지 않습니다.");
+            return responseDTO;
+        }
+        
         userRepository.updateUsPwByUsIdx(usIdx, encodedPw);
+        responseDTO.setSuccess(true);
+        responseDTO.setMessage("비밀번호 변경에 성공하였습니다.");
+        return responseDTO;
     }
 
     // usIdx를 통해 User 팔로우 목록을 가져오는 메서드

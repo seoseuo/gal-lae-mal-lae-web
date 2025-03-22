@@ -13,15 +13,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wannago.dto.ChatRoomDTO;
+import com.wannago.dto.ChatRoomInfo;
 import com.wannago.dto.CreatChatDTO;
 import com.wannago.dto.MessageDTO;
 import com.wannago.dto.ResponseDTO;
 import com.wannago.dto.ResponseChatRoomDTO;
 import com.wannago.service.ChatService;
+import com.wannago.util.jwt.JwtProvider;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/chat")
 public class ChatController {
+    @Autowired
+    private JwtProvider jwtProvider;
+    
 
     @Autowired
     private ChatService chatService;
@@ -33,18 +41,70 @@ public class ChatController {
     }
     //채팅방 존재확인
     @GetMapping("/room/check")
-    public ResponseEntity<ResponseDTO> checkChatRoom(@RequestBody CreatChatDTO creatChatDTO){
-        return ResponseEntity.ok(chatService.checkChatRoom(creatChatDTO.getUsIdx(), creatChatDTO.getUsIdx2()));
+    public ResponseEntity<ResponseDTO> checkChatRoom(@RequestParam Integer usIdx, HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        String token = null;
+        if(cookies != null){
+            for(Cookie cookie : cookies){
+                if(cookie.getName().equals("accessToken")){
+                    token = cookie.getValue();
+                }
+            }
+        }
+        Integer usIdx2 = jwtProvider.getUsIdx(token);
+        return ResponseEntity.ok(chatService.checkChatRoom(usIdx, usIdx2));
+    }
+
+    // 채팅방 정보가져오기
+    @GetMapping("/room")
+    public ResponseEntity<ChatRoomInfo> getChatRoom(@RequestParam Integer usIdx, HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        String token = null;
+        if(cookies != null){
+            for(Cookie cookie : cookies){
+                if(cookie.getName().equals("accessToken")){
+                    token = cookie.getValue();
+                }
+            }
+        }
+        Integer usIdx2 = jwtProvider.getUsIdx(token);
+        return ResponseEntity.ok(chatService.getChatRoom(usIdx, usIdx2));
     }
     //채팅방 생성
     @PostMapping("/room")
-    public ResponseEntity<ChatRoomDTO> createChatRoom(@RequestBody CreatChatDTO creatChatDTO){
-        return ResponseEntity.ok(chatService.createChatRoom(creatChatDTO));
+    public ResponseEntity<ChatRoomDTO> createChatRoom(@RequestParam Integer usIdx, HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        String token = null;
+        if(cookies != null){
+            for(Cookie cookie : cookies){
+                if(cookie.getName().equals("accessToken")){
+                    token = cookie.getValue();
+                }
+            }
+        }
+        Integer usIdx2 = jwtProvider.getUsIdx(token);
+        ResponseDTO responseDTO = chatService.checkChatRoom(usIdx, usIdx2);
+        if(!responseDTO.isSuccess()){
+            CreatChatDTO creatChatDTO = new CreatChatDTO(usIdx, usIdx2);
+            return ResponseEntity.ok(chatService.createChatRoom(creatChatDTO));
+        }else{
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     //채팅상대 목록조회
-    @GetMapping("/room/list/{usIdx}")
-    public ResponseEntity<List<ResponseChatRoomDTO>> getChatRoomList(@PathVariable Integer usIdx){
+    @GetMapping("/room/list")
+    public ResponseEntity<List<ResponseChatRoomDTO>> getChatRoomList(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        String token = null;
+        if(cookies != null){
+            for(Cookie cookie : cookies){
+                if(cookie.getName().equals("accessToken")){
+                    token = cookie.getValue();
+                }
+            }
+        }
+        Integer usIdx = jwtProvider.getUsIdx(token);
         return ResponseEntity.ok(chatService.getChatRoomList(usIdx));
     }
     

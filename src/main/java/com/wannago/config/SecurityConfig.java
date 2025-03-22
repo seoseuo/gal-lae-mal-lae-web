@@ -32,6 +32,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 비활성화
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/sub/**").permitAll()
+                        .requestMatchers("/pub/**").permitAll()
+                        .requestMatchers("/ws/**","/ws").permitAll() // 웹소켓 엔드포인트 허용
                         .requestMatchers("/auth/**").permitAll() // 인증 관련 경로는 JWT 필터 제외
                         .requestMatchers("/users").hasAuthority("ROLE_USER") // 특정 경로 권한 설정
                         .anyRequest().permitAll()) // 그 외 요청 권한 모두 허가

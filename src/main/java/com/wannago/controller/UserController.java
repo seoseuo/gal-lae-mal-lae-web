@@ -1,6 +1,7 @@
 package com.wannago.controller;
 
 import com.wannago.service.UserService;
+import com.wannago.dto.ResponseDTO;
 import com.wannago.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,12 +10,20 @@ import lombok.extern.log4j.Log4j2;
 import java.util.Map;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.wannago.util.jwt.AccessTokenClaims;
+import com.wannago.util.jwt.JwtProvider;
 import com.wannago.util.security.SecurityUtil;
+import com.wannago.dto.newPassWordDTO;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 @Log4j2
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    
+    @Autowired
+    private JwtProvider jwtProvider;
+
     private final UserService userService;
     private final SecurityUtil securityUtil;
 
@@ -57,11 +66,9 @@ public class UserController {
 
     // 비밀번호 변경
     @PatchMapping("/me/password")
-    public ResponseEntity<String> updatePassword(@RequestBody UserDTO newUserDTO) {
-        log.info("PATCH : /users/me/password 호출");
-        log.info("newPassword : {}", newUserDTO.getUsPw());
-        userService.updateUsPwByUsIdx(securityUtil.getUserFromAuthentication().getUsIdx(), newUserDTO.getUsPw());
-        return ResponseEntity.ok("비밀번호 수정에 성공하였습니다.");
+    public ResponseEntity<ResponseDTO> updatePassword(@RequestBody newPassWordDTO newPassWordDTO) {
+        ResponseDTO responseDTO = userService.updateUsPwByUsIdx(securityUtil.getUserFromAuthentication().getUsIdx(), newPassWordDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
     // 팔로우 목록 조회

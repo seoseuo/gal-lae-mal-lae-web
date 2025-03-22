@@ -5,13 +5,16 @@ import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
 
 @Entity
 @Table(name = "board")
-@Builder
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,12 +39,24 @@ public class Board {
     @Column(name = "ls_idx", nullable = true)
     private Integer lsIdx;
 
-    @Column(name = "us_idx", nullable = false)
-    private Integer usIdx;
-
     @Column(name = "bo_date", nullable = false)
     private LocalDateTime boDate;
     
     @Column(name = "bo_state", nullable = false)
     private Integer boState;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "us_idx")
+    private User user;
+
+    public Integer getUsIdx() {
+        return user != null ? user.getUsIdx() : null;
+    }
+
+    public Board setTempUser(Integer usIdx) {
+        this.user = User.builder()
+                       .usIdx(usIdx)
+                       .build();
+        return this;
+    }
 }
