@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wannago.dto.ChatRoomDTO;
+import com.wannago.dto.ChatRoomInfo;
 import com.wannago.dto.CreatChatDTO;
 import com.wannago.dto.MessageDTO;
 import com.wannago.dto.ResponseChatRoomDTO;
 import com.wannago.dto.ResponseDTO;
+import com.wannago.dto.UserDTO;
 import com.wannago.entity.ChatMember;
 import com.wannago.entity.ChatRoom;
 import com.wannago.entity.Message;
@@ -97,6 +99,23 @@ public class ChatService {
             return new ResponseDTO(false, "채팅 방 존재 안함");
         }
         return new ResponseDTO(true, "채팅 방 존재 합니다");
+    }
+
+    // 채팅방 정보가져오기
+    public ChatRoomInfo getChatRoom(Integer otherUsIdx, Integer myUsIdx){
+        Optional<ChatMember> chatMember = chatMemberRepository.findByUsIdxAndUsIdx2(myUsIdx, otherUsIdx);
+        if(chatMember.isEmpty()){
+            return new ChatRoomInfo(null, null, null);
+        }
+        Optional<User> myUser = userRepository.findByUsIdx(myUsIdx);
+        Optional<User> otherUser = userRepository.findByUsIdx(otherUsIdx);
+        if(myUser.isEmpty() || otherUser.isEmpty()){
+            return new ChatRoomInfo(null, null, null);
+        }
+        UserDTO myUserDTO = userMapper.toDTO(myUser.get());
+        UserDTO otherUserDTO = userMapper.toDTO(otherUser.get());
+        ChatRoomInfo chatRoomInfo = new ChatRoomInfo(chatMember.get().getCrIdx(), myUserDTO, otherUserDTO);
+        return chatRoomInfo;
     }
 
     //채팅방 조회

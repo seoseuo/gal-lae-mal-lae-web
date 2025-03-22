@@ -19,6 +19,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.JwtException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,82 +39,83 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        try{
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        try {
             String path = request.getRequestURI();
-            if(path.startsWith("/auth")){
+            if (path.startsWith("/auth") || path.startsWith("/ws")) {
                 filterChain.doFilter(request, response);
                 return;
             }
-        }catch(Exception e){
-            log.error("JwtAuthenticationFilter error", e);
-        }
 
-        // 쿠키에서 accessToken 찾기
-        Cookie[] cookies = request.getCookies();
-        String token = null;
+            String accessToken = jwtProvider.getAccessTokenFromCookie(request);
+            String refreshToken = jwtProvider.getRefreshTokenFromCookie(request);
 
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
+            if (accessToken == null && refreshToken == null) {
+                log.info("토큰이 없습니다.");
+                filterChain.doFilter(request, response);
+                return;
             }
-        }
 
-        // 토큰이 없으면 필터 통과 후 종료
-        if (token == null || token.isEmpty()) {
-            System.out.println("토큰이 없습니다.");
-            String refreshToken = null;
-            
-            if (cookies != null) {
-                for(Cookie cookie : cookies){
-                    if("refreshToken".equals(cookie.getName())){
-                        refreshToken = cookie.getValue();
-                        break;
-                    }
-                }
-            }
-            
-            if(refreshToken != null && !refreshToken.isEmpty()){
-                TokenDto tokenDto = tokenService.refreshToken(refreshToken);
-                if(tokenDto != null){
-                    token = tokenDto.getAccessToken();
-                    response.addCookie(new Cookie("accessToken", token));
+            try {
+                AccessTokenClaims accessTokenClaims = jwtProvider.getAccessTokenClaims(accessToken);
+                if (accessTokenClaims != null) {
+                    log.info("유효한 액세스 토큰이 있습니다.");
+                    setAuthentication(accessTokenClaims);
                     filterChain.doFilter(request, response);
                     return;
                 }
+            } catch (JwtException e) {
+                log.info("액세스 토큰 검증 실패: {}", e.getMessage());
             }
-            filterChain.doFilter(request, response);
-            return;
+
+            if (refreshToken != null) {
+                try {
+                    TokenDto tokenDto = tokenService.refreshToken(refreshToken);
+                    if (tokenDto != null) {
+                        log.info("리프레시 토큰이 유효합니다. 새로운 액세스 토큰을 발급합니다.");
+                        Cookie newCookie = new Cookie("accessToken", tokenDto.getAccessToken());
+                        newCookie.setPath("/");
+                        newCookie.setHttpOnly(true);
+                        response.addCookie(newCookie);
+                        
+                        AccessTokenClaims claims = jwtProvider.getAccessTokenClaims(tokenDto.getAccessToken());
+                        if (claims != null) {
+                            setAuthentication(claims);
+                        }
+                        
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+                } catch (Exception e) {
+                    log.info("리프레시 토큰 검증 실패: {}", e.getMessage());
+                }
+            }
+
+            log.info("모든 토큰이 만료되었습니다.");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"message\":\"인증이 필요합니다.\"}");
+
+        } catch (Exception e) {
+            log.error("인증 처리 중 오류 발생: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"message\":\"서버 오류가 발생했습니다.\"}");
         }
+    }
 
-        log.info("JwtAuthenticationFilter {}", token);
-
-        // JWT 토큰 검증
-        AccessTokenClaims accessTokenClaims = jwtProvider.getAccessTokenClaims(token, response);
-        response.addCookie(new Cookie("accessToken", token));
-        log.info("accessTokenClaims {}", accessTokenClaims);
-
-        // UserDTO 객체 생성
+    private void setAuthentication(AccessTokenClaims claims) {
         UserDTO userDTO = new UserDTO();
-        userDTO.setUsIdx(accessTokenClaims.getUsIdx());
-        userDTO.setUsEmail(accessTokenClaims.getUsEmail());
-        userDTO.setUsName(accessTokenClaims.getUsName());
-        userDTO.setUsProfile(accessTokenClaims.getUsProfile());
-        userDTO.setUsState(accessTokenClaims.getUsState());
+        userDTO.setUsIdx(claims.getUsIdx());
+        userDTO.setUsEmail(claims.getUsEmail());
+        userDTO.setUsName(claims.getUsName());
+        userDTO.setUsProfile(claims.getUsProfile());
+        userDTO.setUsState(claims.getUsState());
 
-        // 권한 설정
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("USER_ROLE"));
 
-        // 인증 정보 저장
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDTO, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        filterChain.doFilter(request, response);
     }
 }

@@ -1,6 +1,7 @@
 package com.wannago.repository;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wannago.dto.ResponseChatRoomDTO;
 import com.wannago.entity.ChatRoom;
@@ -16,6 +19,7 @@ import com.wannago.entity.QChatMember;
 import com.wannago.entity.QChatRoom;
 import com.wannago.entity.QMessage;
 import com.wannago.entity.QUser;
+import com.wannago.entity.Message;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,33 +34,32 @@ public class ChatRoomRepositoryCustumImpl    implements ChatRoomRepositoryCustum
         QChatMember chatMember = QChatMember.chatMember;
         QUser user = QUser.user;
         QMessage message = QMessage.message;
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(chatMember.usIdx.eq(usIdx));
+        QMessage message2 = new QMessage("message2");
 
-        List<ResponseChatRoomDTO> result = queryFactory
+        return queryFactory
             .select(Projections.constructor(ResponseChatRoomDTO.class,
-                chatMember.crIdx,
-                user.usName,
+                user.usIdx,
+                user.usName, 
                 user.usProfile,
-                user.usState,
                 message.msgContent,
                 message.msgCreatedAt))
             .from(chatMember)
-            .join(chatRoom).on(chatMember.crIdx.eq(chatRoom.crIdx))
-            .join(user).on(chatMember.usIdx.ne(usIdx).and(chatMember.usIdx.eq(user.usIdx)))
-            .leftJoin(message).on(message.crIdx.eq(chatRoom.crIdx))
-            .where(builder)
-            .groupBy(chatMember.crIdx)
+            .join(user).on(user.usIdx.eq(chatMember.usIdx).and(user.usIdx.ne(usIdx)))
+            .leftJoin(message).on(message.crIdx.eq(chatMember.crIdx)
+                .and(message.msgCreatedAt.eq(
+                    JPAExpressions
+                        .select(message2.msgCreatedAt.max())
+                        .from(message2)
+                        .where(message2.crIdx.eq(chatMember.crIdx))
+                )))
+            .where(chatMember.crIdx.in(
+                JPAExpressions
+                    .select(chatMember.crIdx)
+                    .from(chatMember)
+                    .where(chatMember.usIdx.eq(usIdx))
+                    .distinct()
+            ))
             .orderBy(message.msgCreatedAt.desc())
             .fetch();
-
-        // 전체 카운트 쿼리
-        Long total = queryFactory
-            .select(chatMember.count())
-            .from(chatMember)
-            .where(builder)
-            .fetchOne();
-
-        return result;
     }
 }

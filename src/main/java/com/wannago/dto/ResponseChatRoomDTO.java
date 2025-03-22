@@ -11,14 +11,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class ResponseChatRoomDTO {
     private Integer usIdx;
     private String usName;
     private String usProfile;
-    private Integer usState;
     private String msgContent;
     private LocalDateTime msgCreatedAt;
-}
 
+    public ResponseChatRoomDTO(Integer usIdx, String usName, String usProfile, String msgContent, LocalDateTime msgCreatedAt) {
+        this.usIdx = usIdx;
+        this.usName = usName;
+        this.usProfile = usProfile;
+        this.msgContent = msgContent;
+        this.msgCreatedAt = msgCreatedAt;
+    }
+}

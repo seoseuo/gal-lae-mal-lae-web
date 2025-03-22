@@ -24,4 +24,6 @@ public class BoardDTO {
     private Integer usIdx;
     private LocalDateTime boDate;
     private Integer boState;
+    private String usName;
+    private String usProfile;
 }

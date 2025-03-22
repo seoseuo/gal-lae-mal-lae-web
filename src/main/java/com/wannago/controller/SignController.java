@@ -9,6 +9,7 @@ import com.wannago.enums.SignupMsgEnum;
 import com.wannago.enums.VerificationStateEnum;
 import com.wannago.service.SignService;
 import com.wannago.util.jwt.TokenDto;
+import com.wannago.service.TokenService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,9 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SignController {
     @Autowired
     private SignService signService;
+
+    @Autowired
+    private TokenService tokenService;
 
     @PostMapping("/verification/email")
     public ResponseEntity<ResponseDTO> sendVerificationEmail(@RequestParam("email") String email) {
@@ -68,7 +72,7 @@ public class SignController {
         if(result == null){
             return ResponseEntity.ok(new ResponseDTO(false, "로그인실패"));
         }
-        TokenDto token = signService.createToken(result);
+        TokenDto token = tokenService.createToken(result);
         Cookie accessTokenCookie = new Cookie("accessToken", token.getAccessToken());
         accessTokenCookie.setMaxAge(60*60*24*100);
         accessTokenCookie.setPath("/");

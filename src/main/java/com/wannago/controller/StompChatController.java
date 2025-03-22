@@ -30,7 +30,6 @@ public class StompChatController {
     
     @MessageMapping("/chat")
     public void sendMessage(ChatRequestDTO chat) {
-        template.convertAndSend("/sub/chat/" + chat.getCrIdx(), chat.getMessage());
         MessageDTO message = MessageDTO.builder()
         .msgSender(chat.getSender())
         .msgContent(chat.getMessage())
@@ -40,9 +39,6 @@ public class StompChatController {
         .msgState(1)
         .build();
         chatService.createMessage(message);
-        StringBuffer key = new StringBuffer();
-        key.append("chat_room");
-        key.append(message.getCrIdx());
-        redisService.saveChatMessage(key.toString(), message, 7);
+        template.convertAndSend("/sub/chat/" + chat.getCrIdx(), message);
     }
 }

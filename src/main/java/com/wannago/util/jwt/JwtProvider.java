@@ -20,6 +20,7 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import jakarta.servlet.http.HttpServletRequest;
 @Log4j2
 @Component
 public class JwtProvider {
@@ -65,9 +66,15 @@ public class JwtProvider {
         return jwtBuilder.signWith(SignatureAlgorithm.HS256, getSecretKey()).compact();
     }
 
+    private String genRefreshToken(int usIdx,int expiresIn){
+        Map<String, Object> map = new HashMap<>();
+        map.put("USIDX", usIdx);
+        return genToken(map, expiresIn);
+    }
+
     public TokenDto createToken(AccessTokenClaims claims) {
         String accessToken = genToken(claims.toMap(), ACCESS_TOKEN_EXPIRES_IN);
-        String refreshToken = genToken(null, REFRESH_TOKEN_EXPIRES_IN);
+        String refreshToken = genRefreshToken(claims.getUsIdx(), REFRESH_TOKEN_EXPIRES_IN);
 
         return new TokenDto(accessToken, refreshToken);
     }
@@ -85,26 +92,25 @@ public class JwtProvider {
         }
     }
 
-    public AccessTokenClaims getAccessTokenClaims(String token, HttpServletResponse response) throws IOException {
+    public AccessTokenClaims getAccessTokenClaims(String token) throws JwtException {
         try {
             Claims payload = Jwts.parserBuilder()
-                    .setSigningKey(getSecretKey())  // 비밀 키 설정
-                    .build()  // 파서 빌드
-                    .parseClaimsJws(token)  // 토큰 파싱
-                    .getBody();  // JWT의 바디 반환
+                    .setSigningKey(getSecretKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
             Integer idx = payload.get("USIDX", Integer.class);
             String email = payload.get("USEMAIL", String.class);
             String name = payload.get("USNAME", String.class);
             String img = payload.get("USPROFILE", String.class);
-            int state = payload.get("USSTATE",  Integer.class);
+            int state = payload.get("USSTATE", Integer.class);
 
-            log.info("idx : {}",idx);
-            log.info("email : {}",email);
-            log.info("name : {}",name);
-            log.info("img : {}",img);
-            log.info("state : {}",state);
-
+            log.info("idx : {}", idx);
+            log.info("email : {}", email);
+            log.info("name : {}", name);
+            log.info("img : {}", img);
+            log.info("state : {}", state);
 
             return AccessTokenClaims.builder()
                     .usIdx(idx)
@@ -116,41 +122,23 @@ public class JwtProvider {
 
         } catch (ExpiredJwtException e) {
             log.info("Token has expired: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "토큰이 만료되었습니다.");
-            // 쿠키 내용을 지우는 코드 추가
-            Cookie accessTokenCookie = new Cookie("accessToken", null);
-            accessTokenCookie.setPath("/");
-            accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setMaxAge(0); // 쿠키 만료 시간 설정
-            response.addCookie(accessTokenCookie);
-
-            Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-            refreshTokenCookie.setPath("/");
-            refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setMaxAge(0); // 쿠키 만료 시간 설정
-            response.addCookie(refreshTokenCookie);
-
-            return null;
+            throw new JwtException("토큰이 만료되었습니다.");
 
         } catch (MalformedJwtException e) {
             log.info("Invalid JWT token format: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "잘못된 토큰 형식입니다.");
-            return null;
+            throw new JwtException("잘못된 토큰 형식입니다.");
 
         } catch (SignatureException e) {
             log.info("Invalid JWT signature: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰 서명입니다.");
-            return null;
+            throw new JwtException("유효하지 않은 토큰 서명입니다.");
 
         } catch (JwtException e) {
             log.info("JWT-related exception occurred: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "JWT 관련 오류가 발생했습니다.");
-            return null;
+            throw new JwtException("JWT 관련 오류가 발생했습니다.");
 
         } catch(Exception e) {
             log.info("JWT-related exception occurred: {}", e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "JWT 처리 중 오류가 발생했습니다.");
-            return null;
+            throw new JwtException("JWT 처리 중 오류가 발생했습니다.");
         }
     }
 
@@ -183,5 +171,54 @@ public class JwtProvider {
                 .usProfile(payload.get("USPROFILE", String.class))
                 .usState(payload.get("USSTATE", Integer.class))
                 .build();
+    }
+
+    public int getUsIdx(String token){
+        Claims payload = Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return payload.get("USIDX", Integer.class);
+    }
+
+    public String getAccessTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getRefreshTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    public String createAccessToken(AccessTokenClaims claims) {
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + ACCESS_TOKEN_EXPIRES_IN * 1000);
+
+        return Jwts.builder()
+                .setIssuedAt(now)
+                .setExpiration(expiration)
+                .claim("USIDX", claims.getUsIdx())
+                .claim("USEMAIL", claims.getUsEmail())
+                .claim("USNAME", claims.getUsName())
+                .claim("USPROFILE", claims.getUsProfile())
+                .claim("USSTATE", claims.getUsState())
+                .signWith(getSecretKey())
+                .compact();
     }
 }
