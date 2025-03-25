@@ -52,3 +52,15 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/wannago .
           docker push ${{ secrets.DOCKER_USERNAME }}/wannago:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_PROD }}
+          username: ${{ secrets.USERNAME }}      # 보통 ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}        # .pem 키
+          script: |
+            docker stop wannago || true
+            docker rm wannago || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/wannago
+            docker run -d --name wannago -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/wannago
