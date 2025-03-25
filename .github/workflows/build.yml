@@ -50,5 +50,5 @@ jobs:
 
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/wannago
-          docker push ${{ secrets.DOCKER_USERNAME }}/wannago
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/wannago .
+          docker push ${{ secrets.DOCKER_USERNAME }}/wannago .
