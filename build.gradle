@@ -1,46 +1,48 @@
 plugins {
-	id 'java'
-	id 'war'
-	id 'org.springframework.boot' version '3.4.2'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'war'
+    id 'org.springframework.boot' version '3.4.2'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.wannago'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	// Spring Boot 웹 관련 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-web' // Spring MVC를 사용하여 RESTful API와 웹 애플리케이션을 개발할 때 필요
+    // Spring Boot 웹 관련 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Spring MVC를 사용하여 RESTful API와 웹 애플리케이션을 개발할 때 필요
 
 // Tomcat 관련 의존성 (Spring Boot 기본 제공, 필요 시 제공된 Tomcat을 사용)
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat' // Tomcat을 서블릿 컨테이너로 사용할 때 필요 (제공된 런타임)
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat' // Tomcat을 서블릿 컨테이너로 사용할 때 필요 (제공된 런타임)
 
 // Spring Boot 테스트 관련 의존성
-	testImplementation 'org.springframework.boot:spring-boot-starter-test' // Spring Boot 애플리케이션의 테스트 기능을 제공
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 플랫폼을 실행하기 위한 런처 (테스트 실행에 필요)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test' // Spring Boot 애플리케이션의 테스트 기능을 제공
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 플랫폼을 실행하기 위한 런처 (테스트 실행에 필요)
 
 // 롬복 관련 의존성
-	compileOnly 'org.projectlombok:lombok:1.18.30' // 롬복을 컴파일 시에만 사용 (실행 시 필요 없음)
-	testCompileOnly 'org.projectlombok:lombok:1.18.30' // 테스트 코드 컴파일 시에만 롬복을 사용
-	annotationProcessor 'org.projectlombok:lombok:1.18.30' // 롬복 애노테이션을 처리하는 애노테이션 프로세서 추가
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.30' // 테스트 코드에서 롬복 애노테이션을 처리하는 프로세서 추가
+    compileOnly 'org.projectlombok:lombok:1.18.30' // 롬복을 컴파일 시에만 사용 (실행 시 필요 없음)
+    testCompileOnly 'org.projectlombok:lombok:1.18.30' // 테스트 코드 컴파일 시에만 롬복을 사용
+    annotationProcessor 'org.projectlombok:lombok:1.18.30' // 롬복 애노테이션을 처리하는 애노테이션 프로세서 추가
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30' // 테스트 코드에서 롬복 애노테이션을 처리하는 프로세서 추가
 
 // JPA (Java Persistence API) 관련 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // Spring Data JPA를 사용하여 데이터베이스와의 객체 관계 매핑(O/R Mapping) 처리
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc' // JDBC를 사용한 데이터베이스 연결 및 처리
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // Spring Data JPA를 사용하여 데이터베이스와의 객체 관계 매핑(O/R Mapping) 처리
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc' // JDBC를 사용한 데이터베이스 연결 및 처리
 
 // MySQL Connector 의존성 (JDBC 드라이버)
-	runtimeOnly 'com.mysql:mysql-connector-j' // MySQL 데이터베이스와 연결하기 위한 JDBC 드라이버 (실행 시 필요)
+    runtimeOnly 'com.mysql:mysql-connector-j' // MySQL 데이터베이스와 연결하기 위한 JDBC 드라이버 (실행 시 필요)
 
 // OpenFeign 관련 의존성 (Microservice 간 RESTful 호출을 위한 라이브러리)
 //	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' // Spring Cloud OpenFeign을 사용하여 RESTful API 호출을 간편하게 처리
@@ -48,29 +50,70 @@ dependencies {
 
 
 // 이메일 전송을 위한 Jakarta Mail API 의존성
-	implementation 'com.sun.mail:jakarta.mail:2.0.1' // 이메일 전송 기능을 제공하는 Jakarta Mail API
+    implementation 'com.sun.mail:jakarta.mail:2.0.1' // 이메일 전송 기능을 제공하는 Jakarta Mail API
 
 // JSON 처리 라이브러리 의존성
-	implementation 'org.json:json:20210307' // JSON 데이터를 처리할 수 있는 라이브러리
+    implementation 'org.json:json:20210307' // JSON 데이터를 처리할 수 있는 라이브러리
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
 
 // Jsoup 라이브러리 의존성 (HTML 파싱 및 웹 스크래핑을 위한 라이브러리)
-	implementation 'org.jsoup:jsoup:1.15.3' // HTML 문서의 파싱 및 웹 스크래핑을 위한 라이브러리 (웹 페이지 분석 및 데이터 추출)
+    implementation 'org.jsoup:jsoup:1.15.3' // HTML 문서의 파싱 및 웹 스크래핑을 위한 라이브러리 (웹 페이지 분석 및 데이터 추출)
 
 
 // 로그 관련 의존성 (Log4J를 사용하여 애플리케이션 로그를 기록)
-	implementation 'org.apache.logging.log4j:log4j-core:2.22.1' // Log4J Core 라이브러리, 로그를 기록하는 핵심 라이브러리
-	implementation 'org.apache.logging.log4j:log4j-api:2.22.1' // Log4J API 라이브러리, 로그를 기록할 때 사용할 API
+    implementation 'org.apache.logging.log4j:log4j-core:2.22.1' // Log4J Core 라이브러리, 로그를 기록하는 핵심 라이브러리
+    implementation 'org.apache.logging.log4j:log4j-api:2.22.1' // Log4J API 라이브러리, 로그를 기록할 때 사용할 API
 
 // SLF4J와 Log4J를 연결하는 의존성 (SLF4J 로깅 API를 Log4J 구현체와 연결)
-	testImplementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.22.1' // SLF4J와 Log4J를 연결하여 로그 기능을 사용할 수 있게 해주는 라이브러리
+    testImplementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.22.1'
+    // SLF4J와 Log4J를 연결하여 로그 기능을 사용할 수 있게 해주는 라이브러리
 
 // Spring Boot DevTools 의존성 (개발 중에 애플리케이션을 빠르게 리스타트하고 리로드를 지원)
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+    // MapStruct 의존성
+    implementation 'org.mapstruct:mapstruct:1.5.3.Final' // 원하는 버전으로 설정
 
+    // MapStruct의 컴파일 타임 애노테이션 처리기를 위한 의존성
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final' // 원하는 버전으로 설정
 
+    // Spring Boot Starter 의존성
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    // mail 의존성      
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Redis 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    //spring security 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    //jwt 의존성
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-crypto'
+    //validation 의존성
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.0'
+    //websocket 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    //querydsl 의존성
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+    //aws s3 의존성
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
+
+
+
+
+
+
+
+
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
