@@ -1,10 +1,12 @@
 package com.wannago.util.file;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import com.wannago.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 
+@Component
 public class S3Upload {
 
     @Autowired
