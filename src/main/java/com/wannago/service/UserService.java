@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import com.wannago.util.file.S3Upload;
+
 
 @Log4j2
 @Service
@@ -35,6 +37,9 @@ public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private S3Upload s3Upload;
 
     @Value("${file.image.upload-path}")
     private String imageUploadPath;
@@ -132,13 +137,15 @@ public class UserService {
 
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         String uploadFileName = fileName + fileExtension;
-        File newFile = new File(imageUploadPath + uploadFileName);
 
-        try {
-            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new RuntimeException("File upload failed", e);
-        }
+        s3Upload.saveFileToS3(file, uploadFileName);
+        // File newFile = new File(imageUploadPath + uploadFileName);
+
+        // try {
+        //     Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        // } catch (IOException e) {
+        //     throw new RuntimeException("File upload failed", e);
+        // }
 
         // 4. DB 업데이트 (파일명 변경)
         userRepository.updateUsProfileByUsIdx(usIdx, uploadFileName);
