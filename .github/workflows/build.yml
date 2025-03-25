@@ -5,7 +5,7 @@ name: CI/CD using GitHub Actions & Docker
 # main이나 develop 브랜치에 push가 되었을 때 실행
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
@@ -40,7 +40,7 @@ jobs:
       - name: Make application-aws.yml
         run: |
           mkdir -p src/main/resources
-          echo "${{ secrets.YML_AWS }}" > src/main/resources/application.yml
+          echo "${{ secrets.YML_AWS }}" > src/main/resources/application-aws.yml
 
       - name: Build project
         run: ./gradlew build -x test
