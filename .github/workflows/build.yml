@@ -57,10 +57,48 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST_PROD }}
-          username: ${{ secrets.USERNAME }}      # 보통 ubuntu
-          key: ${{ secrets.PRIVATE_KEY }}        # .pem 키
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
           script: |
-            docker stop wannago || true
-            docker rm wannago || true
+            cd ~/wannago-deploy || mkdir ~/wannago-deploy && cd ~/wannago-deploy
+      
+            # 최신 이미지 가져오기
             docker pull ${{ secrets.DOCKER_USERNAME }}/wannago
-            docker run -d --name wannago -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/wannago
+      
+            # docker-compose.yml 파일 저장
+            cat <<EOF > docker-compose.yml
+            version: '3'
+            services:
+              db:
+                image: mysql:8
+                container_name: mysql-db
+                restart: always
+                ports:
+                  - "3306:3306"
+                environment:
+                  MYSQL_DATABASE: wannago
+                  MYSQL_USER: wannago_user
+                  MYSQL_PASSWORD: wannago_pass
+                  MYSQL_ROOT_PASSWORD: rootpass
+                volumes:
+                  - mysql-data:/var/lib/mysql
+      
+              app:
+                image: ${{ secrets.DOCKER_USERNAME }}/wannago
+                container_name: wannago-app
+                restart: always
+                ports:
+                  - "80:8080"
+                depends_on:
+                  - db
+                environment:
+                  SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/wannago
+                  SPRING_DATASOURCE_USERNAME: wannago_user
+                  SPRING_DATASOURCE_PASSWORD: wannago_pass
+      
+            volumes:
+              mysql-data:
+            EOF
+      
+            docker-compose down
+            docker-compose up -d
