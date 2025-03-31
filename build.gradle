@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'war'
     id 'org.springframework.boot' version '3.4.2'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -22,9 +21,6 @@ dependencies {
     // Spring Boot 웹 관련 의존성
     implementation 'org.springframework.boot:spring-boot-starter-web'
     // Spring MVC를 사용하여 RESTful API와 웹 애플리케이션을 개발할 때 필요
-
-// Tomcat 관련 의존성 (Spring Boot 기본 제공, 필요 시 제공된 Tomcat을 사용)
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat' // Tomcat을 서블릿 컨테이너로 사용할 때 필요 (제공된 런타임)
 
 // Spring Boot 테스트 관련 의존성
     testImplementation 'org.springframework.boot:spring-boot-starter-test' // Spring Boot 애플리케이션의 테스트 기능을 제공
@@ -105,14 +101,6 @@ dependencies {
     //aws s3 의존성
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
-
-
-
-
-
-
-
-
 
 tasks.named('test') {
     useJUnitPlatform()
