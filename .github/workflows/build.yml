@@ -68,51 +68,51 @@ jobs:
             # docker-compose.yml 파일 저장
             cat <<EOF > docker-compose.yml
             version: '3'
-              services:
-                db:
-                  image: mysql:8
-                  container_name: mysql-db
-                  restart: unless-stopped
-                  ports:
-                    - "3306:3306"
-                  environment:
-                    MYSQL_DATABASE: wannago
-                    MYSQL_USER: wannago_user
-                    MYSQL_PASSWORD: wannago_pass
-                    MYSQL_ROOT_PASSWORD: rootpass
-                  volumes:
-                    - mysql-data:/var/lib/mysql
-                  mem_limit: 512m
-                  cpus: 0.4
-              
-                app:
-                  image: ${{ secrets.DOCKER_USERNAME }}/wannago
-                  container_name: wannago-app
-                  restart: unless-stopped
-                  expose:
-                    - "8080"
-                  depends_on:
-                    - db
-                  environment:
-                    SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/wannago
-                    SPRING_DATASOURCE_USERNAME: wannago_user
-                    SPRING_DATASOURCE_PASSWORD: wannago_pass
-                  mem_limit: 768m
-                  cpus: 0.5
-              
-                nginx:
-                  image: nginx:latest
-                  container_name: nginx-proxy
-                  restart: unless-stopped
-                  ports:
-                    - "80:80"
-                  volumes:
-                    - ./nginx.conf:/etc/nginx/nginx.conf:ro
-                  depends_on:
-                    - app
-              
-              volumes:
-                mysql-data:
+            services:
+              db:
+                image: mysql:8
+                container_name: mysql-db
+                restart: unless-stopped
+                ports:
+                  - "3306:3306"
+                environment:
+                  MYSQL_DATABASE: wannago
+                  MYSQL_USER: wannago_user
+                  MYSQL_PASSWORD: wannago_pass
+                  MYSQL_ROOT_PASSWORD: rootpass
+                volumes:
+                  - mysql-data:/var/lib/mysql
+                mem_limit: 512m
+                cpus: 0.4
+            
+              app:
+                image: ${{ secrets.DOCKER_USERNAME }}/wannago
+                container_name: wannago-app
+                restart: unless-stopped
+                expose:
+                  - "8080"
+                depends_on:
+                  - db
+                environment:
+                  SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/wannago
+                  SPRING_DATASOURCE_USERNAME: wannago_user
+                  SPRING_DATASOURCE_PASSWORD: wannago_pass
+                mem_limit: 768m
+                cpus: 0.5
+            
+              nginx:
+                image: nginx:latest
+                container_name: nginx-proxy
+                restart: unless-stopped
+                ports:
+                  - "80:80"
+                volumes:
+                  - ./nginx.conf:/etc/nginx/nginx.conf:ro
+                depends_on:
+                  - app
+            
+            volumes:
+              mysql-data:
             EOF
       
             docker compose down
