@@ -65,7 +65,7 @@ jobs:
             # 최신 이미지 가져오기
             docker pull ${{ secrets.DOCKER_USERNAME }}/wannago
 
-            # Nginx default.conf 생성 (디렉토리 내에)
+            # Nginx default.conf 생성
             cat <<EONGINX > nginx/conf.d/default.conf
             server {
               listen 80;
@@ -82,6 +82,15 @@ jobs:
             cat <<EOF > docker-compose.yml
             version: '3'
             services:
+              redis:
+                image: redis:alpine
+                container_name: redis
+                restart: unless-stopped
+                ports:
+                  - "6379:6379"
+                mem_limit: 128m
+                cpus: 0.2
+
               db:
                 image: mysql:8
                 container_name: mysql-db
@@ -106,10 +115,13 @@ jobs:
                   - "8080"
                 depends_on:
                   - db
+                  - redis
                 environment:
                   SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/wannago
                   SPRING_DATASOURCE_USERNAME: wannago_user
                   SPRING_DATASOURCE_PASSWORD: wannago_pass
+                  SPRING_REDIS_HOST: redis
+                  SPRING_REDIS_PORT: 6379
                 mem_limit: 768m
                 cpus: 0.4
 
