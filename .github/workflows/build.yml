@@ -60,12 +60,29 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
-            cd ~/wannago-deploy || mkdir ~/wannago-deploy && cd ~/wannago-deploy
+            mkdir -p ~/wannago-deploy && cd ~/wannago-deploy
       
             # 최신 이미지 가져오기
             docker pull ${{ secrets.DOCKER_USERNAME }}/wannago
       
-            # docker-compose.yml 파일 저장
+            # nginx.conf 생성
+            cat <<EONGINX > nginx.conf
+            events {}
+      
+            http {
+              server {
+                listen 80;
+      
+                location / {
+                  proxy_pass http://app:8080;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                }
+              }
+            }
+            EONGINX
+      
+            # docker-compose.yml 생성
             cat <<EOF > docker-compose.yml
             version: '3'
             services:
@@ -84,7 +101,7 @@ jobs:
                   - mysql-data:/var/lib/mysql
                 mem_limit: 512m
                 cpus: 0.4
-            
+      
               app:
                 image: ${{ secrets.DOCKER_USERNAME }}/wannago
                 container_name: wannago-app
@@ -99,7 +116,7 @@ jobs:
                   SPRING_DATASOURCE_PASSWORD: wannago_pass
                 mem_limit: 768m
                 cpus: 0.5
-            
+      
               nginx:
                 image: nginx:latest
                 container_name: nginx-proxy
@@ -110,10 +127,11 @@ jobs:
                   - ./nginx.conf:/etc/nginx/nginx.conf:ro
                 depends_on:
                   - app
-            
+      
             volumes:
               mysql-data:
             EOF
       
             docker compose down
             docker compose up -d
+
