@@ -100,7 +100,7 @@ jobs:
                 volumes:
                   - mysql-data:/var/lib/mysql
                 mem_limit: 512m
-                cpus: 0.4
+                cpus: 0.3
       
               app:
                 image: ${{ secrets.DOCKER_USERNAME }}/wannago
@@ -115,7 +115,7 @@ jobs:
                   SPRING_DATASOURCE_USERNAME: wannago_user
                   SPRING_DATASOURCE_PASSWORD: wannago_pass
                 mem_limit: 768m
-                cpus: 0.5
+                cpus: 0.4
       
               nginx:
                 image: nginx:latest
