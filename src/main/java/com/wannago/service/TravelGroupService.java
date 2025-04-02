@@ -55,9 +55,10 @@ import com.wannago.util.security.SecurityUtil;
 import java.util.stream.Collectors;
 import com.wannago.mapper.TravelogueLikeMapper;
 import com.wannago.repository.TravelogueLikeRepository;
-import com.wannago.dto.TravelogueLikeDTO;
 import java.util.ArrayList;
 import java.util.Optional;
+import com.wannago.util.file.S3Upload;
+
 
 @Log4j2
 @Service
@@ -132,6 +133,11 @@ public class TravelGroupService {
     @Autowired
     private TravelogueLikeRepository travelogueLikeRepository;
 
+    @Autowired
+    private S3Upload s3Upload;
+
+    
+
     // 모임 생성
     // 모임 생성 시 사용
     public String createTravelGroup(TravelGroupDTO travelGroupDTO, UserDTO userDTO, MultipartFile file) {
@@ -143,13 +149,19 @@ public class TravelGroupService {
         String grProfile = travelGroupDTO.getGrName() + "_grProfile." + file.getOriginalFilename().split("\\.")[1];
         travelGroupDTO.setGrProfile(grProfile);
 
+        // S3를 이용한 파일 이름 변경 후 저장
+        s3Upload.saveFileToS3(file,grProfile);
+
+        
+        
+
         // 0-1. 이미지 파일 해당 경로에 저장
-        File newFile = new File(fileUploadPath + grProfile);
-        try {
-            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new RuntimeException("File upload failed", e);
-        }
+        // File newFile = new File(fileUploadPath + grProfile);
+        // try {
+        //     Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        // } catch (IOException e) {
+        //     throw new RuntimeException("File upload failed", e);
+        // }
 
         // 0-2. 이미지 파일 세팅
         travelGroupDTO.setGrProfile(grProfile);
@@ -513,12 +525,13 @@ public class TravelGroupService {
                 + new Date().getTime() + "." + file.getOriginalFilename().split("\\.")[1];
 
         // 여행록 이미지 저장
-        File newFile = new File(fileUploadPath + tlImage);
-        try {
-            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new RuntimeException("File upload failed", e);
-        }
+        s3Upload.saveFileToS3(file, tlImage);
+        // File newFile = new File(fileUploadPath + tlImage);
+        // try {
+        //     Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        // } catch (IOException e) {
+        //     throw new RuntimeException("File upload failed", e);
+        // }
 
         // usIdx 세팅
         travelogueDTO.setUsIdx(userDTO.getUsIdx());
@@ -556,12 +569,15 @@ public class TravelGroupService {
                 + new Date().getTime() + "." + file.getOriginalFilename().split("\\.")[1];
 
         // 여행록 이미지 저장
-        File newFile = new File(fileUploadPath + tlImage);
-        try {
-            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new RuntimeException("File upload failed", e);
-        }
+
+        s3Upload.saveFileToS3(file, tlImage);
+
+        // File newFile = new File(fileUploadPath + tlImage);
+        // try {
+        //     Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        // } catch (IOException e) {
+        //     throw new RuntimeException("File upload failed", e);
+        // }
 
         // usIdx 세팅
         travelogueDTO.setUsIdx(userDTO.getUsIdx());
