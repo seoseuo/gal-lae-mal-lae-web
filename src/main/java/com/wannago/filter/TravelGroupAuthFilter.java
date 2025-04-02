@@ -20,11 +20,13 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
     private static final String GROUP_PATH_PATTERN = "/travelgroups/\\d+.*";
     private static final String TRAVEL_PATH_PATTERN = "^/travelgroups/\\d+/travel.*$";
     private static final String LEAVE_PATH_PATTERN = "^/travelgroups/\\d+/leave$";
+    private static final String TRAVEL_OURGE_PATH_PATTERN = "^/travelgroups/\\d+/travel/\\d+/travelouge$";
+    private static final String TRAVEL_DETAIL_PATH_PATTERN = "^/travelgroups/\\d+/travel/\\d+$";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
         String method = request.getMethod();
@@ -36,6 +38,16 @@ public class TravelGroupAuthFilter extends OncePerRequestFilter {
 
         int grIdx = extractGroupIndex(path);
 
+        // 특정 엔드포인트에 대해서는 memberAuth만 확인하고 진행
+        if (path.matches(TRAVEL_DETAIL_PATH_PATTERN) || path.matches(TRAVEL_OURGE_PATH_PATTERN)) {
+            if (!checkMemberAuth(grIdx, response)) {
+                return;
+            }
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 일반적인 memberAuth, adminAuth 흐름
         if (!checkMemberAuth(grIdx, response)) {
             return;
         }
