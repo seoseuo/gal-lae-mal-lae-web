@@ -152,9 +152,6 @@ public class TravelGroupService {
         // S3를 이용한 파일 이름 변경 후 저장
         s3Upload.saveFileToS3(file,grProfile);
 
-        
-        
-
         // 0-1. 이미지 파일 해당 경로에 저장
         // File newFile = new File(fileUploadPath + grProfile);
         // try {
@@ -480,15 +477,30 @@ public class TravelGroupService {
     public Page<TourSpotsDTO> getTourSpotList(TourSpotsDTO tourSpotsDTO, Pageable pageable) {
         Page<TourSpots> tourSpotsPage;
 
-        // 필터링 포함
-        if (tourSpotsDTO.getLsIdx() == null) {
+
+        // 검색 키워드에 % 감싸기
+        String wrappedC1Code = "%" + (tourSpotsDTO.getC1Code() != null ? tourSpotsDTO.getC1Code() : "") + "%";
+        String wrappedTsName = "%" + (tourSpotsDTO.getTsName() != null ? tourSpotsDTO.getTsName() : "") + "%";
+
+
+// lsIdx가 null일 경우 ldIdx만으로 조회
+        if (tourSpotsDTO.getLsIdx() == null || tourSpotsDTO.getLsIdx() == 0) {
             tourSpotsPage = tourSpotsRepository.findByLdIdxAndC1CodeAndTsName(
-                    tourSpotsDTO.getLdIdx(), tourSpotsDTO.getC1Code(), tourSpotsDTO.getTsName(), pageable);
+                    tourSpotsDTO.getLdIdx(),
+                    wrappedC1Code,
+                    wrappedTsName,
+                    pageable
+            );
         } else {
             tourSpotsPage = tourSpotsRepository.findByLsIdxAndC1CodeAndTsName(
-                    tourSpotsDTO.getLdIdx(), tourSpotsDTO.getLsIdx(), tourSpotsDTO.getC1Code(),
-                    tourSpotsDTO.getTsName(), pageable);
+                    tourSpotsDTO.getLdIdx(),
+                    tourSpotsDTO.getLsIdx(),
+                    wrappedC1Code,
+                    wrappedTsName,
+                    pageable
+            );
         }
+
 
         return tourSpotsPage.map(tourSpotsMapper::toDTO);
     }
