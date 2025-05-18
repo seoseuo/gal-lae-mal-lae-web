@@ -3,8 +3,11 @@
 ### 갈래말래
 > 갈래말래, 여행 모임 일정 관리 및 장소 추천 커뮤니티 웹 서비스
 
-<a href="https://chivalrous-saffron-326.notion.site/1d10ba93975b8086a976d70dd9224326?pvs=4"><img src="https://img.shields.io/badge/Notion 보기 링크-E6E6E6?style=for-the-badge&logo=notion&logoColor=black" /></a>
-<a href="https://chivalrous-saffron-326.notion.site/1d10ba93975b8086a976d70dd9224326?pvs=4"><img src="https://img.shields.io/badge/갈래말래(모바일 권장)-490085?style=for-the-badge&&logoColor=black" /></a>
+<a href="https://chivalrous-saffron-326.notion.site/1d10ba93975b8086a976d70dd9224326?pvs=4"><img src="https://img.shields.io/badge/Notion 링크 보기 -E6E6E6?style=for-the-badge&logo=notion&logoColor=black" /></a>
+<a href="https://chivalrous-saffron-326.notion.site/1f70ba93975b80489b3dc3e98f0bf2b2?pvs=4"><img src="https://img.shields.io/badge/갈래말래 산출물 -E6E6E6?style=for-the-badge&logo=notion&logoColor=black" /></a>
+<br><a href="https://velog.io/@seuo/series/%EA%B0%88%EB%9E%98%EB%A7%90%EB%9E%98" target="_blank" rel="noopener noreferrer">
+  <img src="https://img.shields.io/badge/[시리즈 | 갈래말래 : velog]-20C997?style=for-the-badge&logo=velog&logoColor=black&labelColor=20C997&color=20C997" />
+</a>
 <hr>
 
 # 개요
