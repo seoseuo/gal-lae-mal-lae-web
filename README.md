@@ -1,4 +1,4 @@
-<img src="https://github.com/user-attachments/assets/04d58dd4-1556-4bfa-b158-355bed77e5c8" style="width: 250px; height: 250px;" />
+![image](https://github.com/user-attachments/assets/53b05e13-180f-4208-8e65-9e3c3850957d)<img src="https://github.com/user-attachments/assets/04d58dd4-1556-4bfa-b158-355bed77e5c8" style="width: 250px; height: 250px;" />
 
 ### 갈래말래
 > 갈래말래, 여행 모임 일정 관리 및 장소 추천 커뮤니티 웹 서비스
@@ -12,10 +12,17 @@
 
 # 개요
 
-![image](https://github.com/user-attachments/assets/fd77f06d-4228-48c4-91ed-ef48591f0280)
+![image](https://github.com/user-attachments/assets/b1812efd-3f5a-43c3-8a66-ac1efeda39ef)
+![image](https://github.com/user-attachments/assets/52804a0d-efb5-4200-9e24-e7878317e9fd)
+![image](https://github.com/user-attachments/assets/80849fc6-c285-4fd7-91a2-9c79756dbde8)
+![image](https://github.com/user-attachments/assets/b158e18f-322c-43a4-946e-db55ca51d1cc)
+![image](https://github.com/user-attachments/assets/7c836482-9cb9-4b5d-b5c2-bfdbc388b22e)
+![image](https://github.com/user-attachments/assets/db832044-9498-4079-bbcb-6d7b69708ef3)
 
 
-![image](https://github.com/user-attachments/assets/63569d05-3bd1-412c-99e2-303af34c98ac)
+
+
+
 
 
 # 주요 기능
