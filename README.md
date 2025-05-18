@@ -30,11 +30,78 @@
 
 ## 모임 여행 생성 및 관리
 
-![image](https://github.com/user-attachments/assets/653abd88-27f0-4729-8218-cee7888174b3)
+![image](https://github.com/user-attachments/assets/3c26a34b-c5d8-45ac-b581-0fe5a17a71ea)
 
+> 모임 여행 생성 시, 각 도/시, 날짜 단계별 데이터를 Redis에 순차적으로 저장 처리
+```java
+// 여행지 도 선정
+    public TravelDTO selectLocationDo(int ldIdx, int grIdx) {
 
-> 모임 여행 생성 시, 각 도/시 단계별 데이터를 Redis에 순차적으로 저장 처리
-> 
+        // 2. travleDTO 객체 생성
+        TravelDTO travelDTO = new TravelDTO();
+        // 3. travleDTO 객체에 grIdx, ldIdx, state = 1, createdAt 현재 시각 setter로 등록
+
+        travelDTO.setGrIdx(grIdx);
+        travelDTO.setLdIdx(ldIdx);
+        travelDTO.setTrState(1);
+        travelDTO.setTrCreatedAt(new Date());
+
+        log.info("travelDTO  {}", travelDTO);
+
+        // 4. redis에 nowTravelDTO 키로 저장
+        redisService.setTravelInfo(grIdx + "nowTravelDTO", travelDTO);
+
+        return travelDTO;
+    }
+
+    // 여행지 시 선정
+    public TravelDTO selectLocationSi(int lsIdx, int grIdx) {
+        // 1. redis에서 nowTravelDTO 가져오기
+        // 키 : 값 문자열 형태인 Object 타입을 TravelDTO 타입으로 변환
+        TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo(grIdx + "nowTravelDTO");
+
+        // 2. travelDTO 에 lsIdx 선정
+        travelDTO.setLsIdx(lsIdx);
+        log.info("travelDTO  {}", travelDTO);
+        // 3. redis에 nowTravelDTO 키로 저장
+        redisService.setTravelInfo(grIdx + "nowTravelDTO", travelDTO);
+        return travelDTO;
+    }
+
+    // 여행 기간 선정
+    public TravelDTO selectTravelPeriod(TravelDTO newTravelDTO, int grIdx) {
+        // 1. redis에 nowTravelDTO 가져오기
+        TravelDTO travelDTO = (TravelDTO) redisService.getTravelInfo(grIdx + "nowTravelDTO");
+
+        // 2. travelDTO 에 trStartTime, trEndTime 선정
+        travelDTO.setGrIdx(newTravelDTO.getGrIdx());
+        travelDTO.setTrStartTime(newTravelDTO.getTrStartTime());
+        travelDTO.setTrEndTime(newTravelDTO.getTrEndTime());
+
+        // 3. trPeriod 선정
+        // ISO 8601 형식에서 날짜의 차이를 구해야 함. ex) 2025-12-18T00:00:00.000+0900 를 20251218 형식으로
+        // 날짜 포맷 설정
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        // travelDTO의 시작과 끝 시간을 "yyyy-MM-dd" 형식으로 변환
+        // 날짜 차이를 구하기
+        // 0-9 까지 인덱싱 한 다음 '-' 제거 후 정수형으로 변환
+        int period = Integer.parseInt(outputFormat.format(travelDTO.getTrEndTime()).substring(0, 10).replace("-", ""))
+                - Integer.parseInt(outputFormat.format(travelDTO.getTrStartTime()).substring(0, 10).replace("-", ""))
+                + 1;
+
+        travelDTO.setTrPeriod(period);
+
+        // 3. travel 테이블에 저장
+        int trIdx = travelRepository.save(travelMapper.toEntity(travelDTO)).getTrIdx();
+        travelDTO.setTrIdx(trIdx);
+
+        // 4. redis에 nowTravelDTO 삭제
+        redisService.deleteTravelInfo(grIdx + "nowTravelDTO");
+
+        return travelDTO;
+    }
+```
 
 # 기술
 
@@ -114,90 +181,4 @@ Spring Boot 기반 모듈화 된 설계로 확장성과 유지 보수성을 강�
 
 
 > API 서버 제작 과정 시 Postman을 이용한 API 테스트 및 검증으로 개발 단계에서의 오류 최소화 추구
-
-<hr>
-
-### 작업 전 공부 내용
-
-<details>
-<summary>TDD (Test - Driven - Development)</summary>
-
-> 코드의 양질을 위해 테스트를 먼저 작성하고 그 테스트를 통과하는 최소한의 코드를 작성한 후, 리팩토링을 통해 개선하는 개발 방식이다.
-
-### 핵심 개념
-1. `Red` (실패 시)
-- 기능이 구현되지 않았으므로 코드는 당연히 실패한다.
-2. `Green` (성공 시, 최소한의 코드 작성)
-- 통과할 수 있도록 최소한의 코드만 작성한다.
-- 최소한만 구현하는 것이 목적이다.
-3. `Refactor` (리팩토링)
-- 중복 코드 제거 및 성능 개선, 코드 가독성을 높이기 위해 리팩토링을 진행한다.
-
-과정이 반복되면서 점진적으로 안정적인 코드와 유지보수하기 수월한 구조를 만들 수 있다.
-</details>
-
-<details>
-<summary>단위 테스트와 통합 테스트</summary>
-
-### 단위 테스트 (Unit Test)
-> 프로그램의 개별 단위를 독립적으로 테스트하는 과정이다.
-- 하나의 함수, 메서드, 클래스 등 최소 단위만 테스트한다.
-- 외부 시스템 (DB,API 등) 과 연결되지 않은 상태에서 실행한다.
-- 빠른 실행속도를 가진다.
-
-### 통합 테스트 (Integration Test)
-> 여러 개의 모듈 또는 시스템이 함께 동작하는지 테스트하는 과정
-- 단위 테스트와 달리 서로 다른 모듈 (클래스, DB, API) 간의 상호 작용을 확인한다.
-- 실제 환경과 유사한 상태에서 테스트한다.
-JPA 환경에서의 Test 클래스 작성
-- 실행 속도가 느릴 수 있다.
-</details>
-
-<details>
-<summary>JUnit</summary>
-
-> JUnit은 Java에서 단위 테스트를 수행하기 위한 대표적인 테스트 프레임워크이다, 테스트를 자동화하고 코드의 안정성을 높이는 역할을 한다.
-- Java 기반의 단위 테스트 프레임워크
-- 간단한 어노테이션 (`@Test` , `@BeforeEach` 등) 을 사용하여 테스트 작성이 가능하다.
-- 테스트 코드 실행 결과를 자동으로 확인한다.
-- Spring Boot, Maven, Gradle 등과 쉽게 연동이 가능하다.
-
-| 어노테이션           | 설명                                 |
-|---------------------|----------------------------------|
-| `@Test`            | 테스트 메서드를 나타냄             |
-| `@BeforeEach`      | 각 테스트 실행 전에 실행           |
-| `@AfterEach`       | 각 테스트 실행 후에 실행           |
-| `@BeforeAll`       | 모든 테스트 전에 한 번 실행 (static) |
-| `@AfterAll`        | 모든 테스트 후에 한 번 실행 (static) |
-| `@Disabled`        | 테스트를 실행하지 않음 (비활성화)   |
-| `@DisplayName`     | 테스트 이름을 지정                |
-| `@ParameterizedTest` | 매개변수를 사용한 테스트        |
-</details>
-
-<details>
-<summary>JPA 환경에서의 통합 테스트</summary>
-
-`@SpringBootTest` : JPA 환경에서 스프링 컨텍스트를 로드하여 테스트 실행<br>
-`@Transactional` : 테스트 종료 후 데이터 롤백
-
-* 스프링 컨텍스트를 로드하여 테스트 실행
-> Spring Context 는 애플리케이션에서 사용할 객체(빈, Bean)를 관리하는 컨테이너이다. 즉, 스프링이 필요한 객체를 생성하고 의존성을 주입하고 생명주기를 관리하는 환경을 말한다. @SpringBootTest 어노테이션을 사용하면, 스프링이 애플리케이션의 모든 설정을 로드하고 필요한 객체를 생성하여 테스트 환경을 준비한다.
-
-## usIdx 를 이용해 회원 정보를 가져오는 findByUsIdx 메서드 테스트
-### UserService 클래스
-
-```java
-@Service
-public class UserService {
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    public UserDTO findByUsIdx(int usIdx) {
-        Optional<User> userOptional = userRepository.findByUsIdx(usIdx);        
-        return userOptional.map(userMapper::toDTO).orElse(null);
-    }
-}
+>
